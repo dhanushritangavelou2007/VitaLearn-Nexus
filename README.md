@@ -68,7 +68,7 @@ Role-Based Access Control
 Password Encryption (bcrypt)
 
 *Student Health Passport*
-Personal Health Profile
+AI-Powered Student Health Passport & School Health Intelligence Platform
 Medical History
 Vaccination Records
 Annual Health Checkups
@@ -147,7 +147,7 @@ Accessibility Friendly
 
 
 ⚙️ Tech Stack
-*Frontend*
+*Frontend*:
 React.js (Vite)
 Tailwind CSS
 JavaScript
@@ -156,18 +156,18 @@ Axios
 Framer Motion
 Lucide React
 
-*Backend*
+*Backend*:
 Node.js
 Express.js
 JavaScript
 
-*Database*
+*Database*:
 MongoDB Atlas
 
-*AI*
+*AI*:
 Google Gemini API
 
-*Deployment*
+*Deployment*:
 Vercel (Frontend)
 Render (Backend)
 MongoDB Atlas (Database)
@@ -188,7 +188,7 @@ VitaLearn-Nexus/
 └── .gitignore
 
 
-🌍 Future Scope
+🌍 Future Scope:
 Multi-School Support
 Super Admin Dashboard
 College Support
@@ -198,5 +198,5 @@ Health Camp Management
 Integration with Wearable Devices
 Government Health Reporting
 
-🚀 Vision
+🚀 Vision:
 To become a comprehensive digital health intelligence platform that empowers educational institutions to provide proactive, secure, and data-driven healthcare management for every student.
