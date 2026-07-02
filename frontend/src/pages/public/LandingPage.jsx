@@ -29,7 +29,7 @@ function LandingPage() {
           </div>
         </div>
 
-        <div className="hidden lg:flex h-[450px] w-[450px] items-center justify-center rounded-3xl bg-blue-100 text-center">
+        <div className="hidden lg:flex h-112.5 w-112.5 items-center justify-center rounded-3xl bg-blue-100 text-center">
           <p className="text-xl font-semibold text-blue-700">
             Healthcare Illustration
             <br />
