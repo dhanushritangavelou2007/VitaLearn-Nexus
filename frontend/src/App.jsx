@@ -1,7 +1,7 @@
-import LandingPage from "./pages/public/LandingPage";
+import TeacherDashboard from "./pages/dashboard/TeacherDashboard";
 
 function App() {
-  return <LandingPage />;
+  return <TeacherDashboard />;
 }
 
 export default App;
