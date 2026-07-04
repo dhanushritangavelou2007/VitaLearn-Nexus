@@ -1,7 +1,7 @@
-import TeacherDashboard from "./pages/dashboard/TeacherDashboard";
+import Dashboard from "./pages/teacher/Dashboard";
 
 function App() {
-  return <TeacherDashboard />;
+  return <Dashboard />;
 }
 
 export default App;
