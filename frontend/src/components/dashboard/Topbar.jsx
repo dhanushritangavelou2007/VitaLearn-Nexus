@@ -1,46 +1,106 @@
-import { Bell, Search, UserCircle } from "lucide-react";
+import {
+  Bell,
+  Search,
+  Sparkles,
+  UserCircle2,
+  Sun,
+} from "lucide-react";
 
 function Topbar() {
   return (
-    <header className="flex h-20 items-center justify-between border-b border-slate-200 bg-white px-8">
+    <header className="sticky top-0 z-40 flex h-24 items-center justify-between border-b border-slate-200 bg-white/80 px-8 backdrop-blur-xl">
 
-      {/* Left Side */}
+      {/* Left */}
+
       <div>
-        <h2 className="text-2xl font-bold text-slate-800">
-          Dashboard
-        </h2>
 
-        <p className="text-slate-500">
-          Welcome back to VitaLearn Nexus
+        <h1 className="text-3xl font-bold text-slate-800">
+          Teacher Health Command Center
+        </h1>
+
+        <p className="mt-1 text-slate-500">
+          Monitor student wellness and manage Digital Health Passports.
         </p>
+
       </div>
 
-      {/* Right Side */}
-      <div className="flex items-center gap-6">
+      {/* Right */}
 
-        <button className="rounded-full p-2 transition hover:bg-slate-100">
-          <Search size={22} />
+      <div className="flex items-center gap-5">
+
+        {/* Search */}
+
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+
+          <Search
+            size={18}
+            className="text-slate-400"
+          />
+
+          <input
+            type="text"
+            placeholder="Search students..."
+            className="w-56 bg-transparent text-sm outline-none placeholder:text-slate-400"
+          />
+
+        </div>
+
+        {/* AI */}
+
+        <div className="flex items-center gap-2 rounded-2xl bg-linear-to-r from-blue-600 to-teal-500 px-4 py-3 text-white shadow-lg">
+
+          <Sparkles size={18} />
+
+          <span className="text-sm font-semibold">
+            AI Active
+          </span>
+
+        </div>
+
+        {/* Weather */}
+
+        <div className="flex items-center gap-2 rounded-2xl bg-amber-50 px-4 py-3">
+
+          <Sun
+            size={18}
+            className="text-amber-500"
+          />
+
+          <span className="text-sm font-semibold text-slate-700">
+            29°C
+          </span>
+
+        </div>
+
+        {/* Notifications */}
+
+        <button className="relative rounded-2xl bg-slate-100 p-3 transition hover:bg-slate-200">
+
+          <Bell size={20} />
+
+          <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+            3
+          </span>
+
         </button>
 
-        <button className="rounded-full p-2 transition hover:bg-slate-100">
-          <Bell size={22} />
-        </button>
+        {/* Profile */}
 
-        <div className="flex items-center gap-3 rounded-full bg-slate-100 px-4 py-2">
+        <div className="flex items-center gap-3 rounded-2xl bg-slate-100 px-4 py-2">
 
-          <UserCircle
-            size={38}
+          <UserCircle2
+            size={42}
             className="text-blue-600"
           />
 
           <div>
 
-            <p className="font-semibold">
-              Teacher
-            </p>
+            <h3 className="font-semibold text-slate-800">
+              Ms. Priya
+            </h3>
 
-            <p className="text-sm text-slate-500">
-              Demo Account
+            <p className="text-xs text-slate-500">
+              Teacher • VIII-A
             </p>
 
           </div>
