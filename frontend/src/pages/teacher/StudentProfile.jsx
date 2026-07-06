@@ -1,38 +1,38 @@
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import students from "../../data/students";
-import RiskBadge from "../../components/health/RiskBadge";
+import PageHeader from "../../components/ui/PageHeader";
 
+import StudentHeader from "../../components/profile/StudentHeader";
+import HealthOverview from "../../components/profile/HealthOverview";
+import VaccinationCard from "../../components/profile/VaccinationCard";
+import HealthTimeline from "../../components/profile/HealthTimeline";
+import AISummary from "../../components/profile/AISummary";
+import EmergencyContact from "../../components/profile/EmergencyContact";
+import RecentReports from "../../components/profile/RecentReports";
 function StudentProfile() {
-  const student = students[0];
-
   return (
     <DashboardLayout>
+
+      <PageHeader
+        title="Student Health Profile"
+        subtitle="Complete health history and digital health passport."
+      />
+
       <div className="space-y-8">
 
-        {/* Header */}
-        <div className="rounded-3xl bg-white p-8 shadow-md">
+        <StudentHeader />
 
-          <div className="flex items-center justify-between">
+        <HealthOverview />
 
-            <div>
+        <HealthTimeline />
+        <VaccinationCard />
 
-              <h1 className="text-4xl font-bold">
-                {student.name}
-              </h1>
-
-              <p className="mt-2 text-slate-500">
-                Digital Health Passport
-              </p>
-
-            </div>
-
-            <RiskBadge level={student.risk} />
-
-          </div>
-
-        </div>
-
+<AISummary />
+<div className="grid gap-8 lg:grid-cols-2">
+  <EmergencyContact />
+  <RecentReports />
+</div>
       </div>
+
     </DashboardLayout>
   );
 }

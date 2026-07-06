@@ -1,98 +1,84 @@
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import DashboardCard from "../../components/dashboard/DashboardCard";
+import HeroSection from "../../components/dashboard/HeroSection";
 import AttentionList from "../../components/health/AttentionList";
 import QuickActions from "../../components/health/QuickActions";
 import RecentActivity from "../../components/health/RecentActivity";
-import HeroSection from "../../components/dashboard/HeroSection";
+import StudentTable from "../../components/health/StudentTable";
+import StatCard from "../../components/ui/StatCard";
+
 import {
-  Users,
+  Activity,
   ShieldCheck,
   TriangleAlert,
-  Activity,
+  Users,
 } from "lucide-react";
+
+const stats = [
+  {
+    title: "Students",
+    value: "624",
+    description: "Active digital health passports",
+    icon: Users,
+    accent: "from-blue-600 to-cyan-500",
+  },
+  {
+    title: "Healthy",
+    value: "596",
+    description: "Students with no follow-up needed",
+    icon: ShieldCheck,
+    accent: "from-emerald-500 to-green-500",
+  },
+  {
+    title: "Need Review",
+    value: "18",
+    description: "Students flagged for observation",
+    icon: TriangleAlert,
+    accent: "from-amber-500 to-orange-500",
+  },
+  {
+    title: "Reports Today",
+    value: "24",
+    description: "New symptoms or wellness notes",
+    icon: Activity,
+    accent: "from-teal-500 to-cyan-500",
+  },
+];
+
 function Dashboard() {
   return (
     <DashboardLayout>
-        <HeroSection />
 
-      {/* Welcome Banner */}
-
-      <div className="mb-8 rounded-3xl bg-linear-to-r from-blue-600 to-cyan-500 p-8 text-white shadow-lg">
-
-        <div className="flex items-center justify-between">
-
-          <div>
-
-            <h1 className="text-4xl font-bold">
-              Good Morning, Ms. Priya 👋
-            </h1>
-
-            <p className="mt-2 text-blue-100">
-              Here's today's classroom health overview.
-            </p>
-
-          </div>
-
-          <div className="text-right">
-
-            <p className="text-sm text-blue-100">
-              Saturday
-            </p>
-
-            <h3 className="text-xl font-semibold">
-              Class VIII-A
-            </h3>
-
-          </div>
-
-        </div>
-
-      </div>
+      {/* Hero Section */}
+      <HeroSection />
 
       {/* Statistics */}
-     
+      <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat) => (
+          <StatCard
+            key={stat.title}
+            title={stat.title}
+            value={stat.value}
+            description={stat.description}
+            icon={stat.icon}
+            accent={stat.accent}
+          />
+        ))}
+      </div>
 
-      <QuickActions />
+      {/* Quick Actions */}
+      <div className="mt-8">
+        <QuickActions />
+      </div>
 
-     <div className="mt-8 grid gap-6 lg:grid-cols-2">
-  <AttentionList />
-  <RecentActivity />
-</div>
+      {/* Student Table */}
+      <div className="mt-8">
+        <StudentTable />
+      </div>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-       <DashboardCard
-  title="Students"
-  value="120"
-  color="text-blue-600"
-  icon={Users}
-/>
-
-<DashboardCard
-  title="Healthy"
-  value="96"
-  color="text-emerald-600"
-  icon={ShieldCheck}
-/>
-
-<DashboardCard
-  title="Need Review"
-  value="18"
-  color="text-amber-500"
-  icon={TriangleAlert}
-/>
-
-<DashboardCard
-  title="Reports Today"
-  value="24"
-  color="text-teal-600"
-  icon={Activity}
-/>
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
-  <AttentionList />
-  <RecentActivity />
-</div>
-
+      {/* Bottom Section */}
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <AttentionList />
+        <RecentActivity />
       </div>
 
     </DashboardLayout>

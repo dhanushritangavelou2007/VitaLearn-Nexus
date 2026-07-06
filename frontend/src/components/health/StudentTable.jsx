@@ -1,106 +1,107 @@
+import { useNavigate } from "react-router-dom";
 import students from "../../data/students";
+import GlassCard from "../ui/GlassCard";
 import RiskBadge from "./RiskBadge";
 
 function StudentTable() {
+  const navigate = useNavigate();
+
   return (
-    <div className="rounded-2xl bg-white shadow-md overflow-hidden">
+    <GlassCard className="overflow-hidden p-0">
+      <div className="flex flex-col gap-4 border-b border-slate-200/80 p-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-900">
+            Students at a Glance
+          </h2>
 
-      {/* Header */}
+          <p className="mt-1 text-sm text-slate-500">
+            Priority health signals and recent updates for the active classroom.
+          </p>
+        </div>
 
-      <div className="flex items-center justify-between border-b p-6">
-
-        <h2 className="text-2xl font-bold text-slate-800">
-          Students
-        </h2>
-
-        <button className="rounded-xl bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700">
+        <button
+          onClick={() => navigate("/teacher/create-passport")}
+          className="rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"
+        >
           + Create Passport
         </button>
-
       </div>
 
-      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
 
-      <table className="w-full">
-
-        <thead className="bg-slate-50">
-
-          <tr>
-
-            <th className="px-6 py-4 text-left">Student</th>
-
-            <th className="px-6 py-4 text-left">Class</th>
-
-            <th className="px-6 py-4 text-left">Attendance</th>
-
-            <th className="px-6 py-4 text-left">Risk</th>
-
-            <th className="px-6 py-4 text-left">Last Update</th>
-
-            <th className="px-6 py-4 text-center">Action</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {students.map((student) => (
-
-            <tr
-              key={student.id}
-              className="border-b hover:bg-slate-50 transition"
-            >
-
-              <td className="px-6 py-4">
-
-                <div>
-
-                  <h3 className="font-semibold">
-                    {student.name}
-                  </h3>
-
-                  <p className="text-sm text-slate-500">
-                    Blood Group: {student.bloodGroup}
-                  </p>
-
-                </div>
-
-              </td>
-
-              <td className="px-6 py-4">
-                {student.class}
-              </td>
-
-              <td className="px-6 py-4">
-                {student.attendance}
-              </td>
-
-              <td className="px-6 py-4">
-                <RiskBadge level={student.risk} />
-              </td>
-
-              <td className="px-6 py-4">
-                {student.lastUpdate}
-              </td>
-
-              <td className="px-6 py-4 text-center">
-
-                <button className="rounded-lg bg-slate-100 px-4 py-2 hover:bg-slate-200">
-                  View
-                </button>
-
-              </td>
-
+          <thead className="bg-slate-50 text-left text-sm text-slate-500">
+            <tr>
+              <th className="px-6 py-4">Student</th>
+              <th className="px-6 py-4">Class</th>
+              <th className="px-6 py-4">Attendance</th>
+              <th className="px-6 py-4">Risk</th>
+              <th className="px-6 py-4">Last Update</th>
+              <th className="px-6 py-4 text-center">Actions</th>
             </tr>
+          </thead>
 
-          ))}
+          <tbody>
+            {students.map((student) => (
+              <tr
+                key={student.id}
+                className="border-t border-slate-100 transition hover:bg-slate-50"
+              >
+                <td className="px-6 py-4">
+                  <div>
+                    <h3 className="font-semibold text-slate-900">
+                      {student.name}
+                    </h3>
 
-        </tbody>
+                    <p className="text-sm text-slate-500">
+                      Blood Group: {student.bloodGroup}
+                    </p>
+                  </div>
+                </td>
 
-      </table>
+                <td className="px-6 py-4">
+                  {student.class}
+                </td>
 
-    </div>
+                <td className="px-6 py-4">
+                  {student.attendance}
+                </td>
+
+                <td className="px-6 py-4">
+                  <RiskBadge level={student.risk} />
+                </td>
+
+                <td className="px-6 py-4">
+                  {student.lastUpdate}
+                </td>
+
+                <td className="px-6 py-4">
+                  <div className="flex justify-center gap-2">
+
+                    <button
+                      onClick={() => navigate("/teacher/student-profile")}
+                      className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200"
+                    >
+                      View Profile
+                    </button>
+
+                    <button
+                      onClick={() => navigate("/teacher/report-symptoms")}
+                      className="rounded-lg bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-200"
+                    >
+                      Report
+                    </button>
+
+                  </div>
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
+      </div>
+    </GlassCard>
   );
 }
 
