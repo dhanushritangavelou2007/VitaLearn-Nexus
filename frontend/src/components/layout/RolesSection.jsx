@@ -41,7 +41,7 @@ function RolesSection() {
   ];
 
   return (
-    <section className="bg-slate-50 py-24">
+    <section id="roles" className="bg-slate-50 py-24">
       <div className="mx-auto max-w-7xl px-6">
 
         <div className="text-center">

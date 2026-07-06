@@ -4,17 +4,52 @@ import {
   FileText,
   Activity,
   Settings,
+  HeartPulse,
+  ShieldCheck,
+  Bell,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 function Sidebar() {
-  const menuItems = [
+  const location = useLocation();
+  const isParentView = location.pathname.includes("/parent");
+  const isStudentView = location.pathname.includes("/student");
+  const isDoctorView = location.pathname.includes("/doctor");
+  const isAdminView = location.pathname.includes("/admin");
+
+  const teacherMenuItems = [
     { name: "Dashboard", path: "/teacher/dashboard", icon: LayoutDashboard },
     { name: "Students", path: "/teacher/students", icon: Users },
     { name: "Symptoms", path: "/teacher/report-symptoms/1", icon: Activity },
-    { name: "Reports", path: "/reports", icon: FileText },
-    { name: "Settings", path: "/settings", icon: Settings },
+    { name: "Reports", path: "/teacher/reports", icon: FileText },
+    { name: "Settings", path: "/teacher/settings", icon: Settings },
   ];
+
+  const roleMenuItems = isParentView
+    ? [
+        { name: "Overview", path: "/parent/dashboard", icon: LayoutDashboard },
+        { name: "Child Health", path: "/teacher/student-profile/1", icon: HeartPulse },
+        { name: "Notifications", path: "/teacher/reports", icon: Bell },
+      ]
+    : isStudentView
+      ? [
+          { name: "Overview", path: "/student/dashboard", icon: LayoutDashboard },
+          { name: "Health Passport", path: "/teacher/student-profile/2", icon: HeartPulse },
+          { name: "Vaccinations", path: "/teacher/reports", icon: ShieldCheck },
+        ]
+      : isDoctorView
+        ? [
+            { name: "Review", path: "/doctor/dashboard", icon: LayoutDashboard },
+            { name: "Cases", path: "/teacher/reports", icon: ShieldCheck },
+            { name: "Reports", path: "/teacher/reports", icon: FileText },
+          ]
+        : isAdminView
+          ? [
+              { name: "Overview", path: "/admin/dashboard", icon: LayoutDashboard },
+              { name: "Students", path: "/teacher/students", icon: Users },
+              { name: "Reports", path: "/teacher/reports", icon: FileText },
+            ]
+          : teacherMenuItems;
 
   return (
     <aside className="w-72 hidden md:flex flex-col min-h-screen border-r border-slate-200/60 bg-white/70 backdrop-blur-xl p-6 transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
@@ -28,7 +63,7 @@ function Sidebar() {
       </div>
 
       <nav className="space-y-1.5 flex-1">
-        {menuItems.map((item) => {
+        {(roleMenuItems || teacherMenuItems).map((item) => {
           const Icon = item.icon;
           return (
             <NavLink

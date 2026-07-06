@@ -1,6 +1,8 @@
+import { Link } from "react-router-dom";
+
 function HeroSection() {
   return (
-    <section className="bg-slate-50">
+    <section id="home" className="bg-slate-50">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between px-6 py-20 md:flex-row">
 
         {/* LEFT SIDE */}
@@ -34,13 +36,19 @@ function HeroSection() {
           {/* Buttons */}
           <div className="mt-10 flex flex-wrap gap-4">
 
-            <button className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
+            <Link
+              to="/teacher/dashboard"
+              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+            >
               Get Started
-            </button>
+            </Link>
 
-            <button className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-100">
-              ▶ Watch Demo
-            </button>
+            <a
+              href="#roles"
+              className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-100"
+            >
+              ▶ View Roles
+            </a>
 
           </div>
 
