@@ -3,7 +3,7 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import StudentTable from "../../components/health/StudentTable";
 import AIInsights from "../../components/dashboard/AIInsights";
 import QuickActions from "../../components/health/QuickActions";
-import { Users, Activity, HeartPulse, Stethoscope } from "lucide-react";
+import { Users, Activity, HeartPulse, Stethoscope, ShieldCheck, TrendingUp } from "lucide-react";
 import students, { getDashboardStats, getRecentActivity } from "../../data/students";
 
 function Dashboard() {
@@ -40,14 +40,13 @@ function Dashboard() {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <DashboardCard
             title="Total Students"
             value={stats.total}
             subtitle="Centralized records"
             icon={Users}
             color="text-emerald-500"
-            bg="bg-blue-600"
           />
           <DashboardCard
             title="Healthy"
@@ -55,15 +54,13 @@ function Dashboard() {
             subtitle={`${stats.healthyPercent}% of class`}
             icon={HeartPulse}
             color="text-slate-500"
-            bg="bg-emerald-500"
           />
           <DashboardCard
             title="Needs Review"
             value={stats.needReview}
-            subtitle="Observation, review, critical"
+            subtitle={`${stats.observation} observation • ${stats.review} review • ${stats.critical} critical`}
             icon={Activity}
-            color="text-emerald-500"
-            bg="bg-amber-500"
+            color="text-amber-500"
           />
           <DashboardCard
             title="Doctor Attention"
@@ -71,7 +68,23 @@ function Dashboard() {
             subtitle={`${stats.reportsToday} updated today`}
             icon={Stethoscope}
             color="text-red-500"
-            bg="bg-red-500"
+          />
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-2">
+          <DashboardCard
+            title="Pending Vaccinations"
+            value={stats.pendingVaccinations}
+            subtitle="Required immunization follow-up"
+            icon={ShieldCheck}
+            color="text-blue-500"
+          />
+          <DashboardCard
+            title="Average Health Score"
+            value={`${stats.averageHealthScore}/100`}
+            subtitle={`Average BMI ${stats.averageBmi}`}
+            icon={TrendingUp}
+            color="text-teal-500"
           />
         </div>
 

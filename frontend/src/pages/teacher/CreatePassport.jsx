@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import { CheckCircle2, ChevronRight, User, Phone, AlertTriangle } from "lucide-react";
+import { createStudentPassport } from "../../data/students";
 
 function CreatePassport() {
   const navigate = useNavigate();
@@ -34,12 +35,32 @@ function CreatePassport() {
     e.preventDefault();
     setIsSubmitting(true);
     setTimeout(() => {
+      const createdStudent = createStudentPassport({
+        name: formData.name,
+        rollNo: formData.rollNo,
+        className: formData.className,
+        section: formData.section,
+        dob: formData.dob,
+        gender: formData.gender,
+        bloodGroup: formData.bloodGroup,
+        parentName: formData.parentName,
+        parentPhone: formData.parentPhone,
+        parentEmail: formData.parentEmail,
+        allergies: formData.allergies,
+        medicalConditions: formData.medicalConditions,
+        doctorNotes: `Emergency contact: ${formData.emergencyContact}`,
+      });
+
       setIsSubmitting(false);
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
         setShowCard(true);
       }, 2500);
+
+      if (createdStudent) {
+        setFormData((current) => ({ ...current, rollNo: createdStudent.rollNo }));
+      }
     }, 1500);
   };
 

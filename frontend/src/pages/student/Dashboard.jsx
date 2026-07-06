@@ -8,7 +8,7 @@ function StudentDashboard() {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-6 pb-10">
-        <div className="rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 p-8 text-white shadow-lg">
+        <div className="rounded-3xl bg-linear-to-r from-emerald-600 via-teal-600 to-cyan-600 p-8 text-white shadow-lg">
           <h1 className="text-3xl font-bold">Welcome, {student.name}</h1>
           <p className="mt-2 text-emerald-100">Your personal health passport is ready and up to date.</p>
         </div>

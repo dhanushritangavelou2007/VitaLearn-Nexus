@@ -16,10 +16,14 @@ import {
 import {
   calculateAge,
   formatList,
+  getAISummary,
+  getHealthScore,
+  getHealthScoreLabel,
   getRiskLabel,
   getRiskStyle,
   getStudentAvatar,
   getStudentById,
+  getPendingVaccinations,
 } from "../../data/students";
 
 function StudentProfile() {
@@ -105,6 +109,9 @@ function StudentHeader({ student, onBack }) {
 function HealthOverview({ student }) {
   const status = getRiskLabel(student.risk);
   const style = getRiskStyle(student.risk);
+  const healthScore = getHealthScore(student);
+  const healthLabel = getHealthScoreLabel(healthScore);
+  const pendingVaccinations = getPendingVaccinations(student);
 
   return (
     <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-6 shadow-sm flex flex-col items-center text-center">
@@ -132,6 +139,10 @@ function HealthOverview({ student }) {
         <Info label="BMI" value={student.vitals.bmi} />
         <Info label="Vision" value={student.vitals.vision} />
         <Info label="Blood Pressure" value={student.vitals.bloodPressure} />
+        <Info label="Health Score" value={`${healthScore}/100`} />
+        <Info label="Health Rating" value={healthLabel} />
+        <Info label="Pending Vaccines" value={pendingVaccinations} />
+        <Info label="Admission" value={student.admissionNumber || "Pending"} />
       </div>
     </div>
   );
@@ -245,6 +256,8 @@ function RecentReports({ student }) {
 }
 
 function AISummary({ student }) {
+  const summary = student.aiSummary || getAISummary(student);
+
   return (
     <div className="rounded-3xl bg-linear-to-br from-indigo-900 via-purple-900 to-slate-900 p-6 text-white shadow-xl relative overflow-hidden">
       <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-purple-500 opacity-20 blur-3xl"></div>
@@ -253,7 +266,7 @@ function AISummary({ student }) {
           <Sparkles size={18} className="text-purple-300" />
           <h3 className="font-semibold text-purple-100 tracking-wide uppercase text-xs">AI Support Summary</h3>
         </div>
-        <p className="text-sm md:text-base leading-relaxed text-slate-100">{student.aiSummary}</p>
+        <p className="text-sm md:text-base leading-relaxed text-slate-100">{summary}</p>
         <p className="mt-3 text-xs text-slate-300">
           Decision support only. Medical diagnosis remains with qualified healthcare professionals.
         </p>
@@ -264,6 +277,13 @@ function AISummary({ student }) {
 
 function HealthTimeline({ student }) {
   const timeline = [
+    ...(student.timeline || []).map((item) => ({
+      id: item.id,
+      date: item.date,
+      title: item.title,
+      description: item.description,
+      type: item.type,
+    })),
     ...student.reports.map((report) => ({
       id: `${report.date}-${report.type}`,
       date: report.date,

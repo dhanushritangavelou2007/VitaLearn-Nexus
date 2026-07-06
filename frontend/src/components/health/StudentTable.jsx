@@ -20,10 +20,10 @@ function StudentTable() {
         </div>
 
        <button
-  onClick={() => navigate(`/teacher/student-profile/${student.id}`)}
+  onClick={() => navigate(`/teacher/students`)}
   className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200"
 >
-  View Profile
+  View All
 </button>
       </div>
 
@@ -79,7 +79,7 @@ function StudentTable() {
                   <div className="flex justify-center gap-2">
 
                     <button
-                      onClick={() => navigate("/teacher/student-profile")}
+                      onClick={() => navigate(`/teacher/student-profile/${student.id}`)}
                       className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200"
                     >
                       View Profile

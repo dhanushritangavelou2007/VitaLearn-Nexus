@@ -9,7 +9,7 @@ function AdminDashboard() {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-6 pb-10">
-        <div className="rounded-3xl bg-gradient-to-r from-slate-800 via-slate-700 to-blue-700 p-8 text-white shadow-lg">
+        <div className="rounded-3xl bg-linear-to-r from-slate-800 via-slate-700 to-blue-700 p-8 text-white shadow-lg">
           <h1 className="text-3xl font-bold">School Administration Center</h1>
           <p className="mt-2 text-slate-200">Monitor the school’s health ecosystem, staff coverage, and student wellness trends.</p>
         </div>

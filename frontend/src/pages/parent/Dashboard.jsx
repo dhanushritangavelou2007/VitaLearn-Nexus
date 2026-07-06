@@ -9,7 +9,7 @@ function ParentDashboard() {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-6 pb-10">
-        <div className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 text-white shadow-lg">
+        <div className="rounded-3xl bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 text-white shadow-lg">
           <h1 className="text-3xl font-bold">Hello, {child.parent.name}</h1>
           <p className="mt-2 text-blue-100">Your child’s health updates are now visible in one secure place.</p>
         </div>

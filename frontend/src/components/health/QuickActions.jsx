@@ -35,7 +35,7 @@ function QuickActions() {
       title: "Health Reports",
       description: "View reports and summaries",
       icon: FileText,
-      path: "/teacher/student-profile",
+      path: "/teacher/reports",
     },
   ];
 

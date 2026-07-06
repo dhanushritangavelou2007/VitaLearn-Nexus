@@ -19,6 +19,21 @@ const CHART_COLORS = ["#22c55e", "#f59e0b", "#ef4444"];
 function Reports() {
   const stats = getDashboardStats(students);
   const recentActivity = getRecentActivity(students, 6);
+  const attendanceTrend = [82, 86, 84, 88, 91, 89];
+  const insightItems = [
+    {
+      title: "Priority Watch",
+      description: `${stats.doctorAttention} students currently require immediate follow-up attention.`,
+    },
+    {
+      title: "Attendance Trend",
+      description: `Attendance remains steady at an average wellness trend of ${attendanceTrend[attendanceTrend.length - 1]}% across the latest checks.`,
+    },
+    {
+      title: "Vaccination Coverage",
+      description: `${stats.total - stats.pendingVaccinations} students are aligned with core immunization records.`,
+    },
+  ];
   const classSummaries = Array.from(new Set(students.map((student) => student.class))).map((className) => {
     const classStudents = students.filter((student) => student.class === className);
     const healthy = classStudents.filter((student) => student.risk === "healthy").length;
@@ -129,9 +144,9 @@ function Reports() {
           <div className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
             <h2 className="text-lg font-bold text-slate-800">AI Insights</h2>
             <div className="mt-5 space-y-3">
-              <InsightItem title="Priority Watch" description="Three students need follow-up attention this week." />
-              <InsightItem title="Attendance Trend" description="Attendance is stable and above the school average." />
-              <InsightItem title="Vaccination Coverage" description="Most passports are up to date with required immunizations." />
+              {insightItems.map((item) => (
+                <InsightItem key={item.title} title={item.title} description={item.description} />
+              ))}
             </div>
           </div>
         </div>
@@ -140,7 +155,7 @@ function Reports() {
           <div className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
             <h2 className="text-lg font-bold text-slate-800">Wellness Trend</h2>
             <div className="mt-6 flex items-end gap-3">
-              {[82, 86, 84, 88, 91, 89].map((value, index) => (
+              {attendanceTrend.map((value, index) => (
                 <div key={index} className="flex flex-1 flex-col items-center gap-2">
                   <div className="w-full rounded-t-2xl bg-linear-to-t from-blue-600 to-cyan-400" style={{ height: `${value}px` }} />
                   <span className="text-xs font-medium text-slate-500">W{index + 1}</span>

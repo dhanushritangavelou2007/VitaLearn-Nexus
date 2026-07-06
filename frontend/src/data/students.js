@@ -464,6 +464,155 @@ export const symptomOptions = [
   "Stomach Ache",
 ];
 
+function toNumber(value, fallback = 0) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+export function getHealthScore(student) {
+  let score = 100;
+  const bmi = toNumber(student?.vitals?.bmi, 0);
+  const attendance = Number(String(student?.attendance || "").replace(/%/g, ""));
+  const symptomCount = (student?.symptoms || []).filter((symptom) => symptom && symptom !== "None").length;
+  const conditionCount = (student?.medicalConditions || []).filter((condition) => condition && condition !== "None").length;
+  const hasVaccinations = (student?.vaccinations || []).length >= 4;
+  const hasReports = (student?.reports || []).length > 0;
+
+  if (bmi > 25 || bmi < 18) score -= 10;
+  if (symptomCount > 0) score -= Math.min(20, symptomCount * 4);
+  if (conditionCount > 0) score -= Math.min(18, conditionCount * 6);
+  if (Number.isFinite(attendance) && attendance < 95) score -= attendance < 90 ? 8 : 4;
+  if (!hasVaccinations) score -= 5;
+  if (hasReports) score -= 3;
+  if (student?.doctorNotes) score -= 2;
+
+  return Math.max(0, Math.min(100, score));
+}
+
+export function getHealthScoreLabel(score) {
+  if (score >= 85) return "Excellent";
+  if (score >= 70) return "Good";
+  if (score >= 55) return "Average";
+  return "Poor";
+}
+
+export function getRisk(student) {
+  const score = getHealthScore(student);
+  const hasSevereCondition = (student?.medicalConditions || []).some((condition) =>
+    /diabetes|asthma|thyroid|hyperthyroidism|anemia|celiac|migraine/i.test(condition)
+  );
+
+  if (score >= 85) return "healthy";
+  if (score >= 70) return "observation";
+  if (score >= 55 || hasSevereCondition) return "review";
+  return "critical";
+}
+
+export function getAISummary(student) {
+  const score = getHealthScore(student);
+  const symptoms = (student?.symptoms || []).filter((symptom) => symptom && symptom !== "None");
+  const conditions = (student?.medicalConditions || []).filter((condition) => condition && condition !== "None");
+  const bmi = toNumber(student?.vitals?.bmi, 0);
+
+  if (score >= 85) {
+    return `${student?.name || "Student"} maintains excellent overall wellness. Routine monitoring and annual check-up reminders remain appropriate.`;
+  }
+
+  if (conditions.some((condition) => /asthma|diabetes|thyroid|hyperthyroidism|anemia/i.test(condition))) {
+    return `${student?.name || "Student"} has a documented medical history that requires close supervision. Recommend continued follow-up, hydration support, and guardian coordination.`;
+  }
+
+  if (bmi > 25) {
+    return `${student?.name || "Student"} shows elevated BMI indicators. Encourage daily physical activity and dietary counseling at school and home.`;
+  }
+
+  if (symptoms.length > 0) {
+    return `${student?.name || "Student"} has reported ${symptoms.slice(0, 2).join(", ")}. Continue observation and maintain a calm, supportive environment until symptoms subside.`;
+  }
+
+  return `${student?.name || "Student"} is progressing steadily. Keep attendance and vaccination records current and continue routine wellness checks.`;
+}
+
+export function getPendingVaccinations(student) {
+  const requiredVaccines = ["BCG", "OPV", "COVID-19", "MMR", "Hepatitis B"];
+  const vaccinationSet = new Set(student?.vaccinations || []);
+  return requiredVaccines.filter((vaccine) => !vaccinationSet.has(vaccine)).length;
+}
+
+export function updateStudentRecord(studentId, updates = {}) {
+  const student = students.find((item) => String(item.id) === String(studentId));
+
+  if (!student) {
+    return null;
+  }
+
+  Object.assign(student, updates);
+  student.healthScore = getHealthScore(student);
+  student.risk = getRisk(student);
+  student.aiSummary = getAISummary(student);
+  student.lastUpdate = updates.lastUpdate || "Today";
+
+  if (!student.timeline) {
+    student.timeline = [];
+  }
+
+  return student;
+}
+
+export function createStudentPassport(payload) {
+  const className = payload.className && payload.section ? `${payload.className}-${payload.section}` : payload.className || "VIII-A";
+  const newStudent = {
+    id: students.length + 1,
+    rollNo: payload.rollNo || `8${className.replace(/[^A-Z]/g, "")}${String(students.length + 1).padStart(2, "0")}`,
+    name: payload.name || "New Student",
+    class: className,
+    gender: payload.gender || "Other",
+    dob: payload.dob || "2010-01-01",
+    bloodGroup: payload.bloodGroup || "O+",
+    parent: {
+      name: payload.parentName || "Guardian",
+      contact: payload.parentPhone || "",
+      email: payload.parentEmail || "",
+    },
+    allergies: payload.allergies ? payload.allergies.split(",").map((item) => item.trim()).filter(Boolean) : ["None"],
+    medicalConditions: payload.medicalConditions ? payload.medicalConditions.split(",").map((item) => item.trim()).filter(Boolean) : ["None"],
+    vitals: {
+      height: "-",
+      weight: "-",
+      bmi: 20,
+      vision: "6/6",
+      bloodPressure: "110/70",
+    },
+    vaccinations: payload.vaccinations || ["BCG", "OPV", "COVID-19"],
+    symptoms: ["None"],
+    reports: [],
+    aiSummary: "",
+    risk: "healthy",
+    attendance: "96%",
+    lastUpdate: "Today",
+    passportStatus: "Completed",
+    admissionNumber: `ADM-${String(students.length + 1).padStart(3, "0")}`,
+    passportNumber: `PL-${String(students.length + 1).padStart(4, "0")}`,
+    doctorNotes: payload.doctorNotes || "Initial assessment pending.",
+    timeline: [
+      {
+        id: `passport-${students.length + 1}`,
+        date: new Date().toLocaleDateString("en-GB"),
+        title: "Passport Created",
+        description: "New digital passport generated for the student.",
+        type: "info",
+      },
+    ],
+  };
+
+  newStudent.aiSummary = getAISummary(newStudent);
+  newStudent.healthScore = getHealthScore(newStudent);
+  newStudent.risk = getRisk(newStudent);
+  students.push(newStudent);
+
+  return newStudent;
+}
+
 export function getStudentById(id) {
   return students.find((student) => String(student.id) === String(id));
 }
@@ -521,18 +670,32 @@ export function getRecentActivity(studentList = students, limit = 5) {
 
 export function getDashboardStats(studentList = students) {
   const healthy = studentList.filter((student) => student.risk === "healthy").length;
-  const needReview = studentList.filter((student) =>
-    ["observation", "review", "critical"].includes(student.risk)
-  ).length;
-  const doctorAttention = studentList.filter((student) => student.risk === "critical").length;
+  const observation = studentList.filter((student) => student.risk === "observation").length;
+  const review = studentList.filter((student) => student.risk === "review").length;
+  const critical = studentList.filter((student) => student.risk === "critical").length;
+  const needReview = observation + review + critical;
+  const doctorAttention = critical;
   const reportsToday = getReportCountToday(studentList);
+  const pendingVaccinations = studentList.reduce((total, student) => total + getPendingVaccinations(student), 0);
+  const averageBmi = studentList.length
+    ? (studentList.reduce((total, student) => total + toNumber(student?.vitals?.bmi, 0), 0) / studentList.length).toFixed(1)
+    : "0.0";
+  const averageHealthScore = studentList.length
+    ? Math.round(studentList.reduce((total, student) => total + getHealthScore(student), 0) / studentList.length)
+    : 0;
 
   return {
     total: studentList.length,
     healthy,
+    observation,
+    review,
+    critical,
     needReview,
     doctorAttention,
     reportsToday,
+    pendingVaccinations,
+    averageBmi,
+    averageHealthScore,
     healthyPercent: studentList.length ? Math.round((healthy / studentList.length) * 100) : 0,
   };
 }

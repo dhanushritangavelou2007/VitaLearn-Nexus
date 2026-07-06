@@ -3,11 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import {
+  getAISummary,
+  getHealthScore,
   getRiskLabel,
   getRiskStyle,
   getStudentAvatar,
   getStudentById,
   symptomOptions,
+  updateStudentRecord,
 } from "../../data/students";
 import {
   ChevronLeft,
@@ -69,14 +72,43 @@ function ReportSymptoms() {
 
     setIsSubmitting(true);
     setTimeout(() => {
+      const refreshedStudent = updateStudentRecord(student.id, {
+        symptoms: [...new Set([...(student.symptoms || []).filter((item) => item !== "None"), ...selectedSymptoms])],
+        reports: [
+          ...(student.reports || []),
+          {
+            date,
+            type: "Symptom Observation",
+            status: `${selectedSymptoms.join(", ")}${notes ? ` • ${notes}` : ""}`,
+          },
+        ],
+        lastUpdate: date,
+        doctorNotes: notes || student.doctorNotes || "Observation recorded by teacher.",
+        timeline: [
+          ...(student.timeline || []),
+          {
+            id: `observation-${Date.now()}`,
+            date,
+            title: "Symptom Reported",
+            description: `Reported: ${selectedSymptoms.join(", ")}. Severity: ${severity}/10${temperature ? `. Temp: ${temperature} F` : ""}${notes ? `. Notes: ${notes}` : ""}`,
+            type: "warning",
+          },
+          {
+            id: `parent-${Date.now()}`,
+            date,
+            title: "Parent Notified",
+            description: `Automated SMS/Email prepared for ${student.parent.name}.`,
+            type: "info",
+          },
+        ],
+      });
+
       setTimeline([
         {
           id: 1,
           date,
           title: "Symptom Reported",
-          description: `Reported: ${selectedSymptoms.join(", ")}. Severity: ${severity}/10${
-            temperature ? `. Temp: ${temperature} F` : ""
-          }${notes ? `. Notes: ${notes}` : ""}`,
+          description: `Reported: ${selectedSymptoms.join(", ")}. Severity: ${severity}/10${temperature ? `. Temp: ${temperature} F` : ""}${notes ? `. Notes: ${notes}` : ""}`,
           type: "warning",
         },
         {
@@ -89,15 +121,8 @@ function ReportSymptoms() {
         {
           id: 3,
           date: "Pending",
-          title: "Awaiting Doctor Review",
-          description: "Health passport queued for doctor review.",
-          type: "pending",
-        },
-        {
-          id: 4,
-          date: "Pending",
-          title: "AI Support Pending",
-          description: "Symptoms queued for decision-support summary.",
+          title: "Doctor Review",
+          description: `Health score updated to ${getHealthScore(refreshedStudent)}/100 and AI summary refreshed.`,
           type: "pending",
         },
       ]);

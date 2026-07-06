@@ -8,7 +8,7 @@ function DoctorDashboard() {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-6 pb-10">
-        <div className="rounded-3xl bg-gradient-to-r from-rose-600 via-red-600 to-orange-500 p-8 text-white shadow-lg">
+        <div className="rounded-3xl bg-linear-to-r from-rose-600 via-red-600 to-orange-500 p-8 text-white shadow-lg">
           <h1 className="text-3xl font-bold">Doctor Review Center</h1>
           <p className="mt-2 text-red-100">Monitor urgent health cases, review notes, and approve school follow-ups.</p>
         </div>
