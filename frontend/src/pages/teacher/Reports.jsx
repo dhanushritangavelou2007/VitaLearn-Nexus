@@ -120,7 +120,12 @@ function Reports() {
 
         <div className="grid gap-6 xl:grid-cols-[1.4fr_0.9fr]">
           <div className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
-            <h2 className="text-lg font-bold text-slate-800">Risk Distribution</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">Risk Distribution</h2>
+                <p className="mt-1 text-sm text-slate-500">Current health status across the school roster.</p>
+              </div>
+            </div>
             <div className="mt-6 space-y-4">
               {[
                 { label: "Healthy", value: stats.healthy, color: "bg-emerald-500" },
@@ -142,7 +147,12 @@ function Reports() {
           </div>
 
           <div className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
-            <h2 className="text-lg font-bold text-slate-800">AI Insights</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">AI Insights</h2>
+                <p className="mt-1 text-sm text-slate-500">Suggested follow-up priorities for the teacher.</p>
+              </div>
+            </div>
             <div className="mt-5 space-y-3">
               {insightItems.map((item) => (
                 <InsightItem key={item.title} title={item.title} description={item.description} />
@@ -153,7 +163,12 @@ function Reports() {
 
         <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
-            <h2 className="text-lg font-bold text-slate-800">Wellness Trend</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">Wellness Trend</h2>
+                <p className="mt-1 text-sm text-slate-500">Weekly trend from recent health observations.</p>
+              </div>
+            </div>
             <div className="mt-6 flex items-end gap-3">
               {attendanceTrend.map((value, index) => (
                 <div key={index} className="flex flex-1 flex-col items-center gap-2">
@@ -165,7 +180,12 @@ function Reports() {
           </div>
 
           <div className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
-            <h2 className="text-lg font-bold text-slate-800">Recent Activity</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">Recent Activity</h2>
+                <p className="mt-1 text-sm text-slate-500">Latest student notes and health updates.</p>
+              </div>
+            </div>
             <div className="mt-5 space-y-3">
               {recentActivity.map((item) => (
                 <div key={item.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
@@ -200,6 +220,18 @@ function Reports() {
                   <div className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">
                     {summary.critical} critical
                   </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                    Healthy: {summary.healthy}
+                  </span>
+                  <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                    Monitoring: {summary.pieData[1].value}
+                  </span>
+                  <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700">
+                    Critical: {summary.critical}
+                  </span>
                 </div>
 
                 <div className="mt-5 grid gap-4 md:grid-cols-2">

@@ -22,6 +22,7 @@ function App() {
       <Route path="/teacher/students" element={<Students />} />
       <Route path="/teacher/create-passport" element={<CreatePassport />} />
       <Route path="/teacher/student-profile/:id" element={<StudentProfile />} />
+      <Route path="/teacher/report-symptoms" element={<Navigate to="/teacher/report-symptoms/1" replace />} />
       <Route path="/teacher/report-symptoms/:id" element={<ReportSymptoms />} />
 
       <Route path="/students" element={<Navigate to="/teacher/students" replace />} />
