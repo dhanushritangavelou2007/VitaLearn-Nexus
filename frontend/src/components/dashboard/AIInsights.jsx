@@ -1,56 +1,37 @@
-import GlassCard from "../ui/GlassCard";
-import { BrainCircuit, Sparkles } from "lucide-react";
+import { Sparkles, ArrowRight } from "lucide-react";
 
-function AIInsights() {
+function AIInsights({ stats, recentActivity }) {
+  const latestActivity = recentActivity[0];
+  const insight = latestActivity
+    ? `${stats.needReview} students need observation or review. Latest report: ${latestActivity.studentName} - ${latestActivity.title} (${latestActivity.description}). AI support should help teachers prioritize follow-up and hydration/rest guidance, not make a diagnosis.`
+    : `${stats.healthy} of ${stats.total} students are currently marked healthy. AI support can continue monitoring attendance, symptoms, and report trends for early wellness alerts.`;
+
   return (
-    <GlassCard className="p-6">
+    <div className="rounded-3xl bg-linear-to-br from-indigo-900 via-purple-900 to-slate-900 p-6 text-white shadow-xl relative overflow-hidden flex flex-col justify-between h-full group">
+      {/* Background glow effects */}
+      <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-purple-500 opacity-20 blur-3xl group-hover:opacity-30 transition-opacity duration-500"></div>
+      <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-48 w-48 rounded-full bg-blue-500 opacity-20 blur-3xl group-hover:opacity-30 transition-opacity duration-500"></div>
 
-      <div className="flex items-center gap-3">
-
-        <div className="rounded-2xl bg-linear-to-br from-violet-600 to-indigo-600 p-3 text-white">
-
-          <BrainCircuit size={28} />
-
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+            <Sparkles size={16} className="text-purple-300" />
+          </div>
+          <h3 className="font-semibold text-purple-100 tracking-wide uppercase text-xs">AI Insight</h3>
         </div>
 
-        <div>
-
-          <h2 className="text-2xl font-bold">
-            AI Insights
-          </h2>
-
-          <p className="text-slate-500">
-            Daily health intelligence
-          </p>
-
-        </div>
-
-      </div>
-
-      <div className="mt-6 rounded-2xl bg-slate-50 p-6">
-
-        <div className="mb-3 flex items-center gap-2 text-violet-600">
-
-          <Sparkles size={18} />
-
-          <span className="font-semibold">
-
-            Today's Insight
-
-          </span>
-
-        </div>
-
-        <p className="leading-8 text-slate-700">
-          Attendance and health indicators remain stable across all monitored
-          classes. A small number of students require follow-up for scheduled
-          vaccinations. Consider organizing a wellness review next week to keep
-          preventive care on track.
+        <p className="text-lg font-medium leading-relaxed text-slate-100 mb-6">
+          {insight}
         </p>
-
       </div>
 
-    </GlassCard>
+      <div className="relative z-10 mt-auto">
+        <button className="flex w-full items-center justify-between rounded-xl bg-white/10 px-4 py-3 text-sm font-medium hover:bg-white/20 transition-colors border border-white/10 backdrop-blur-sm">
+          <span>View Detailed Analysis</span>
+          <ArrowRight size={16} />
+        </button>
+      </div>
+    </div>
   );
 }
 
