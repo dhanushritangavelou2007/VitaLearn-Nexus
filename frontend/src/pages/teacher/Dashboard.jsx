@@ -1,8 +1,8 @@
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
-import StudentTable from "../../components/dashboard/StudentTable";
+import StudentTable from "../../components/health/StudentTable";
 import AIInsights from "../../components/dashboard/AIInsights";
-import QuickActions from "../../components/dashboard/QuickActions";
+import QuickActions from "../../components/health/QuickActions";
 import { Users, Activity, HeartPulse, Stethoscope } from "lucide-react";
 import students, { getDashboardStats, getRecentActivity } from "../../data/students";
 
