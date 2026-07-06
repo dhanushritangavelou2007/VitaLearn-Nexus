@@ -60,7 +60,7 @@ function QuickActions() {
             onClick={() => navigate(action.path)}
             className="group cursor-pointer p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-35px_rgba(37,99,235,0.45)]"
           >
-            <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-teal-500 p-3 text-white shadow-lg">
+            <div className="rounded-2xl bg-linear-to-br from-blue-600 to-teal-500 p-3 text-white shadow-lg">
               <action.icon size={24} />
             </div>
 

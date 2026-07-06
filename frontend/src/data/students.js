@@ -1,59 +1,71 @@
 const students = [
   {
     id: 1,
+    rollNo: "VIIIA001",
+
     name: "Aarav Sharma",
+
     class: "VIII-A",
-    age: 13,
-    risk: "healthy",
+
+    gender: "Male",
+
+    dob: "12 Mar 2013",
+
     bloodGroup: "O+",
-    attendance: "96%",
-    lastUpdate: "Today",
-    passportStatus: "Completed",
-  },
-  {
-    id: 2,
-    name: "Diya Patel",
-    class: "VIII-A",
-    age: 13,
-    risk: "observation",
-    bloodGroup: "A+",
-    attendance: "91%",
-    lastUpdate: "Today",
-    passportStatus: "Completed",
-  },
-  {
-    id: 3,
-    name: "Arjun Kumar",
-    class: "VIII-B",
-    age: 14,
-    risk: "review",
-    bloodGroup: "B+",
-    attendance: "88%",
-    lastUpdate: "Yesterday",
-    passportStatus: "Completed",
-  },
-  {
-    id: 4,
-    name: "Sneha Reddy",
-    class: "VIII-B",
-    age: 13,
-    risk: "critical",
-    bloodGroup: "AB+",
-    attendance: "82%",
-    lastUpdate: "Today",
-    passportStatus: "Pending",
-  },
-  {
-    id: 5,
-    name: "Rohan Singh",
-    class: "VIII-C",
-    age: 14,
-    risk: "healthy",
-    bloodGroup: "O-",
-    attendance: "97%",
-    lastUpdate: "2 days ago",
-    passportStatus: "Completed",
-  },
+
+    parent: {
+      father: "Rajesh Sharma",
+      mother: "Priya Sharma",
+      phone: "+91 9876543210"
+    },
+
+    allergies: [
+      "Dust"
+    ],
+
+    medicalConditions: [
+      "Asthma"
+    ],
+
+    vitals: {
+      heartRate: 82,
+      oxygen: 98,
+      temperature: 98.6,
+      height: 152,
+      weight: 45,
+      bmi: 19.5
+    },
+
+    vaccinations: [
+      {
+        name: "COVID Booster",
+        status: "Pending"
+      },
+      {
+        name: "MMR",
+        status: "Completed"
+      }
+    ],
+
+    symptoms: [
+      {
+        date: "4 Jul",
+        symptom: "Headache"
+      }
+    ],
+
+    reports: [
+      {
+        title: "Annual Health Check",
+        status: "Completed"
+      }
+    ],
+
+    aiSummary:
+      "Healthy student with mild asthma. Continue monitoring during sports.",
+
+    risk: "Medium"
+  }
 ];
 
 export default students;

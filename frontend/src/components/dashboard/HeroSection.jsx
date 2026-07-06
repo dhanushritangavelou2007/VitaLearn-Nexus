@@ -69,7 +69,7 @@ function HeroSection() {
 
         {/* Right */}
 
-        <div className="hidden lg:flex flex-col gap-5 w-[360px]">
+        <div className="hidden lg:flex flex-col gap-5 w-90">
 
           <div className="rounded-3xl bg-white/15 p-6 backdrop-blur-xl">
 

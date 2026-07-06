@@ -19,12 +19,12 @@ function StudentTable() {
           </p>
         </div>
 
-        <button
-          onClick={() => navigate("/teacher/create-passport")}
-          className="rounded-2xl bg-gradient-to-r from-blue-600 to-teal-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5"
-        >
-          + Create Passport
-        </button>
+       <button
+  onClick={() => navigate(`/teacher/student-profile/${student.id}`)}
+  className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200"
+>
+  View Profile
+</button>
       </div>
 
       <div className="overflow-x-auto">
@@ -86,11 +86,11 @@ function StudentTable() {
                     </button>
 
                     <button
-                      onClick={() => navigate("/teacher/report-symptoms")}
-                      className="rounded-lg bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-200"
-                    >
-                      Report
-                    </button>
+  onClick={() => navigate(`/teacher/report-symptoms/${student.id}`)}
+  className="rounded-lg bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-200"
+>
+  Report
+</button>
 
                   </div>
                 </td>

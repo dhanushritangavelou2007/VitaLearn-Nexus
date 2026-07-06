@@ -5,6 +5,9 @@ import QuickActions from "../../components/health/QuickActions";
 import RecentActivity from "../../components/health/RecentActivity";
 import StudentTable from "../../components/health/StudentTable";
 import StatCard from "../../components/ui/StatCard";
+import HealthTrendChart from "../../components/charts/HealthTrendChart";
+import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
+import AIInsights from "../../components/dashboard/AIInsights";
 
 import {
   Activity,
@@ -52,6 +55,19 @@ function Dashboard() {
       <HeroSection />
 
       {/* Statistics */}
+      <div className="mt-10 grid gap-8 xl:grid-cols-2">
+
+  <HealthTrendChart />
+
+  <HealthDistributionChart />
+
+</div>
+
+<div className="mt-8">
+
+  <AIInsights />
+
+</div>
       <div className="mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
           <StatCard

@@ -8,7 +8,24 @@ import HealthTimeline from "../../components/profile/HealthTimeline";
 import AISummary from "../../components/profile/AISummary";
 import EmergencyContact from "../../components/profile/EmergencyContact";
 import RecentReports from "../../components/profile/RecentReports";
+import { useParams } from "react-router-dom";
+import students from "../../data/students";
 function StudentProfile() {
+    const { id } = useParams();
+
+const student = students.find(
+  (s) => s.id === Number(id)
+);
+
+if (!student) {
+  return (
+    <DashboardLayout>
+      <h1 className="text-2xl font-bold">
+        Student not found
+      </h1>
+    </DashboardLayout>
+  );
+}
   return (
     <DashboardLayout>
 
@@ -19,17 +36,17 @@ function StudentProfile() {
 
       <div className="space-y-8">
 
-        <StudentHeader />
+        <StudentHeader student={student} />
 
-        <HealthOverview />
+        <HealthOverview student={student} />
 
-        <HealthTimeline />
-        <VaccinationCard />
+        <HealthTimeline student={student} />
+        <VaccinationCard student={student} />
 
-<AISummary />
+<AISummary student={student} />
 <div className="grid gap-8 lg:grid-cols-2">
-  <EmergencyContact />
-  <RecentReports />
+ <EmergencyContact student={student} />
+  <RecentReports student={student} />
 </div>
       </div>
 

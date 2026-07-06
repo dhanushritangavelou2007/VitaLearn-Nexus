@@ -56,7 +56,7 @@ function HealthTimeline() {
               className="relative mb-10 last:mb-0"
             >
               <div
-                className={`absolute -left-[44px] flex h-10 w-10 items-center justify-center rounded-full ${item.color} text-white shadow-lg`}
+                className={`absolute -left-11 flex h-10 w-10 items-center justify-center rounded-full ${item.color} text-white shadow-lg`}
               >
                 <Icon size={20} />
               </div>

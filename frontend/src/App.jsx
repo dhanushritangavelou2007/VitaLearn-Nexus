@@ -30,19 +30,21 @@ function App() {
       />
 
       <Route
-        path="/teacher/student-profile"
-        element={<StudentProfile />}
-      />
+  path="/teacher/student-profile/:id"
+  element={<StudentProfile />}
+/>
+
+<Route
+  path="/teacher/report-symptoms/:id"
+  element={<ReportSymptoms />}
+/>
 
       <Route
         path="/teacher/create-passport"
         element={<CreatePassport />}
       />
 
-      <Route
-        path="/teacher/report-symptoms"
-        element={<ReportSymptoms />}
-      />
+      
 
     </Routes>
   );
