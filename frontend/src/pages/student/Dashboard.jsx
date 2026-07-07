@@ -1,9 +1,14 @@
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import students from "../../data/students";
-import { Activity, HeartPulse, ShieldCheck, Syringe } from "lucide-react";
+import DashboardCard from "../../components/dashboard/DashboardCard";
+import HealthTrendChart from "../../components/charts/HealthTrendChart";
+import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
+import GlassCard from "../../components/ui/GlassCard";
+import students, { getDashboardStats } from "../../data/students";
+import { Activity, HeartPulse, ShieldCheck, Syringe, Award } from "lucide-react";
 
 function StudentDashboard() {
   const student = students[1];
+  const stats = getDashboardStats(students);
 
   return (
     <DashboardLayout>
@@ -13,14 +18,21 @@ function StudentDashboard() {
           <p className="mt-2 text-emerald-100">Your personal health passport is ready and up to date.</p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          <DashboardCard title="Health Score" value={student.aiSummary ? "86" : "84"} subtitle="Current wellness" icon={HeartPulse} color="text-emerald-600" bg="bg-emerald-500" />
+          <DashboardCard title="Attendance" value={student.attendance} subtitle="School term" icon={ShieldCheck} color="text-blue-600" bg="bg-blue-500" />
+          <DashboardCard title="BMI" value={student.vitals.bmi} subtitle="Healthy range" icon={Activity} color="text-slate-700" bg="bg-slate-700" />
+          <DashboardCard title="Achievements" value="4" subtitle="Health milestones" icon={Award} color="text-amber-600" bg="bg-amber-500" />
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-12">
+          <GlassCard className="xl:col-span-7 p-6">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
                 <HeartPulse size={20} />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-800">My Health Passport</h2>
+                <h2 className="text-lg font-bold text-slate-800">Digital Passport</h2>
                 <p className="text-sm text-slate-500">Current wellness overview</p>
               </div>
             </div>
@@ -30,16 +42,16 @@ function StudentDashboard() {
               <InfoCard label="Allergies" value={student.allergies[0] || "None"} accent="amber" />
               <InfoCard label="Vaccinations" value={`${student.vaccinations.length} completed`} accent="indigo" />
             </div>
-          </section>
+          </GlassCard>
 
-          <section className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
+          <GlassCard className="xl:col-span-5 p-6">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-indigo-50 p-2.5 text-indigo-600">
                 <ShieldCheck size={20} />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-800">Student Guidance</h2>
-                <p className="text-sm text-slate-500">Helpful reminders for the day</p>
+                <h2 className="text-lg font-bold text-slate-800">Wellness Tips</h2>
+                <p className="text-sm text-slate-500">Helpful reminders for today</p>
               </div>
             </div>
             <div className="mt-6 space-y-3">
@@ -47,10 +59,10 @@ function StudentDashboard() {
               <ReminderCard title="Medication" description="Bring your inhaler if required." />
               <ReminderCard title="Check-in" description="Report symptoms early to the school nurse." />
             </div>
-          </section>
+          </GlassCard>
         </div>
 
-        <section className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
+        <GlassCard className="p-6">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-cyan-50 p-2.5 text-cyan-600">
               <Syringe size={20} />
@@ -67,7 +79,12 @@ function StudentDashboard() {
               </span>
             ))}
           </div>
-        </section>
+        </GlassCard>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <HealthTrendChart />
+          <HealthDistributionChart />
+        </div>
       </div>
     </DashboardLayout>
   );
@@ -102,3 +119,4 @@ function ReminderCard({ title, description }) {
 }
 
 export default StudentDashboard;
+

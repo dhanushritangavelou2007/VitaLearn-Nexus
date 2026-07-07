@@ -1,61 +1,31 @@
 import GlassCard from "../ui/GlassCard";
-import { FileText } from "lucide-react";
+import { FileText, Download } from "lucide-react";
 
-const reports = [
-  {
-    title: "Annual Health Screening",
-    date: "12 Jul 2026",
-    status: "Completed",
-  },
-  {
-    title: "Vision Screening",
-    date: "18 Mar 2026",
-    status: "Completed",
-  },
-  {
-    title: "Vaccination Follow-up",
-    date: "20 Apr 2026",
-    status: "Completed",
-  },
-];
-
-function RecentReports() {
+function RecentReports({ student }) {
   return (
-    <GlassCard className="p-8">
-      <h2 className="mb-6 text-2xl font-bold text-slate-900">
-        Recent Medical Reports
-      </h2>
-
-      <div className="space-y-4">
-        {reports.map((report) => (
-          <div
-            key={report.title}
-            className="flex items-center justify-between rounded-2xl border border-slate-200 p-5"
-          >
-            <div className="flex items-center gap-4">
-              <div className="rounded-xl bg-cyan-100 p-3">
-                <FileText className="text-cyan-600" size={22} />
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-slate-900">
-                  {report.title}
-                </h3>
-
-                <p className="text-sm text-slate-500">
-                  {report.date}
-                </p>
-              </div>
-            </div>
-
-            <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-700">
-              {report.status}
-            </span>
-          </div>
-        ))}
+    <GlassCard className="p-6">
+      <div className="flex items-center gap-2 mb-5">
+        <FileText size={18} className="text-blue-500" />
+        <h3 className="font-bold text-slate-800">Files & Reports</h3>
       </div>
+      {(student.reports || []).length === 0 ? (
+        <p className="text-sm text-slate-500 bg-slate-50 rounded-xl border border-slate-100 p-4">No reports recorded yet.</p>
+      ) : (
+        <ul className="space-y-3">
+          {student.reports.map((report) => (
+            <li key={`${report.date}-${report.type}`} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 group hover:bg-blue-50 hover:border-blue-100 transition-colors cursor-pointer">
+              <div>
+                <p className="text-sm font-semibold text-slate-700">{report.type}</p>
+                <p className="text-xs text-slate-500">{report.date} - {report.status}</p>
+              </div>
+              <Download size={16} className="text-slate-400 group-hover:text-blue-600" />
+            </li>
+          ))}
+        </ul>
+      )}
     </GlassCard>
   );
 }
 
 export default RecentReports;
+

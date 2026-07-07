@@ -1,102 +1,29 @@
 import GlassCard from "../ui/GlassCard";
-import { Syringe, CircleCheck, Clock3 } from "lucide-react";
+import { Syringe } from "lucide-react";
 
-const vaccines = [
-  {
-    name: "Polio",
-    status: "Completed",
-    completed: true,
-  },
-  {
-    name: "Hepatitis B",
-    status: "Completed",
-    completed: true,
-  },
-  {
-    name: "MMR Booster",
-    status: "Completed",
-    completed: true,
-  },
-  {
-    name: "COVID Booster",
-    status: "Due Next Month",
-    completed: false,
-  },
-];
-
-function VaccinationCard() {
+function VaccinationCard({ student }) {
   return (
-    <GlassCard className="p-8">
-
-      <div className="flex items-center gap-3 mb-6">
-
-        <div className="rounded-2xl bg-linear-to-br from-blue-600 to-cyan-500 p-3 text-white">
-
-          <Syringe size={24} />
-
+    <GlassCard className="p-6">
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-2">
+          <Syringe size={18} className="text-emerald-500" />
+          <h3 className="font-bold text-slate-800">Vaccinations</h3>
         </div>
-
-        <div>
-
-          <h2 className="text-2xl font-bold text-slate-900">
-            Vaccination Record
-          </h2>
-
-          <p className="text-slate-500">
-            Student Immunization History
-          </p>
-
-        </div>
-
+        <span className="text-xs font-semibold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md">
+          {student.vaccinations?.length || 0}
+        </span>
       </div>
-
-      <div className="space-y-4">
-
-        {vaccines.map((vaccine) => (
-
-          <div
-            key={vaccine.name}
-            className="flex items-center justify-between rounded-2xl border border-slate-200 p-5"
-          >
-
-            <div>
-
-              <h3 className="font-semibold text-slate-800">
-                {vaccine.name}
-              </h3>
-
-            </div>
-
-            {vaccine.completed ? (
-
-              <div className="flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-emerald-700">
-
-                <CircleCheck size={18} />
-
-                {vaccine.status}
-
-              </div>
-
-            ) : (
-
-              <div className="flex items-center gap-2 rounded-full bg-amber-100 px-4 py-2 text-amber-700">
-
-                <Clock3 size={18} />
-
-                {vaccine.status}
-
-              </div>
-
-            )}
-
-          </div>
-
+      <ul className="space-y-3 text-sm">
+        {(student.vaccinations || []).map((vaccination) => (
+          <li key={vaccination} className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-b-0 last:pb-1">
+            <span className="text-slate-600 font-medium">{vaccination}</span>
+            <span className="text-emerald-600 text-xs font-semibold">Recorded</span>
+          </li>
         ))}
-
-      </div>
-
+      </ul>
     </GlassCard>
   );
 }
 
 export default VaccinationCard;
+

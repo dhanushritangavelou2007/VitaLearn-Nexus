@@ -1,9 +1,17 @@
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
+import DashboardCard from "../../components/dashboard/DashboardCard";
+import HealthTrendChart from "../../components/charts/HealthTrendChart";
+import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
+import GlassCard from "../../components/ui/GlassCard";
 import students from "../../data/students";
-import { Activity, ClipboardList, HeartPulse, ShieldCheck } from "lucide-react";
+import { Activity, ClipboardList, HeartPulse, ShieldCheck, AlertTriangle } from "lucide-react";
+import { getDashboardStats, getRecentActivity } from "../../data/students";
 
 function DoctorDashboard() {
-  const highRiskStudents = students.filter((student) => student.risk === "critical" || student.risk === "review");
+  const criticalStudents = students.filter((student) => student.risk === "critical");
+  const reviewStudents = students.filter((student) => student.risk === "review" || student.risk === "critical");
+  const stats = getDashboardStats(students);
+  const recentActivity = getRecentActivity(students, 6);
 
   return (
     <DashboardLayout>
@@ -13,19 +21,26 @@ function DoctorDashboard() {
           <p className="mt-2 text-red-100">Monitor urgent health cases, review notes, and approve school follow-ups.</p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          <DashboardCard title="Critical Students" value={criticalStudents.length} subtitle="Immediate medical attention" icon={AlertTriangle} color="text-red-600" bg="bg-red-500" />
+          <DashboardCard title="Diagnosis Queue" value={reviewStudents.length} subtitle="Waiting for clinical review" icon={ClipboardList} color="text-amber-600" bg="bg-amber-500" />
+          <DashboardCard title="Medical Reports" value={stats.reportCount} subtitle="Student files in system" icon={HeartPulse} color="text-blue-600" bg="bg-blue-500" />
+          <DashboardCard title="AI Alerts" value={stats.pendingReports} subtitle="Needs follow-up" icon={Activity} color="text-slate-600" bg="bg-slate-700" />
+        </div>
+
+        <div className="grid gap-6 xl:grid-cols-12">
+          <GlassCard className="xl:col-span-5 p-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-red-50 p-2.5 text-red-600">
+              <div className="rounded-2xl bg-rose-50 p-2.5 text-rose-600">
                 <HeartPulse size={20} />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-800">Priority Cases</h2>
+                <h2 className="text-lg font-bold text-slate-800">Today's Patients</h2>
                 <p className="text-sm text-slate-500">Students needing medical review</p>
               </div>
             </div>
             <div className="mt-6 space-y-3">
-              {highRiskStudents.map((student) => (
+              {reviewStudents.slice(0, 5).map((student) => (
                 <div key={student.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
@@ -37,55 +52,49 @@ function DoctorDashboard() {
                 </div>
               ))}
             </div>
-          </section>
+          </GlassCard>
 
-          <section className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
+          <GlassCard className="xl:col-span-3 p-6">
+            <h2 className="text-lg font-bold text-slate-800">Diagnosis Queue</h2>
+            <div className="mt-6 space-y-3">
+              {["Assign review", "Update notes", "Notify guardian"].map((item) => (
+                <div key={item} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600">{item}</div>
+              ))}
+            </div>
+          </GlassCard>
+
+          <GlassCard className="xl:col-span-4 p-6">
             <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-blue-50 p-2.5 text-blue-600">
-                <ClipboardList size={20} />
+              <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
+                <ShieldCheck size={20} />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-800">Doctor Actions</h2>
-                <p className="text-sm text-slate-500">Review and approve observations</p>
+                <h2 className="text-lg font-bold text-slate-800">AI Suggestions</h2>
+                <p className="text-sm text-slate-500">Decision support for follow-up</p>
               </div>
             </div>
-            <div className="mt-6 space-y-3">
-              <ActionCard title="Review symptoms" description="Assess newly reported student observations." />
-              <ActionCard title="Approve reports" description="Verify and sign doctor notes for release." />
-              <ActionCard title="Follow-up plan" description="Create recommended actions for school staff." />
+            <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
+              Review recent symptom entries, prioritize breathing concerns, and coordinate with guardians before the next school session.
             </div>
-          </section>
+            <div className="mt-4 space-y-3">
+              {recentActivity.slice(0, 3).map((item) => (
+                <div key={item.id} className="rounded-2xl border border-slate-100 bg-white p-4">
+                  <div className="text-sm font-semibold text-slate-700">{item.studentName}</div>
+                  <div className="text-xs text-slate-500">{item.title} - {item.description}</div>
+                </div>
+              ))}
+            </div>
+          </GlassCard>
         </div>
 
-        <section className="rounded-3xl border border-white bg-white/70 p-6 shadow-sm backdrop-blur-xl">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
-              <ShieldCheck size={20} />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-800">Clinical Summary</h2>
-              <p className="text-sm text-slate-500">Daily overview for school medical support</p>
-            </div>
-          </div>
-          <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600">
-            There are {highRiskStudents.length} current cases requiring attention. Review the latest reports and confirm any necessary interventions.
-          </div>
-        </section>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <HealthTrendChart />
+          <HealthDistributionChart />
+        </div>
       </div>
     </DashboardLayout>
   );
 }
 
-function ActionCard({ title, description }) {
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-      <div className="flex items-center gap-2">
-        <Activity size={16} className="text-rose-500" />
-        <h3 className="font-semibold text-slate-700">{title}</h3>
-      </div>
-      <p className="mt-2 text-sm text-slate-500">{description}</p>
-    </div>
-  );
-}
-
 export default DoctorDashboard;
+
