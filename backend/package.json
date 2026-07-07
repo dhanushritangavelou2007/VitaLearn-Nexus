@@ -1,0 +1,11 @@
+{
+  "name": "vitalearn-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend for VitaLearn Nexus",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
+
