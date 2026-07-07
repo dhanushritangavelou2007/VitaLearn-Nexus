@@ -146,7 +146,7 @@ function CreatePassport() {
                 <div className="flex flex-col items-center">
                   {/* Printable Passport Card inside Modal */}
                   <div className="w-full bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-100 relative">
-                    <div className="bg-gradient-to-br from-blue-600 to-emerald-600 p-6 text-white text-center relative overflow-hidden">
+                    <div className="bg-linear-to-br from-blue-600 to-emerald-600 p-6 text-white text-center relative overflow-hidden">
                       <div className="absolute right-0 top-0 h-48 w-48 translate-x-1/3 -translate-y-1/3 rounded-full bg-white opacity-10 blur-2xl"></div>
                       <h3 className="font-bold text-xl tracking-tight relative z-10">VitaLearn Nexus</h3>
                       <p className="text-white/80 text-xs uppercase tracking-widest mt-1 relative z-10">Digital Health Passport</p>

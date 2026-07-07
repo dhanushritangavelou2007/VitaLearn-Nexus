@@ -170,7 +170,7 @@ function EmergencyContact({ student }) {
 
 function PassportCard({ student }) {
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
+    <div className="bg-linear-to-rrom-blue-600 to-indigo-600 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
       <div className="absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-white opacity-10 blur-3xl"></div>
       <div className="flex justify-between items-start relative z-10 gap-6">
         <div>
@@ -254,7 +254,7 @@ function RecentReports({ student }) {
 
 function AISummary({ summary }) {
   return (
-    <div className="rounded-3xl bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 p-6 text-white shadow-xl relative overflow-hidden">
+    <div className="rounded-3xl bg-linear-to-br from-indigo-900 via-purple-900 to-slate-900 p-6 text-white shadow-xl relative overflow-hidden">
       <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-purple-500 opacity-20 blur-3xl"></div>
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-4">
