@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import { CheckCircle2, ChevronRight, User, Phone, AlertTriangle } from "lucide-react";
-import { createStudentPassport } from "../../data/students";
+import { useStudents } from "../../hooks/useStudents";
 
 function CreatePassport() {
   const navigate = useNavigate();
+  const { addStudent } = useStudents();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCard, setShowCard] = useState(false);
@@ -35,32 +36,13 @@ function CreatePassport() {
     e.preventDefault();
     setIsSubmitting(true);
     setTimeout(() => {
-      const createdStudent = createStudentPassport({
-        name: formData.name,
-        rollNo: formData.rollNo,
-        className: formData.className,
-        section: formData.section,
-        dob: formData.dob,
-        gender: formData.gender,
-        bloodGroup: formData.bloodGroup,
-        parentName: formData.parentName,
-        parentPhone: formData.parentPhone,
-        parentEmail: formData.parentEmail,
-        allergies: formData.allergies,
-        medicalConditions: formData.medicalConditions,
-        doctorNotes: `Emergency contact: ${formData.emergencyContact}`,
-      });
-
+      addStudent(formData);
       setIsSubmitting(false);
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
         setShowCard(true);
       }, 2500);
-
-      if (createdStudent) {
-        setFormData((current) => ({ ...current, rollNo: createdStudent.rollNo }));
-      }
     }, 1500);
   };
 
@@ -164,7 +146,7 @@ function CreatePassport() {
                 <div className="flex flex-col items-center">
                   {/* Printable Passport Card inside Modal */}
                   <div className="w-full bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-100 relative">
-                    <div className="bg-linear-to-br from-blue-600 to-emerald-600 p-6 text-white text-center relative overflow-hidden">
+                    <div className="bg-gradient-to-br from-blue-600 to-emerald-600 p-6 text-white text-center relative overflow-hidden">
                       <div className="absolute right-0 top-0 h-48 w-48 translate-x-1/3 -translate-y-1/3 rounded-full bg-white opacity-10 blur-2xl"></div>
                       <h3 className="font-bold text-xl tracking-tight relative z-10">VitaLearn Nexus</h3>
                       <p className="text-white/80 text-xs uppercase tracking-widest mt-1 relative z-10">Digital Health Passport</p>

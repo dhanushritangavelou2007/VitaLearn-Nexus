@@ -1,107 +1,74 @@
 import { useNavigate } from "react-router-dom";
-import students from "../../data/students";
-import GlassCard from "../ui/GlassCard";
-import RiskBadge from "./RiskBadge";
+import { CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { getRiskLabel, getRiskStyle } from "../../data/students";
+import { useStudents } from "../../hooks/useStudents";
 
-function StudentTable() {
+const statusIcons = {
+  healthy: CheckCircle2,
+  observation: Clock,
+  review: Clock,
+  critical: AlertCircle,
+};
+
+function StudentTable({ students }) {
   const navigate = useNavigate();
+  const studentContext = useStudents();
+  const visibleStudents = (students || studentContext.students).slice(0, 5);
 
   return (
-    <GlassCard className="overflow-hidden p-0">
-      <div className="flex flex-col gap-4 border-b border-slate-200/80 p-6 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-3xl bg-white/70 backdrop-blur-xl border border-white shadow-sm overflow-hidden flex flex-col h-full">
+      <div className="p-6 border-b border-slate-100 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-slate-900">
-            Students at a Glance
-          </h2>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Priority health signals and recent updates for the active classroom.
-          </p>
+          <h3 className="text-lg font-bold text-slate-800">Recent Screenings</h3>
+          <p className="text-sm text-slate-500">Today's health check results</p>
         </div>
-
-       <button
-  onClick={() => navigate(`/teacher/students`)}
-  className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200"
->
-  View All
-</button>
+        <button
+          onClick={() => navigate("/teacher/students")}
+          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          View All
+        </button>
       </div>
-
+      
       <div className="overflow-x-auto">
-        <table className="min-w-full">
-
-          <thead className="bg-slate-50 text-left text-sm text-slate-500">
-            <tr>
-              <th className="px-6 py-4">Student</th>
-              <th className="px-6 py-4">Class</th>
-              <th className="px-6 py-4">Attendance</th>
-              <th className="px-6 py-4">Risk</th>
-              <th className="px-6 py-4">Last Update</th>
-              <th className="px-6 py-4 text-center">Actions</th>
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider">
+              <th className="px-6 py-4 font-semibold">Student Name</th>
+              <th className="px-6 py-4 font-semibold">ID</th>
+              <th className="px-6 py-4 font-semibold">Status</th>
+              <th className="px-6 py-4 font-semibold">Time</th>
             </tr>
           </thead>
+          <tbody className="divide-y divide-slate-100/80">
+            {visibleStudents.map((student) => {
+              const StatusIcon = statusIcons[student.risk] || Clock;
+              const status = getRiskLabel(student.risk);
+              const style = getRiskStyle(student.risk);
 
-          <tbody>
-            {students.map((student) => (
+              return (
               <tr
                 key={student.id}
-                className="border-t border-slate-100 transition hover:bg-slate-50"
+                onClick={() => navigate(`/teacher/student-profile/${student.id}`)}
+                className="hover:bg-white/50 transition-colors cursor-pointer"
               >
                 <td className="px-6 py-4">
-                  <div>
-                    <h3 className="font-semibold text-slate-900">
-                      {student.name}
-                    </h3>
-
-                    <p className="text-sm text-slate-500">
-                      Blood Group: {student.bloodGroup}
-                    </p>
-                  </div>
+                  <div className="font-medium text-slate-800">{student.name}</div>
                 </td>
-
+                <td className="px-6 py-4 text-slate-500 text-sm">{student.rollNo}</td>
                 <td className="px-6 py-4">
-                  {student.class}
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border ${style.pill}`}>
+                    <StatusIcon size={14} /> {status}
+                  </span>
                 </td>
-
-                <td className="px-6 py-4">
-                  {student.attendance}
-                </td>
-
-                <td className="px-6 py-4">
-                  <RiskBadge level={student.risk} />
-                </td>
-
-                <td className="px-6 py-4">
-                  {student.lastUpdate}
-                </td>
-
-                <td className="px-6 py-4">
-                  <div className="flex justify-center gap-2">
-
-                    <button
-                      onClick={() => navigate(`/teacher/student-profile/${student.id}`)}
-                      className="rounded-lg bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-200"
-                    >
-                      View Profile
-                    </button>
-
-                    <button
-  onClick={() => navigate(`/teacher/report-symptoms/${student.id}`)}
-  className="rounded-lg bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-200"
->
-  Report
-</button>
-
-                  </div>
-                </td>
-
+                <td className="px-6 py-4 text-slate-500 text-sm">{student.lastUpdate}</td>
               </tr>
-            ))}
+            );
+            })}
           </tbody>
-
         </table>
       </div>
-    </GlassCard>
+    </div>
   );
 }
 

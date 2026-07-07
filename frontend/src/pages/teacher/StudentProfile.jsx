@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import {
   ChevronLeft,
@@ -11,25 +12,28 @@ import {
   Download,
   ArrowRight,
   Sparkles,
-  Phone,
 } from "lucide-react";
 import {
   calculateAge,
   formatList,
-  getAISummary,
-  getHealthScore,
-  getHealthScoreLabel,
   getRiskLabel,
   getRiskStyle,
   getStudentAvatar,
-  getStudentById,
-  getPendingVaccinations,
 } from "../../data/students";
+import { useStudents } from "../../hooks/useStudents";
 
 function StudentProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getStudentById, generateHealthSummary, setSelectedStudent } = useStudents();
   const student = getStudentById(id);
+  const aiSummary = generateHealthSummary(student);
+
+  useEffect(() => {
+    if (student) {
+      setSelectedStudent(student);
+    }
+  }, [student, setSelectedStudent]);
 
   if (!student) {
     return (
@@ -67,7 +71,7 @@ function StudentProfile() {
               <RecentReports student={student} />
             </div>
 
-            <AISummary student={student} />
+            <AISummary summary={aiSummary} />
             <HealthTimeline student={student} />
           </div>
         </div>
@@ -109,9 +113,6 @@ function StudentHeader({ student, onBack }) {
 function HealthOverview({ student }) {
   const status = getRiskLabel(student.risk);
   const style = getRiskStyle(student.risk);
-  const healthScore = getHealthScore(student);
-  const healthLabel = getHealthScoreLabel(healthScore);
-  const pendingVaccinations = getPendingVaccinations(student);
 
   return (
     <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-6 shadow-sm flex flex-col items-center text-center">
@@ -139,10 +140,6 @@ function HealthOverview({ student }) {
         <Info label="BMI" value={student.vitals.bmi} />
         <Info label="Vision" value={student.vitals.vision} />
         <Info label="Blood Pressure" value={student.vitals.bloodPressure} />
-        <Info label="Health Score" value={`${healthScore}/100`} />
-        <Info label="Health Rating" value={healthLabel} />
-        <Info label="Pending Vaccines" value={pendingVaccinations} />
-        <Info label="Admission" value={student.admissionNumber || "Pending"} />
       </div>
     </div>
   );
@@ -173,7 +170,7 @@ function EmergencyContact({ student }) {
 
 function PassportCard({ student }) {
   return (
-    <div className="bg-linear-to-r from-blue-600 to-indigo-600 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
+    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
       <div className="absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-white opacity-10 blur-3xl"></div>
       <div className="flex justify-between items-start relative z-10 gap-6">
         <div>
@@ -255,11 +252,9 @@ function RecentReports({ student }) {
   );
 }
 
-function AISummary({ student }) {
-  const summary = student.aiSummary || getAISummary(student);
-
+function AISummary({ summary }) {
   return (
-    <div className="rounded-3xl bg-linear-to-br from-indigo-900 via-purple-900 to-slate-900 p-6 text-white shadow-xl relative overflow-hidden">
+    <div className="rounded-3xl bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 p-6 text-white shadow-xl relative overflow-hidden">
       <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-purple-500 opacity-20 blur-3xl"></div>
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-4">
@@ -277,13 +272,6 @@ function AISummary({ student }) {
 
 function HealthTimeline({ student }) {
   const timeline = [
-    ...(student.timeline || []).map((item) => ({
-      id: item.id,
-      date: item.date,
-      title: item.title,
-      description: item.description,
-      type: item.type,
-    })),
     ...student.reports.map((report) => ({
       id: `${report.date}-${report.type}`,
       date: report.date,

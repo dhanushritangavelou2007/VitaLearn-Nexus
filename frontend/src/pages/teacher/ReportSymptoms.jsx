@@ -1,17 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import {
-  getAISummary,
-  getHealthScore,
   getRiskLabel,
   getRiskStyle,
   getStudentAvatar,
-  getStudentById,
   symptomOptions,
-  updateStudentRecord,
 } from "../../data/students";
+import { useStudents } from "../../hooks/useStudents";
 import {
   ChevronLeft,
   CheckCircle2,
@@ -26,6 +23,7 @@ import {
 function ReportSymptoms() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getStudentById, updateSymptoms, setSelectedStudent } = useStudents();
   const student = getStudentById(id);
 
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
@@ -36,6 +34,12 @@ function ReportSymptoms() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [timeline, setTimeline] = useState([]);
+
+  useEffect(() => {
+    if (student) {
+      setSelectedStudent(student);
+    }
+  }, [student, setSelectedStudent]);
 
   if (!student) {
     return (
@@ -72,43 +76,21 @@ function ReportSymptoms() {
 
     setIsSubmitting(true);
     setTimeout(() => {
-      const refreshedStudent = updateStudentRecord(student.id, {
-        symptoms: [...new Set([...(student.symptoms || []).filter((item) => item !== "None"), ...selectedSymptoms])],
-        reports: [
-          ...(student.reports || []),
-          {
-            date,
-            type: "Symptom Observation",
-            status: `${selectedSymptoms.join(", ")}${notes ? ` • ${notes}` : ""}`,
-          },
-        ],
-        lastUpdate: date,
-        doctorNotes: notes || student.doctorNotes || "Observation recorded by teacher.",
-        timeline: [
-          ...(student.timeline || []),
-          {
-            id: `observation-${Date.now()}`,
-            date,
-            title: "Symptom Reported",
-            description: `Reported: ${selectedSymptoms.join(", ")}. Severity: ${severity}/10${temperature ? `. Temp: ${temperature} F` : ""}${notes ? `. Notes: ${notes}` : ""}`,
-            type: "warning",
-          },
-          {
-            id: `parent-${Date.now()}`,
-            date,
-            title: "Parent Notified",
-            description: `Automated SMS/Email prepared for ${student.parent.name}.`,
-            type: "info",
-          },
-        ],
+      updateSymptoms(student.id, {
+        symptoms: selectedSymptoms,
+        severity,
+        temperature,
+        date,
+        notes,
       });
-
       setTimeline([
         {
           id: 1,
           date,
           title: "Symptom Reported",
-          description: `Reported: ${selectedSymptoms.join(", ")}. Severity: ${severity}/10${temperature ? `. Temp: ${temperature} F` : ""}${notes ? `. Notes: ${notes}` : ""}`,
+          description: `Reported: ${selectedSymptoms.join(", ")}. Severity: ${severity}/10${
+            temperature ? `. Temp: ${temperature} F` : ""
+          }${notes ? `. Notes: ${notes}` : ""}`,
           type: "warning",
         },
         {
@@ -121,8 +103,15 @@ function ReportSymptoms() {
         {
           id: 3,
           date: "Pending",
-          title: "Doctor Review",
-          description: `Health score updated to ${getHealthScore(refreshedStudent)}/100 and AI summary refreshed.`,
+          title: "Awaiting Doctor Review",
+          description: "Health passport queued for doctor review.",
+          type: "pending",
+        },
+        {
+          id: 4,
+          date: "Pending",
+          title: "AI Support Pending",
+          description: "Symptoms queued for decision-support summary.",
           type: "pending",
         },
       ]);

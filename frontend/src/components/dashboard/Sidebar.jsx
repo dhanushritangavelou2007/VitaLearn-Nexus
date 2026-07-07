@@ -4,66 +4,31 @@ import {
   FileText,
   Activity,
   Settings,
-  HeartPulse,
-  ShieldCheck,
-  Bell,
 } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 function Sidebar() {
-  const location = useLocation();
-  const isParentView = location.pathname.includes("/parent");
-  const isStudentView = location.pathname.includes("/student");
-  const isDoctorView = location.pathname.includes("/doctor");
-  const isAdminView = location.pathname.includes("/admin");
-
-  const teacherMenuItems = [
+  const menuItems = [
     { name: "Dashboard", path: "/teacher/dashboard", icon: LayoutDashboard },
     { name: "Students", path: "/teacher/students", icon: Users },
     { name: "Symptoms", path: "/teacher/report-symptoms/1", icon: Activity },
     { name: "Reports", path: "/teacher/reports", icon: FileText },
-    { name: "Settings", path: "/teacher/settings", icon: Settings },
+    { name: "Settings", path: "/settings", icon: Settings },
   ];
-
-  const roleMenuItems = isParentView
-    ? [
-        { name: "Overview", path: "/parent/dashboard", icon: LayoutDashboard },
-        { name: "Child Health", path: "/teacher/student-profile/1", icon: HeartPulse },
-        { name: "Notifications", path: "/teacher/reports", icon: Bell },
-      ]
-    : isStudentView
-      ? [
-          { name: "Overview", path: "/student/dashboard", icon: LayoutDashboard },
-          { name: "Health Passport", path: "/teacher/student-profile/2", icon: HeartPulse },
-          { name: "Vaccinations", path: "/teacher/reports", icon: ShieldCheck },
-        ]
-      : isDoctorView
-        ? [
-            { name: "Review", path: "/doctor/dashboard", icon: LayoutDashboard },
-            { name: "Cases", path: "/teacher/reports", icon: ShieldCheck },
-            { name: "Reports", path: "/teacher/reports", icon: FileText },
-          ]
-        : isAdminView
-          ? [
-              { name: "Overview", path: "/admin/dashboard", icon: LayoutDashboard },
-              { name: "Students", path: "/teacher/students", icon: Users },
-              { name: "Reports", path: "/teacher/reports", icon: FileText },
-            ]
-          : teacherMenuItems;
 
   return (
     <aside className="w-72 hidden md:flex flex-col min-h-screen border-r border-slate-200/60 bg-white/70 backdrop-blur-xl p-6 transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
       <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/30">
           <Activity size={24} className="stroke-[2.5]" />
         </div>
-        <h1 className="text-xl font-bold bg-linear-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
           VitaLearn
         </h1>
       </div>
 
       <nav className="space-y-1.5 flex-1">
-        {(roleMenuItems || teacherMenuItems).map((item) => {
+        {menuItems.map((item) => {
           const Icon = item.icon;
           return (
             <NavLink
@@ -92,7 +57,7 @@ function Sidebar() {
       </nav>
       
       <div className="mt-auto pt-8">
-        <div className="rounded-2xl bg-linear-to-br from-blue-50 to-indigo-50/50 p-5 border border-blue-100/50">
+        <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 p-5 border border-blue-100/50">
           <h4 className="font-semibold text-slate-800 text-sm mb-1">Need Help?</h4>
           <p className="text-xs text-slate-500 mb-3">Check our docs for guidance on health protocols.</p>
           <button className="w-full rounded-xl bg-white px-3 py-2 text-sm font-medium text-blue-600 shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors">
