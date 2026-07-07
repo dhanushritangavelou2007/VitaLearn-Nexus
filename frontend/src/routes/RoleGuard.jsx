@@ -3,7 +3,11 @@ import { useAuth } from "../hooks/useAuth";
 import { getRoleHome } from "../services/authService";
 
 function RoleGuard({ role, children }) {
-  const { role: currentRole, isAuthenticated } = useAuth();
+  const { role: currentRole, isAuthenticated, authLoading } = useAuth();
+
+  if (authLoading) {
+    return <div className="flex min-h-screen items-center justify-center text-slate-600">Loading session...</div>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -17,4 +21,3 @@ function RoleGuard({ role, children }) {
 }
 
 export default RoleGuard;
-

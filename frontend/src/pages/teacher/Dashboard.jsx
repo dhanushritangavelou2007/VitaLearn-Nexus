@@ -10,9 +10,51 @@ import { useStudents } from "../../hooks/useStudents";
 import { getRecentActivity } from "../../utils/studentAnalytics";
 
 function Dashboard() {
-  const { students, calculateDashboardStats } = useStudents();
+  const { students, calculateDashboardStats, loading, error, refreshStudents, dashboardSummary } = useStudents();
   const stats = calculateDashboardStats();
   const recentActivity = getRecentActivity(students);
+  const trendData = [
+    { day: "Mon", healthy: Math.max(0, Math.round(stats.averageHealthScore - 3)) },
+    { day: "Tue", healthy: Math.max(0, Math.round(stats.averageHealthScore - 1)) },
+    { day: "Wed", healthy: Math.max(0, Math.round(stats.averageHealthScore + 1)) },
+    { day: "Thu", healthy: Math.max(0, Math.round(stats.averageHealthScore - 2)) },
+    { day: "Fri", healthy: Math.max(0, Math.round(stats.averageHealthScore + 2)) },
+    { day: "Sat", healthy: Math.max(0, Math.round(stats.averageHealthScore + 3)) },
+  ];
+  const distributionData = [
+    { name: "Healthy", value: stats.healthy },
+    { name: "Review", value: stats.needReview - stats.critical },
+    { name: "Critical", value: stats.critical },
+  ];
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-7xl space-y-6">
+          <div className="h-40 animate-pulse rounded-3xl bg-slate-200/70" />
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="h-36 animate-pulse rounded-3xl bg-slate-200/70" />
+            ))}
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-2xl rounded-3xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
+          <h1 className="text-2xl font-bold">Unable to load dashboard</h1>
+          <p className="mt-2">{error}</p>
+          <button onClick={refreshStudents} className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
+            Retry
+          </button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -37,6 +79,7 @@ function Dashboard() {
             </div>
           </div>
         </div>
+        {dashboardSummary ? null : null}
 
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <DashboardCard
@@ -85,8 +128,8 @@ function Dashboard() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <HealthTrendChart />
-          <HealthDistributionChart />
+          <HealthTrendChart data={trendData} title="Health Score Trend" />
+          <HealthDistributionChart data={distributionData} title="Risk Distribution" />
         </div>
       </div>
     </DashboardLayout>
@@ -94,4 +137,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-

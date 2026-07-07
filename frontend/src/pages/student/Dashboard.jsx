@@ -3,12 +3,50 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
 import GlassCard from "../../components/ui/GlassCard";
-import students, { getDashboardStats } from "../../data/students";
 import { Activity, HeartPulse, ShieldCheck, Syringe, Award } from "lucide-react";
+import { useStudents } from "../../hooks/useStudents";
 
 function StudentDashboard() {
-  const student = students[1];
-  const stats = getDashboardStats(students);
+  const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
+  const student = students[0];
+  const stats = calculateDashboardStats();
+  const trendData = [
+    { day: "Mon", healthy: Math.max(0, Math.round(stats.averageHealthScore - 3)) },
+    { day: "Tue", healthy: Math.max(0, Math.round(stats.averageHealthScore - 1)) },
+    { day: "Wed", healthy: Math.max(0, Math.round(stats.averageHealthScore + 1)) },
+    { day: "Thu", healthy: Math.max(0, Math.round(stats.averageHealthScore - 2)) },
+    { day: "Fri", healthy: Math.max(0, Math.round(stats.averageHealthScore + 2)) },
+    { day: "Sat", healthy: Math.max(0, Math.round(stats.averageHealthScore + 3)) },
+  ];
+  const distributionData = [
+    { name: "Healthy", value: stats.healthy },
+    { name: "Review", value: stats.needReview - stats.critical },
+    { name: "Critical", value: stats.critical },
+  ];
+
+  if (loading || !student) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-7xl space-y-6 pb-10">
+          <div className="h-40 animate-pulse rounded-3xl bg-slate-200/70" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-2xl rounded-3xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
+          <h1 className="text-2xl font-bold">Unable to load student dashboard</h1>
+          <p className="mt-2">{error}</p>
+          <button onClick={refreshStudents} className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
+            Retry
+          </button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -82,8 +120,8 @@ function StudentDashboard() {
         </GlassCard>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <HealthTrendChart />
-          <HealthDistributionChart />
+          <HealthTrendChart data={trendData} title="Wellness Trend" />
+          <HealthDistributionChart data={distributionData} title="Health Distribution" />
         </div>
       </div>
     </DashboardLayout>
@@ -119,4 +157,3 @@ function ReminderCard({ title, description }) {
 }
 
 export default StudentDashboard;
-

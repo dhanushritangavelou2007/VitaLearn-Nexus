@@ -11,7 +11,7 @@ import { getRecentActivity } from "../../utils/studentAnalytics";
 
 function Reports() {
   const navigate = useNavigate();
-  const { students } = useStudents();
+  const { students, loading, error, refreshStudents } = useStudents();
   const [query, setQuery] = useState("");
   const [riskFilter, setRiskFilter] = useState("All");
   const reports = getRecentActivity(students, 50);
@@ -27,6 +27,31 @@ function Reports() {
       return matchesQuery && matchesRisk;
     });
   }, [query, reports, riskFilter]);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-7xl space-y-6">
+          <div className="h-32 animate-pulse rounded-3xl bg-slate-200/70" />
+          <div className="h-96 animate-pulse rounded-3xl bg-slate-200/70" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-2xl rounded-3xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
+          <h1 className="text-2xl font-bold">Unable to load reports</h1>
+          <p className="mt-2">{error}</p>
+          <button onClick={refreshStudents} className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
+            Retry
+          </button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -126,4 +151,3 @@ function Reports() {
 }
 
 export default Reports;
-

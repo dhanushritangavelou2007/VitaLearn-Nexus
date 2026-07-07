@@ -31,12 +31,12 @@ function Login() {
     return <Navigate to={from || `/`} replace />;
   }
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault();
     setError("");
 
     try {
-      const session = login(email, password, rememberMe);
+      const session = await login(email, password, rememberMe);
       navigate(from || session.dashboardPath, { replace: true });
     } catch (loginError) {
       setError(loginError.message || "Login failed.");
@@ -165,4 +165,3 @@ function Login() {
 }
 
 export default Login;
-

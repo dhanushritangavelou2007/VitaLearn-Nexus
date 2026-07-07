@@ -16,15 +16,51 @@ import { Download, FileText, HeartPulse, Activity, ShieldCheck, Syringe } from "
 function StudentProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getStudentById, generateHealthSummary, setSelectedStudent } = useStudents();
+  const { getStudentById, fetchStudentById, generateHealthSummary, setSelectedStudent, loading, error, refreshStudents } = useStudents();
   const student = getStudentById(id);
   const aiSummary = generateHealthSummary(student);
 
   useEffect(() => {
+    let active = true;
     if (student) {
       setSelectedStudent(student);
+      return;
     }
-  }, [student, setSelectedStudent]);
+    fetchStudentById(id).then((record) => {
+      if (active && record) setSelectedStudent(record);
+    });
+    return () => {
+      active = false;
+    };
+  }, [student, setSelectedStudent, fetchStudentById, id]);
+
+  if (loading && !student) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-7xl space-y-6 pb-10">
+          <div className="h-40 animate-pulse rounded-3xl bg-slate-200/70" />
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="h-96 animate-pulse rounded-3xl bg-slate-200/70" />
+            <div className="h-96 lg:col-span-2 animate-pulse rounded-3xl bg-slate-200/70" />
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error && !student) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-2xl rounded-3xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
+          <h1 className="text-2xl font-bold">Unable to load student profile</h1>
+          <p className="mt-2">{error}</p>
+          <button onClick={refreshStudents} className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
+            Retry
+          </button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!student) {
     return (
@@ -145,4 +181,3 @@ function MiniStat({ label, value, icon: Icon }) {
 }
 
 export default StudentProfile;
-

@@ -1,3 +1,5 @@
+import api from "./api";
+
 const STORAGE_KEY = "vitalearn.auth.session";
 
 export const demoAccounts = [
@@ -64,29 +66,19 @@ export function clearSession() {
   window.localStorage.removeItem(STORAGE_KEY);
 }
 
-export function authenticate(email, password) {
-  const normalizedEmail = String(email || "").trim().toLowerCase();
-  const account = demoAccounts.find(
-    (item) => item.email.toLowerCase() === normalizedEmail && item.password === password
-  );
-
-  if (!account) {
-    throw new Error("Invalid email or password.");
+export async function authenticate(email, password) {
+  const { data } = await api.post("/auth/login", { email, password });
+  const user = data.user || data.data?.user;
+  const token = data.token || data.data?.token;
+  if (!user || !token) {
+    throw new Error("Invalid login response from server.");
   }
-
-  const session = {
-    user: {
-      name: account.name,
-      email: account.email,
-      role: account.role,
-      label: account.label,
-    },
-    token: `${account.role}-${Date.now()}`,
-    dashboardPath: account.dashboardPath,
+  return {
+    user,
+    token,
+    dashboardPath: getRoleHome(user.role),
     rememberMe: true,
   };
-
-  return session;
 }
 
 export function getRoleHome(role) {
@@ -94,3 +86,15 @@ export function getRoleHome(role) {
   return account?.dashboardPath || "/teacher/dashboard";
 }
 
+export async function fetchCurrentUser() {
+  const { data } = await api.get("/auth/me");
+  return data.user || data.data?.user || null;
+}
+
+export async function logoutRequest() {
+  try {
+    await api.post("/auth/logout");
+  } catch {
+    // ignore logout failures; local session will still clear
+  }
+}

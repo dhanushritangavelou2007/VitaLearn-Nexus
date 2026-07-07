@@ -1,47 +1,94 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { StudentContext } from "./studentContextValue";
 import {
-  addStudent as addStudentRecord,
-  deleteStudent as deleteStudentRecord,
-  findStudentById,
-  getInitialStudents,
-  updateReports as updateStudentReports,
-  updateStudent as updateStudentRecord,
-  updateSymptoms as updateStudentSymptoms,
-  updateVitals as updateStudentVitals,
+  createAppointment,
+  createReport,
+  createStudent as createStudentApi,
+  createSymptomReport,
+  deleteStudent as deleteStudentApi,
+  getDashboardSummary,
+  getStudentById,
+  getStudents,
+  updateStudent as updateStudentApi,
 } from "../services/studentService";
 import { calculateDashboardStats, generateHealthSummary } from "../utils/studentAnalytics";
 
 export function StudentProvider({ children }) {
-  const [students, setStudents] = useState(() => getInitialStudents());
+  const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [dashboardSummary, setDashboardSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const addStudent = useCallback((student) => {
-    setStudents((current) => addStudentRecord(current, student));
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const [studentPayload, summary] = await Promise.all([getStudents(), getDashboardSummary()]);
+      setStudents(studentPayload.students);
+      setDashboardSummary(summary);
+    } catch (err) {
+      setError(err.message || "Failed to load student data.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const updateStudent = useCallback((id, updates) => {
-    setStudents((current) => updateStudentRecord(current, id, updates));
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const addStudent = useCallback(async (student) => {
+    const created = await createStudentApi(student);
+    setStudents((current) => [created, ...current]);
+    return created;
   }, []);
 
-  const deleteStudent = useCallback((id) => {
-    setStudents((current) => deleteStudentRecord(current, id));
+  const updateStudent = useCallback(async (id, updates) => {
+    const updated = await updateStudentApi(id, updates);
+    setStudents((current) => current.map((student) => (String(student.id) === String(id) ? updated : student)));
+    return updated;
+  }, []);
+
+  const deleteStudent = useCallback(async (id) => {
+    await deleteStudentApi(id);
+    setStudents((current) => current.filter((student) => String(student.id) !== String(id)));
     setSelectedStudent((current) => (String(current?.id) === String(id) ? null : current));
   }, []);
 
-  const updateSymptoms = useCallback((id, symptomReport) => {
-    setStudents((current) => updateStudentSymptoms(current, id, symptomReport));
+  const updateSymptoms = useCallback(async (id, symptomReport) => {
+    const created = await createSymptomReport({ student: id, ...symptomReport });
+    await loadData();
+    return created;
+  }, [loadData]);
+
+  const updateVitals = useCallback(async (id, vitals) => {
+    return updateStudent(id, { vitals, lastUpdate: "Today" });
+  }, [updateStudent]);
+
+  const updateReports = useCallback(async (id, reports) => {
+    const payload = Array.isArray(reports) ? reports : [reports];
+    const created = await Promise.all(payload.map((report) => createReport({ student: id, ...report })));
+    await loadData();
+    return created;
+  }, [loadData]);
+
+  const createAppointmentRecord = useCallback(async (payload) => {
+    return createAppointment(payload);
   }, []);
 
-  const updateVitals = useCallback((id, vitals) => {
-    setStudents((current) => updateStudentVitals(current, id, vitals));
+  const getStudentByStudentId = useCallback(async (id) => {
+    const student = await getStudentById(id);
+    setSelectedStudent(student);
+    return student;
   }, []);
 
-  const updateReports = useCallback((id, reports) => {
-    setStudents((current) => updateStudentReports(current, id, reports));
-  }, []);
+  const getStudentByLocalId = useCallback((id) => students.find((student) => String(student.id) === String(id)), [students]);
 
-  const getStudentById = useCallback((id) => findStudentById(students, id), [students]);
+  const dashboardStats = useMemo(() => {
+    if (dashboardSummary) return dashboardSummary;
+    return calculateDashboardStats(students);
+  }, [dashboardSummary, students]);
 
   const value = useMemo(
     () => ({
@@ -54,9 +101,15 @@ export function StudentProvider({ children }) {
       updateSymptoms,
       updateVitals,
       updateReports,
-      getStudentById,
+      getStudentById: getStudentByLocalId,
+      fetchStudentById: getStudentByStudentId,
+      createAppointment: createAppointmentRecord,
       generateHealthSummary,
-      calculateDashboardStats: () => calculateDashboardStats(students),
+      calculateDashboardStats: () => dashboardStats,
+      dashboardSummary,
+      loading,
+      error,
+      refreshStudents: loadData,
     }),
     [
       students,
@@ -67,9 +120,17 @@ export function StudentProvider({ children }) {
       updateSymptoms,
       updateVitals,
       updateReports,
-      getStudentById,
+      getStudentByLocalId,
+      getStudentByStudentId,
+      createAppointmentRecord,
+      dashboardStats,
+      dashboardSummary,
+      loading,
+      error,
+      loadData,
     ]
   );
 
   return <StudentContext.Provider value={value}>{children}</StudentContext.Provider>;
 }
+
