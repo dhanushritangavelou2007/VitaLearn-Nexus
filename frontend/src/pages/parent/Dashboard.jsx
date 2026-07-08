@@ -21,24 +21,10 @@ function ParentDashboard() {
     { day: "Fri", healthy: Math.max(0, Math.round(stats.averageHealthScore + 2)) },
     { day: "Sat", healthy: Math.max(0, Math.round(stats.averageHealthScore + 3)) },
   ];
-  const totalStats = stats.total || 1;
-  const rawDist = {
-    Healthy: Math.round((stats.riskDistribution?.healthy || 0) / totalStats * 100),
-    Moderate: Math.round((stats.riskDistribution?.moderate || 0) / totalStats * 100),
-    "High Risk": Math.round((stats.riskDistribution?.high || 0) / totalStats * 100),
-    Critical: Math.round((stats.critical || 0) / totalStats * 100),
-  };
-  
-  const sum = Object.values(rawDist).reduce((a, b) => a + b, 0);
-  if (sum > 0 && sum !== 100) {
-    rawDist.Healthy += (100 - sum);
-  }
-
   const distributionData = [
-    { name: "Healthy", value: rawDist.Healthy },
-    { name: "Moderate", value: rawDist.Moderate },
-    { name: "High Risk", value: rawDist["High Risk"] },
-    { name: "Critical", value: rawDist.Critical },
+    { name: "Healthy", value: stats.riskDistribution?.Healthy || stats.riskDistribution?.healthy || 0 },
+    { name: "Observation", value: (stats.riskDistribution?.Moderate || stats.riskDistribution?.moderate || 0) + (stats.riskDistribution?.["High Risk"] || stats.riskDistribution?.high || 0) },
+    { name: "Critical", value: stats.critical || 0 },
   ];
 
   const isTimeline = location.pathname.includes("timeline");

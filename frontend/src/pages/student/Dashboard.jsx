@@ -9,22 +9,10 @@ import { useStudents } from "../../hooks/useStudents";
 
 function StudentDashboard() {
   const location = useLocation();
- const {
-  students,
-  currentUser,
-  calculateDashboardStats,
-  loading,
-  error,
-  refreshStudents,
-} = useStudents();
- const student =
-  students.find(
-    (s) =>
-      s.email === currentUser?.email ||
-      s.id === currentUser?.studentId
-  ) || students[0];
-
-const stats = calculateDashboardStats(students);
+  const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
+  const student = students.find(s => s.name === "Aarav Sharma") || students[0];
+  const stats = calculateDashboardStats();
+  
   const trendData = [
     { day: "Mon", healthy: Math.max(0, Math.round(stats.averageHealthScore - 3)) },
     { day: "Tue", healthy: Math.max(0, Math.round(stats.averageHealthScore - 1)) },
@@ -33,22 +21,12 @@ const stats = calculateDashboardStats(students);
     { day: "Fri", healthy: Math.max(0, Math.round(stats.averageHealthScore + 2)) },
     { day: "Sat", healthy: Math.max(0, Math.round(stats.averageHealthScore + 3)) },
   ];
+  
   const distributionData = [
-  {
-    name: "Healthy",
-    value: Number(stats?.riskDistribution?.healthy || 0),
-  },
-  {
-    name: "Observation",
-    value:
-      Number(stats?.riskDistribution?.moderate || 0) +
-      Number(stats?.riskDistribution?.high || 0),
-  },
-  {
-    name: "Critical",
-    value: Number(stats?.riskDistribution?.critical || 0),
-  },
-];
+    { name: "Healthy", value: stats.riskDistribution?.Healthy || stats.riskDistribution?.healthy || 0 },
+    { name: "Observation", value: (stats.riskDistribution?.Moderate || stats.riskDistribution?.moderate || 0) + (stats.riskDistribution?.["High Risk"] || stats.riskDistribution?.high || 0) },
+    { name: "Critical", value: stats.critical || 0 },
+  ];
 
   const isAchievements = location.pathname.includes("achievements");
   const isTimeline = location.pathname.includes("timeline");

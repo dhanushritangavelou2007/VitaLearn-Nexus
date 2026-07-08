@@ -29,8 +29,7 @@ function Reports() {
   ];
   const distributionData = [
     { name: "Healthy", value: stats.healthy },
-    { name: "Observation", value: stats.riskDistribution?.observation || 0 },
-    { name: "Review", value: stats.riskDistribution?.review || 0 },
+    { name: "Observation", value: (stats.riskDistribution?.moderate || 0) + (stats.riskDistribution?.high || 0) },
     { name: "Critical", value: stats.critical },
   ];
 
