@@ -13,17 +13,17 @@ function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
-          <a href="#home" className="text-slate-600 hover:text-blue-600">
+          <Link to="/" className="text-slate-600 hover:text-blue-600">
             Home
-          </a>
+          </Link>
 
-          <a href="#features" className="text-slate-600 hover:text-blue-600">
+          <Link to="/" className="text-slate-600 hover:text-blue-600">
             Features
-          </a>
+          </Link>
 
-          <a href="#roles" className="text-slate-600 hover:text-blue-600">
+          <Link to="/" className="text-slate-600 hover:text-blue-600">
             Roles
-          </a>
+          </Link>
         </div>
 
         <div className="flex items-center gap-4">

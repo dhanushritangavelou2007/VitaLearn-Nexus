@@ -1,7 +1,7 @@
 import GlassCard from "../ui/GlassCard";
 import { HeartPulse, Thermometer, Weight, Activity } from "lucide-react";
 
-function HealthOverview({ student, healthScore }) {
+function HealthOverview({ student }) {
   const healthStats = [
     {
       title: "Heart Rate",
@@ -62,4 +62,3 @@ function HealthOverview({ student, healthScore }) {
 }
 
 export default HealthOverview;
-

@@ -1,15 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AuthContext } from "./authContextValue";
 import { authenticate, clearSession, fetchCurrentUser, getRoleHome, getStoredSession, logoutRequest, storeSession } from "../services/authService";
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(() => getStoredSession());
   const [authLoading, setAuthLoading] = useState(Boolean(session?.token));
+  const restoredTokenRef = useRef(null);
+  const sessionToken = session?.token;
+  const sessionUser = session?.user;
 
   useEffect(() => {
     let active = true;
     async function restore() {
-      if (!session?.token) {
+      if (!sessionToken || restoredTokenRef.current === sessionToken) {
         setAuthLoading(false);
         return;
       }
@@ -17,9 +20,10 @@ export function AuthProvider({ children }) {
       try {
         const user = await fetchCurrentUser();
         if (!active) return;
-        const nextSession = { ...session, user: user || session.user };
+        const nextSession = { token: sessionToken, user: user || sessionUser };
         setSession(nextSession);
         storeSession(nextSession);
+        restoredTokenRef.current = sessionToken;
       } catch {
         if (!active) return;
         setSession(null);
@@ -34,7 +38,7 @@ export function AuthProvider({ children }) {
     return () => {
       active = false;
     };
-  }, []);
+  }, [sessionToken, sessionUser]);
 
   useEffect(() => {
     if (!session) {

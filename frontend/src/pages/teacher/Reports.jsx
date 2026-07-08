@@ -4,10 +4,11 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import GlassCard from "../../components/ui/GlassCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
-import { FileText, ArrowRight, Search, Filter, Download } from "lucide-react";
+import { ArrowRight, Search, Filter, Download } from "lucide-react";
 import { getRiskLabel, getRiskStyle } from "../../data/students";
 import { useStudents } from "../../hooks/useStudents";
 import { getRecentActivity } from "../../utils/studentAnalytics";
+import { exportJsonAsExcel, exportJsonAsPdf, printElement } from "../../utils/exportHelpers";
 
 function Reports() {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ function Reports() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div id="reports-page" className="mx-auto max-w-7xl space-y-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-800">Reports</h1>
           <p className="font-medium text-slate-500">Review student health files and symptom reports</p>
@@ -82,13 +83,33 @@ function Reports() {
                   <option value="critical">Doctor Attention</option>
                 </select>
               </div>
-              <button className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white">
+              <button
+                onClick={() =>
+                  exportJsonAsPdf({
+                    title: "Student-Reports",
+                    subtitle: "Centralized student report export",
+                    rows: filteredReports.map((report) => [report.studentName, report.title, report.description, report.risk, report.date]),
+                  })
+                }
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white"
+              >
                 <Download size={16} />
                 Export PDF
               </button>
-              <button className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white">
+              <button
+                onClick={() =>
+                  exportJsonAsExcel({
+                    title: "Student Reports",
+                    rows: [["Student", "Report", "Status", "Risk", "Date"], ...filteredReports.map((report) => [report.studentName, report.title, report.description, report.risk, report.date])],
+                  })
+                }
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white"
+              >
                 <Download size={16} />
                 Export Excel
+              </button>
+              <button onClick={() => printElement("reports-page")} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700">
+                Print
               </button>
             </div>
           </div>
@@ -96,7 +117,7 @@ function Reports() {
 
         <GlassCard className="overflow-hidden p-0">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-left border-collapse">
+            <table className="w-full min-w-225 text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50/80 text-xs uppercase tracking-wider text-slate-500">
                   <th className="px-6 py-4 font-semibold">Student</th>

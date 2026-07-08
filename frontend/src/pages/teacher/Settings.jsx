@@ -1,12 +1,11 @@
-import { useState } from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import { Bell, Lock, MoonStar, ShieldCheck, UserCircle2 } from "lucide-react";
+import { Bell, Lock, MoonStar, UserCircle2 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../hooks/useTheme";
 
 function Settings() {
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const { user, role } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
 
   return (
     <DashboardLayout>
@@ -66,8 +65,7 @@ function Settings() {
                 <ToggleRow
                   label="Health alerts"
                   description="Receive urgent reports for high-risk students"
-                  enabled={notifications}
-                  onToggle={() => setNotifications((value) => !value)}
+                  enabled={true}
                 />
                 <ToggleRow
                   label="Weekly digest"
@@ -92,8 +90,8 @@ function Settings() {
                 <ToggleRow
                   label="Dark mode"
                   description="Use a darker interface for low-light viewing"
-                  enabled={darkMode}
-                  onToggle={() => setDarkMode((value) => !value)}
+                  enabled={isDarkMode}
+                  onToggle={toggleTheme}
                 />
                 <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
                   <div className="flex items-center gap-3">

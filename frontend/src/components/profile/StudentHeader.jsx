@@ -1,7 +1,7 @@
 import GlassCard from "../ui/GlassCard";
 import { UserCircle, ShieldCheck, School, Droplets } from "lucide-react";
 
-function StudentHeader({ student, status, statusLabel, passportId, onBack, onReport }) {
+function StudentHeader({ student, statusLabel, passportId, onBack, onReport }) {
   return (
     <GlassCard className="p-8">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
@@ -44,4 +44,3 @@ function StudentHeader({ student, status, statusLabel, passportId, onBack, onRep
 }
 
 export default StudentHeader;
-

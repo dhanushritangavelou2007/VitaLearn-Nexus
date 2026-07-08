@@ -35,7 +35,7 @@ export function StudentProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    loadData();
+    void Promise.resolve().then(loadData);
   }, [loadData]);
 
   const addStudent = useCallback(async (student) => {
@@ -133,4 +133,3 @@ export function StudentProvider({ children }) {
 
   return <StudentContext.Provider value={value}>{children}</StudentContext.Provider>;
 }
-

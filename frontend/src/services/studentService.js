@@ -1,4 +1,5 @@
 import api from "./api";
+import { demoAccounts } from "./authService";
 import initialStudents from "../data/students";
 import { calculateHealthScore, deriveRisk, generateHealthSummary } from "../utils/studentAnalytics";
 
@@ -168,6 +169,10 @@ function localDashboardSummary() {
 
   return {
     total,
+    teacherCount: demoAccounts.filter((account) => account.role === "teacher").length,
+    doctorCount: demoAccounts.filter((account) => account.role === "doctor").length,
+    parentCount: demoAccounts.filter((account) => account.role === "parent").length,
+    studentCount: demoAccounts.filter((account) => account.role === "student").length,
     healthy: riskDistribution.healthy,
     critical: riskDistribution.critical,
     needReview: riskDistribution.observation + riskDistribution.review + riskDistribution.critical,
@@ -179,6 +184,7 @@ function localDashboardSummary() {
       0
     ),
     reportCount: students.reduce((count, student) => count + (student.reports?.length || 0), 0),
+    appointments: demoStore.appointments.length,
     averageAttendance: average(students.map((student) => Number(String(student.attendance || "").replace("%", "")) || 0)),
     averageBMI: total
       ? Number((students.reduce((sum, student) => sum + Number(student.vitals?.bmi || 0), 0) / total).toFixed(1))

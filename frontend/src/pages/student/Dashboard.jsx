@@ -1,14 +1,16 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
-import HealthAreaChart from "../../components/charts/HealthAreaChart";
 import CircularProgress from "../../components/charts/CircularProgress";
 import GlassCard from "../../components/ui/GlassCard";
 import { Activity, HeartPulse, ShieldCheck, Syringe, Award } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
 
 function StudentDashboard() {
+  const location = useLocation();
   const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
   const student = students[0];
   const stats = calculateDashboardStats();
@@ -25,6 +27,13 @@ function StudentDashboard() {
     { name: "Review", value: stats.needReview - stats.critical },
     { name: "Critical", value: stats.critical },
   ];
+
+  useEffect(() => {
+    const hash = location.hash?.replace("#", "");
+    if (!hash) return;
+    const target = document.getElementById(hash);
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [location.hash]);
 
   if (loading || !student) {
     return (
@@ -65,7 +74,7 @@ function StudentDashboard() {
           <DashboardCard title="Achievements" value="4" subtitle="Health milestones" icon={Award} color="text-amber-600" bg="bg-amber-500" />
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-12">
+        <div id="passport" className="grid gap-6 xl:grid-cols-12">
           <GlassCard className="xl:col-span-7 p-6">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
@@ -84,7 +93,7 @@ function StudentDashboard() {
             </div>
           </GlassCard>
 
-          <GlassCard className="xl:col-span-5 p-6">
+          <GlassCard id="timeline" className="xl:col-span-5 p-6">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-indigo-50 p-2.5 text-indigo-600">
                 <ShieldCheck size={20} />
@@ -102,7 +111,7 @@ function StudentDashboard() {
           </GlassCard>
         </div>
 
-        <GlassCard className="p-6">
+        <GlassCard id="vaccination" className="p-6">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-cyan-50 p-2.5 text-cyan-600">
               <Syringe size={20} />
@@ -121,32 +130,22 @@ function StudentDashboard() {
           </div>
         </GlassCard>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div id="reports" className="grid gap-6 lg:grid-cols-2">
           <HealthTrendChart data={trendData} title="Wellness Trend" />
           <HealthDistributionChart data={distributionData} title="Health Distribution" />
-          <HealthAreaChart
-            title="Mental Wellness"
-            data={trendData.map((item, index) => ({ day: item.day, value: Math.max(0, Math.min(100, item.healthy - index + 8)) }))}
-          />
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div id="achievements" className="grid gap-6 lg:grid-cols-2">
           <GlassCard className="p-6">
             <h2 className="text-lg font-bold text-slate-800">Daily Water Tracker</h2>
             <div className="mt-6 flex justify-center">
-              <CircularProgress value={Math.min(100, Math.round(stats.averageHealthScore + 10))} label="Hydration" />
+              <CircularProgress value={Math.min(100, Math.round((student.attendance ? Number(student.attendance.replace("%", "")) : 0) + 5))} label="Hydration" />
             </div>
           </GlassCard>
           <GlassCard className="p-6">
             <h2 className="text-lg font-bold text-slate-800">Sleep Tracker</h2>
             <div className="mt-6 flex justify-center">
-              <CircularProgress value={82} label="Sleep Quality" />
-            </div>
-          </GlassCard>
-          <GlassCard className="p-6">
-            <h2 className="text-lg font-bold text-slate-800">Exercise Tracker</h2>
-            <div className="mt-6 flex justify-center">
-              <CircularProgress value={74} label="Activity" />
+              <CircularProgress value={Math.min(100, Math.max(60, stats.averageHealthScore))} label="Sleep Quality" />
             </div>
           </GlassCard>
         </div>

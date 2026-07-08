@@ -3,10 +3,13 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
 import GlassCard from "../../components/ui/GlassCard";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Bell, HeartPulse, ShieldCheck, Syringe, FileText } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
 
 function ParentDashboard() {
+  const location = useLocation();
   const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
   const child = students[0];
   const stats = calculateDashboardStats();
@@ -23,6 +26,12 @@ function ParentDashboard() {
     { name: "Review", value: stats.needReview - stats.critical },
     { name: "Critical", value: stats.critical },
   ];
+
+  useEffect(() => {
+    const hash = location.hash?.replace("#", "");
+    if (!hash) return;
+    document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [location.hash]);
 
   if (loading || !child) {
     return (
@@ -63,7 +72,7 @@ function ParentDashboard() {
           <DashboardCard title="AI Alerts" value={stats.pendingReports} subtitle="Monitor closely" icon={Bell} color="text-slate-700" bg="bg-slate-700" />
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-12">
+        <div id="passport" className="grid gap-6 xl:grid-cols-12">
           <GlassCard className="xl:col-span-7 p-6">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
@@ -82,7 +91,7 @@ function ParentDashboard() {
             </div>
           </GlassCard>
 
-          <GlassCard className="xl:col-span-5 p-6">
+          <GlassCard id="notifications" className="xl:col-span-5 p-6">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-amber-50 p-2.5 text-amber-600">
                 <Bell size={20} />
@@ -99,7 +108,7 @@ function ParentDashboard() {
           </GlassCard>
         </div>
 
-        <GlassCard className="p-6">
+        <GlassCard id="reports" className="p-6">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-indigo-50 p-2.5 text-indigo-600">
               <ShieldCheck size={20} />
@@ -114,7 +123,7 @@ function ParentDashboard() {
           </div>
         </GlassCard>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div id="timeline" className="grid gap-6 lg:grid-cols-2">
           <HealthTrendChart data={trendData} title="Attendance and Wellness Trend" />
           <HealthDistributionChart data={distributionData} title="Child Health Distribution" />
         </div>

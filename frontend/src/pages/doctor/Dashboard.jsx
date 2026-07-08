@@ -5,11 +5,14 @@ import HealthDistributionChart from "../../components/charts/HealthDistributionC
 import HealthAreaChart from "../../components/charts/HealthAreaChart";
 import CircularProgress from "../../components/charts/CircularProgress";
 import GlassCard from "../../components/ui/GlassCard";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Activity, ClipboardList, HeartPulse, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
 import { getRecentActivity } from "../../utils/studentAnalytics";
 
 function DoctorDashboard() {
+  const location = useLocation();
   const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
   const criticalStudents = students.filter((student) => student.risk === "critical");
   const reviewStudents = students.filter((student) => student.risk === "review" || student.risk === "critical");
@@ -28,6 +31,12 @@ function DoctorDashboard() {
     { name: "Review", value: stats.needReview - stats.critical },
     { name: "Critical", value: stats.critical },
   ];
+
+  useEffect(() => {
+    const hash = location.hash?.replace("#", "");
+    if (!hash) return;
+    document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [location.hash]);
 
   if (loading) {
     return (
@@ -68,7 +77,7 @@ function DoctorDashboard() {
           <DashboardCard title="AI Alerts" value={stats.pendingReports} subtitle="Needs follow-up" icon={Activity} color="text-slate-600" bg="bg-slate-700" />
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-12">
+        <div id="patients" className="grid gap-6 xl:grid-cols-12">
           <GlassCard className="xl:col-span-5 p-6">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-rose-50 p-2.5 text-rose-600">
@@ -94,7 +103,7 @@ function DoctorDashboard() {
             </div>
           </GlassCard>
 
-          <GlassCard className="xl:col-span-3 p-6">
+          <GlassCard id="diagnosis" className="xl:col-span-3 p-6">
             <h2 className="text-lg font-bold text-slate-800">Diagnosis Queue</h2>
             <div className="mt-6 space-y-3">
               {["Assign review", "Update notes", "Notify guardian"].map((item) => (
@@ -127,7 +136,7 @@ function DoctorDashboard() {
           </GlassCard>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div id="appointments" className="grid gap-6 lg:grid-cols-3">
           <HealthTrendChart data={trendData} title="Health Score Trend" />
           <HealthDistributionChart data={distributionData} title="Risk Distribution" />
           <HealthAreaChart
@@ -136,7 +145,7 @@ function DoctorDashboard() {
           />
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div id="critical" className="grid gap-6 lg:grid-cols-3">
           <GlassCard className="p-6">
             <h2 className="text-lg font-bold text-slate-800">Vaccination Status</h2>
             <div className="mt-6 flex justify-center">

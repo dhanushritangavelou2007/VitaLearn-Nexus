@@ -43,12 +43,12 @@ function HeroSection() {
               Get Started
             </Link>
 
-            <a
-              href="#roles"
+            <Link
+              to="/teacher/dashboard"
               className="rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-100"
             >
               ▶ View Roles
-            </a>
+            </Link>
 
           </div>
 

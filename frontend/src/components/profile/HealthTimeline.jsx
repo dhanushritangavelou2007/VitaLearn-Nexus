@@ -1,5 +1,5 @@
 import GlassCard from "../ui/GlassCard";
-import { HeartPulse, Eye, Syringe, ShieldCheck } from "lucide-react";
+import { HeartPulse } from "lucide-react";
 
 function HealthTimeline({ student }) {
   const timeline = [
@@ -48,4 +48,3 @@ function HealthTimeline({ student }) {
 }
 
 export default HealthTimeline;
-

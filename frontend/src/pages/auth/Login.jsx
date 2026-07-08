@@ -15,7 +15,7 @@ const roleCards = [
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isAuthenticated, role } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState("teacher@vitalearn.ai");
   const [password, setPassword] = useState("Teacher@123");
   const [selectedRole, setSelectedRole] = useState("teacher");
@@ -43,7 +43,7 @@ function Login() {
     }
   };
 
-  const useDemoAccount = (account) => {
+  const applyDemoAccount = (account) => {
     setSelectedRole(account.role);
     setEmail(account.email);
     setPassword(account.password);
@@ -52,10 +52,10 @@ function Login() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-950 via-slate-900 to-blue-950 text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.25),transparent_30%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.2),transparent_25%),radial-gradient(circle_at_bottom,rgba(14,165,233,0.12),transparent_35%)]" />
-      <div className="absolute inset-0 opacity-25 bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:56px_56px]" />
+      <div className="absolute inset-0 opacity-25 bg-[linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-size-[56px_56px]" />
 
       <div className="relative mx-auto grid min-h-screen max-w-7xl gap-10 px-4 py-8 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-10">
-        <section className="flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur-2xl lg:p-10">
+        <section className="flex flex-col justify-between rounded-4xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur-2xl lg:p-10">
           <div>
             <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-slate-100">
               <Sparkles size={16} className="text-cyan-300" />
@@ -76,10 +76,10 @@ function Login() {
                 <button
                   key={card.role}
                   type="button"
-                  onClick={() => useDemoAccount(demoAccounts.find((account) => account.role === card.role))}
+                  onClick={() => applyDemoAccount(demoAccounts.find((account) => account.role === card.role))}
                   className={`rounded-3xl border border-white/10 bg-white/10 p-5 text-left transition-all hover:-translate-y-1 hover:bg-white/15 ${selectedRole === card.role ? "ring-2 ring-cyan-300/70" : ""}`}
                 >
-                  <div className={`mb-4 inline-flex rounded-2xl bg-gradient-to-br p-3 text-white ${card.accent}`}>
+                  <div className={`mb-4 inline-flex rounded-2xl bg-linear-to-br p-3 text-white ${card.accent}`}>
                     <Icon size={20} />
                   </div>
                   <div className="text-lg font-semibold text-white">{card.title}</div>
@@ -99,7 +99,7 @@ function Login() {
         </section>
 
         <section className="flex items-center">
-          <div className="w-full rounded-[2rem] border border-white/20 bg-white/90 p-6 text-slate-900 shadow-2xl backdrop-blur-xl sm:p-8">
+          <div className="w-full rounded-4xl border border-white/20 bg-white/90 p-6 text-slate-900 shadow-2xl backdrop-blur-xl sm:p-8">
             <div className="mb-8">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">Sign In</p>
               <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Welcome back</h2>
@@ -156,7 +156,7 @@ function Login() {
                   <button
                     key={account.role}
                     type="button"
-                    onClick={() => useDemoAccount(account)}
+                    onClick={() => applyDemoAccount(account)}
                     className={`rounded-2xl border px-4 py-3 text-left text-sm transition ${selectedRole === account.role ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-white hover:bg-slate-50"}`}
                   >
                     <div className="font-semibold text-slate-900">{account.label}</div>
