@@ -53,12 +53,12 @@ function QuickActions() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         {actions.map((action) => (
           <GlassCard
             key={action.title}
             onClick={() => navigate(action.path)}
-            className="group cursor-pointer p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-35px_rgba(37,99,235,0.45)]"
+            className="group flex h-full cursor-pointer flex-col p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-35px_rgba(37,99,235,0.45)]"
           >
             <div className="rounded-2xl bg-linear-to-br from-blue-600 to-teal-500 p-3 text-white shadow-lg">
               <action.icon size={24} />
@@ -72,7 +72,7 @@ function QuickActions() {
               {action.description}
             </p>
 
-            <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-blue-600">
+            <div className="mt-auto flex items-center gap-2 text-sm font-semibold text-blue-600">
               Open
               <ArrowRight
                 size={16}

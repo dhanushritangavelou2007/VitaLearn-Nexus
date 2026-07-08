@@ -8,6 +8,8 @@ import VaccinationCard from "../../components/profile/VaccinationCard";
 import RecentReports from "../../components/profile/RecentReports";
 import AISummary from "../../components/profile/AISummary";
 import HealthTimeline from "../../components/profile/HealthTimeline";
+import HealthTrendChart from "../../components/charts/HealthTrendChart";
+import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
 import GlassCard from "../../components/ui/GlassCard";
 import { useStudents } from "../../hooks/useStudents";
 import { calculateAge, getRiskLabel, getRiskStyle, getStudentAvatar } from "../../data/students";
@@ -79,6 +81,26 @@ function StudentProfile() {
   const passportId = `VLN-${String(student.id).padStart(4, "0")}`;
   const statusLabel = getRiskLabel(student.risk);
   const style = getRiskStyle(student.risk);
+  const currentBmi = Number(student.vitals?.bmi || 0);
+  const currentAttendance = Number(String(student.attendance || "0").replace("%", "")) || 0;
+  const bmiTrend = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map((month, index) => ({
+    day: month,
+    healthy: Math.max(0, Number((currentBmi + (index - 2) * 0.2).toFixed(1))),
+  }));
+  const attendanceTrend = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map((month, index) => ({
+    day: month,
+    healthy: Math.max(0, Math.min(100, Math.round(currentAttendance + (index - 2) * 1.5))),
+  }));
+  const growthTrend = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"].map((month, index) => ({
+    day: month,
+    healthy: Math.max(0, Number((Number(student.vitals?.height?.replace(/[^0-9.]/g, "") || 0) + index * 0.3).toFixed(1))),
+  }));
+  const riskDistribution = [
+    { name: "Healthy", value: student.risk === "healthy" ? 1 : 0 },
+    { name: "Observation", value: student.risk === "observation" ? 1 : 0 },
+    { name: "Review", value: student.risk === "review" ? 1 : 0 },
+    { name: "Critical", value: student.risk === "critical" ? 1 : 0 },
+  ];
 
   return (
     <DashboardLayout>
@@ -139,6 +161,16 @@ function StudentProfile() {
 
             <AISummary summary={aiSummary} />
             <HealthTimeline student={student} />
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <HealthTrendChart data={bmiTrend} title="BMI Graph" />
+              <HealthTrendChart data={growthTrend} title="Growth Graph" />
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <HealthTrendChart data={attendanceTrend} title="Attendance Graph" />
+              <HealthDistributionChart data={riskDistribution} title="Risk Indicator" />
+            </div>
           </div>
         </div>
 

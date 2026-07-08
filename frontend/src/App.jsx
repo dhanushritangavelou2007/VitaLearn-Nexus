@@ -5,6 +5,7 @@ import CreatePassport from "./pages/teacher/CreatePassport";
 import StudentProfile from "./pages/teacher/StudentProfile";
 import ReportSymptoms from "./pages/teacher/ReportSymptoms";
 import Reports from "./pages/teacher/Reports";
+import Settings from "./pages/teacher/Settings";
 import DoctorDashboard from "./pages/doctor/Dashboard";
 import ParentDashboard from "./pages/parent/Dashboard";
 import StudentDashboard from "./pages/student/Dashboard";
@@ -51,6 +52,7 @@ function App() {
         <Route path="/teacher/student-profile/:id" element={<RoleGuard role="teacher"><StudentProfile /></RoleGuard>} />
         <Route path="/teacher/report-symptoms/:id" element={<RoleGuard role="teacher"><ReportSymptoms /></RoleGuard>} />
         <Route path="/teacher/reports" element={<RoleGuard role="teacher"><Reports /></RoleGuard>} />
+        <Route path="/settings" element={<Settings />} />
 
         <Route path="/doctor/dashboard" element={<RoleGuard role="doctor"><DoctorDashboard /></RoleGuard>} />
         <Route path="/parent/dashboard" element={<RoleGuard role="parent"><ParentDashboard /></RoleGuard>} />

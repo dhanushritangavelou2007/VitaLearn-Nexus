@@ -10,7 +10,7 @@ import { useStudents } from "../../hooks/useStudents";
 import { getRecentActivity } from "../../utils/studentAnalytics";
 
 function Dashboard() {
-  const { students, calculateDashboardStats, loading, error, refreshStudents, dashboardSummary } = useStudents();
+  const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
   const stats = calculateDashboardStats();
   const recentActivity = getRecentActivity(students);
   const trendData = [
@@ -79,8 +79,6 @@ function Dashboard() {
             </div>
           </div>
         </div>
-        {dashboardSummary ? null : null}
-
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <DashboardCard
             title="Total Students"

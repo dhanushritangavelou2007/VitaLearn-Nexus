@@ -1,6 +1,8 @@
-import { Bell, Search, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import GlobalSearch from "./GlobalSearch";
+import NotificationCenter from "./NotificationCenter";
 
 function Topbar() {
   const navigate = useNavigate();
@@ -20,20 +22,8 @@ function Topbar() {
 
       {/* Right Side */}
       <div className="flex items-center gap-4">
-        
-        <div className="hidden md:flex items-center gap-2 rounded-full bg-white/60 px-4 py-2 border border-slate-200/60 shadow-sm backdrop-blur-sm">
-          <Search size={18} className="text-slate-400" />
-          <input 
-            type="text" 
-            placeholder="Search records..." 
-            className="bg-transparent text-sm outline-none placeholder:text-slate-400 w-48 text-slate-700"
-          />
-        </div>
-
-        <button className="relative rounded-full bg-white/60 p-2.5 transition hover:bg-white border border-slate-200/60 shadow-sm backdrop-blur-sm">
-          <Bell size={20} className="text-slate-600" />
-          <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white"></span>
-        </button>
+        <GlobalSearch />
+        <NotificationCenter />
 
         <button
           onClick={() => {

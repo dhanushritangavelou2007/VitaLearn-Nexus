@@ -88,6 +88,14 @@ function Login() {
               );
             })}
           </div>
+
+          {activeDemo ? (
+            <div className="mt-8 rounded-3xl border border-white/10 bg-white/10 p-5 text-sm text-slate-200">
+              <div className="font-semibold text-white">Selected demo account</div>
+              <div className="mt-2">{activeDemo.email}</div>
+              <div className="text-slate-300">{activeDemo.role} access to {activeDemo.dashboardPath}</div>
+            </div>
+          ) : null}
         </section>
 
         <section className="flex items-center">

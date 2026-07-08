@@ -38,13 +38,17 @@ function calculateHealthScore(student) {
 }
 
 export async function getDashboardSummary() {
-  const [users, students, reports, appointments, notifications, studentDocs] = await Promise.all([
+  const [users, students, reports, appointments, notifications, studentDocs, teacherCount, doctorCount, parentCount, adminCount] = await Promise.all([
     User.countDocuments(),
     Student.countDocuments(),
     Report.countDocuments(),
     Appointment.countDocuments(),
     Notification.countDocuments(),
     Student.find().lean(),
+    User.countDocuments({ role: "teacher" }),
+    User.countDocuments({ role: "doctor" }),
+    User.countDocuments({ role: "parent" }),
+    User.countDocuments({ role: "admin" }),
   ]);
 
   const total = studentDocs.length;
@@ -65,6 +69,10 @@ export async function getDashboardSummary() {
     reports,
     appointments,
     notifications,
+    teacherCount,
+    doctorCount,
+    parentCount,
+    adminCount,
     total,
     healthy: riskDistribution.healthy,
     critical: riskDistribution.critical,

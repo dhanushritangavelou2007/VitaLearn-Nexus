@@ -1,10 +1,12 @@
 import { useState } from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import { Bell, Lock, MoonStar, ShieldCheck, UserCircle2 } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
 
 function Settings() {
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const { user, role } = useAuth();
 
   return (
     <DashboardLayout>
@@ -23,15 +25,15 @@ function Settings() {
                 <UserCircle2 size={20} />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-800">Teacher Profile</h2>
+                <h2 className="text-lg font-bold text-slate-800">Profile</h2>
                 <p className="text-sm text-slate-500">Keep your school account details updated.</p>
               </div>
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              <Field label="Full Name" value="Ms. Priya Sharma" />
-              <Field label="Role" value="Class Teacher" />
-              <Field label="Email" value="priya.sharma@vitalearn.edu" />
+              <Field label="Full Name" value={user?.name || "Not available"} />
+              <Field label="Role" value={role ? role.charAt(0).toUpperCase() + role.slice(1) : "Not available"} />
+              <Field label="Email" value={user?.email || "Not available"} />
               <Field label="Department" value="Student Wellness" />
             </div>
 

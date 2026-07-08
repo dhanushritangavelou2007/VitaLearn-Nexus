@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import { Search, Filter, CheckCircle2, Clock, AlertCircle, MoreVertical, Eye, FilePlus, Activity } from "lucide-react";
@@ -14,19 +14,55 @@ const statusIcons = {
 
 function Students() {
   const navigate = useNavigate();
-  const { students } = useStudents();
+  const { students, loading, error, refreshStudents } = useStudents();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRisk, setFilterRisk] = useState("All");
+  const [sortBy, setSortBy] = useState("latest");
 
-  const filteredStudents = students.filter((student) => {
+  const filteredStudents = useMemo(() => {
     const normalizedSearch = searchTerm.toLowerCase();
-    const matchesSearch =
-      student.name.toLowerCase().includes(normalizedSearch) ||
-      String(student.id).includes(normalizedSearch) ||
-      student.rollNo.toLowerCase().includes(normalizedSearch);
-    const matchesRisk = filterRisk === "All" || student.risk === filterRisk;
-    return matchesSearch && matchesRisk;
-  });
+    return students
+      .filter((student) => {
+        const matchesSearch =
+          student.name.toLowerCase().includes(normalizedSearch) ||
+          String(student.id).includes(normalizedSearch) ||
+          student.rollNo.toLowerCase().includes(normalizedSearch) ||
+          String(student.class || "").toLowerCase().includes(normalizedSearch);
+        const matchesRisk = filterRisk === "All" || student.risk === filterRisk;
+        return matchesSearch && matchesRisk;
+      })
+      .sort((a, b) => {
+        if (sortBy === "name") return a.name.localeCompare(b.name);
+        if (sortBy === "risk") return a.risk.localeCompare(b.risk);
+        if (sortBy === "attendance") return Number(String(b.attendance).replace("%", "")) - Number(String(a.attendance).replace("%", ""));
+        return Number(b.id) - Number(a.id);
+      });
+  }, [students, searchTerm, filterRisk, sortBy]);
+
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="h-40 animate-pulse rounded-3xl bg-slate-200/70" />
+          <div className="h-96 animate-pulse rounded-3xl bg-slate-200/70" />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-2xl rounded-3xl border border-rose-200 bg-rose-50 p-8 text-rose-700">
+          <h1 className="text-2xl font-bold">Unable to load students</h1>
+          <p className="mt-2">{error}</p>
+          <button onClick={refreshStudents} className="mt-6 rounded-2xl bg-rose-600 px-5 py-3 font-semibold text-white">
+            Retry
+          </button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -71,6 +107,19 @@ function Students() {
               <option value="observation">Observation</option>
               <option value="review">Needs Review</option>
               <option value="critical">Doctor Attention</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Activity size={18} className="text-slate-400" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full sm:w-44 rounded-xl bg-slate-50/50 border border-slate-200 py-2.5 px-4 text-sm outline-none focus:border-blue-500 focus:bg-white transition-colors appearance-none"
+            >
+              <option value="latest">Latest</option>
+              <option value="name">Name</option>
+              <option value="risk">Risk</option>
+              <option value="attendance">Attendance</option>
             </select>
           </div>
         </div>

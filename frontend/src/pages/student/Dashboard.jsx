@@ -2,6 +2,8 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
+import HealthAreaChart from "../../components/charts/HealthAreaChart";
+import CircularProgress from "../../components/charts/CircularProgress";
 import GlassCard from "../../components/ui/GlassCard";
 import { Activity, HeartPulse, ShieldCheck, Syringe, Award } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
@@ -57,7 +59,7 @@ function StudentDashboard() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          <DashboardCard title="Health Score" value={student.aiSummary ? "86" : "84"} subtitle="Current wellness" icon={HeartPulse} color="text-emerald-600" bg="bg-emerald-500" />
+          <DashboardCard title="Health Score" value={student.healthScore} subtitle="Current wellness" icon={HeartPulse} color="text-emerald-600" bg="bg-emerald-500" />
           <DashboardCard title="Attendance" value={student.attendance} subtitle="School term" icon={ShieldCheck} color="text-blue-600" bg="bg-blue-500" />
           <DashboardCard title="BMI" value={student.vitals.bmi} subtitle="Healthy range" icon={Activity} color="text-slate-700" bg="bg-slate-700" />
           <DashboardCard title="Achievements" value="4" subtitle="Health milestones" icon={Award} color="text-amber-600" bg="bg-amber-500" />
@@ -119,9 +121,34 @@ function StudentDashboard() {
           </div>
         </GlassCard>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-3">
           <HealthTrendChart data={trendData} title="Wellness Trend" />
           <HealthDistributionChart data={distributionData} title="Health Distribution" />
+          <HealthAreaChart
+            title="Mental Wellness"
+            data={trendData.map((item, index) => ({ day: item.day, value: Math.max(0, Math.min(100, item.healthy - index + 8)) }))}
+          />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <GlassCard className="p-6">
+            <h2 className="text-lg font-bold text-slate-800">Daily Water Tracker</h2>
+            <div className="mt-6 flex justify-center">
+              <CircularProgress value={Math.min(100, Math.round(stats.averageHealthScore + 10))} label="Hydration" />
+            </div>
+          </GlassCard>
+          <GlassCard className="p-6">
+            <h2 className="text-lg font-bold text-slate-800">Sleep Tracker</h2>
+            <div className="mt-6 flex justify-center">
+              <CircularProgress value={82} label="Sleep Quality" />
+            </div>
+          </GlassCard>
+          <GlassCard className="p-6">
+            <h2 className="text-lg font-bold text-slate-800">Exercise Tracker</h2>
+            <div className="mt-6 flex justify-center">
+              <CircularProgress value={74} label="Activity" />
+            </div>
+          </GlassCard>
         </div>
       </div>
     </DashboardLayout>

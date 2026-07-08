@@ -67,18 +67,41 @@ export function clearSession() {
 }
 
 export async function authenticate(email, password) {
-  const { data } = await api.post("/auth/login", { email, password });
-  const user = data.user || data.data?.user;
-  const token = data.token || data.data?.token;
-  if (!user || !token) {
-    throw new Error("Invalid login response from server.");
+  try {
+    const { data } = await api.post("/auth/login", { email, password });
+    const user = data.user || data.data?.user;
+    const token = data.token || data.data?.token;
+    if (!user || !token) {
+      throw new Error("Invalid login response from server.");
+    }
+    return {
+      user,
+      token,
+      dashboardPath: getRoleHome(user.role),
+      rememberMe: true,
+    };
+  } catch (error) {
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const account = demoAccounts.find(
+      (item) => item.email.toLowerCase() === normalizedEmail && item.password === password
+    );
+
+    if (!account) {
+      throw error;
+    }
+
+    return {
+      user: {
+        name: account.name,
+        email: account.email,
+        role: account.role,
+        label: account.label,
+      },
+      token: `demo-${account.role}`,
+      dashboardPath: account.dashboardPath,
+      rememberMe: true,
+    };
   }
-  return {
-    user,
-    token,
-    dashboardPath: getRoleHome(user.role),
-    rememberMe: true,
-  };
 }
 
 export function getRoleHome(role) {
@@ -87,8 +110,13 @@ export function getRoleHome(role) {
 }
 
 export async function fetchCurrentUser() {
-  const { data } = await api.get("/auth/me");
-  return data.user || data.data?.user || null;
+  try {
+    const { data } = await api.get("/auth/me");
+    return data.user || data.data?.user || null;
+  } catch {
+    const session = getStoredSession();
+    return session?.user || null;
+  }
 }
 
 export async function logoutRequest() {

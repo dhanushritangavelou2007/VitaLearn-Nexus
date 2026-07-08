@@ -2,6 +2,7 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
+import RiskBarChart from "../../components/charts/RiskBarChart";
 import GlassCard from "../../components/ui/GlassCard";
 import { Activity, BarChart3, ShieldCheck, Users } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
@@ -57,8 +58,8 @@ function AdminDashboard() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          <DashboardCard title="Teachers" value="24" subtitle="Active staff members" icon={Users} color="text-blue-600" bg="bg-blue-500" />
-          <DashboardCard title="Doctors" value="4" subtitle="Medical support staff" icon={ShieldCheck} color="text-emerald-600" bg="bg-emerald-500" />
+          <DashboardCard title="Teachers" value={stats.teacherCount || 0} subtitle="Active staff members" icon={Users} color="text-blue-600" bg="bg-blue-500" />
+          <DashboardCard title="Doctors" value={stats.doctorCount || 0} subtitle="Medical support staff" icon={ShieldCheck} color="text-emerald-600" bg="bg-emerald-500" />
           <DashboardCard title="Students" value={stats.total} subtitle="Monitored passports" icon={Activity} color="text-slate-700" bg="bg-slate-700" />
           <DashboardCard title="Reports" value={stats.reportCount} subtitle={`${highRiskCount} high risk`} icon={BarChart3} color="text-amber-600" bg="bg-amber-500" />
         </div>
@@ -86,6 +87,32 @@ function AdminDashboard() {
         <div className="grid gap-6 lg:grid-cols-2">
           <HealthTrendChart data={trendData} title="School Health Trend" />
           <HealthDistributionChart data={distributionData} title="Risk Distribution" />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <RiskBarChart
+            title="Student Distribution"
+            data={[
+              { name: "Students", value: stats.total },
+              { name: "Reports", value: stats.reportCount },
+              { name: "Appointments", value: stats.appointments || 0 },
+              { name: "Incidents", value: highRiskCount },
+            ]}
+          />
+          <GlassCard className="p-6">
+            <h2 className="text-lg font-bold text-slate-800">Pending Tasks</h2>
+            <div className="mt-6 space-y-3">
+              {[
+                `Review ${stats.pendingReports} pending reports`,
+                `Follow up ${highRiskCount} critical cases`,
+                `Monitor ${stats.appointments || 0} scheduled appointments`,
+              ].map((item) => (
+                <div key={item} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </GlassCard>
         </div>
       </div>
     </DashboardLayout>

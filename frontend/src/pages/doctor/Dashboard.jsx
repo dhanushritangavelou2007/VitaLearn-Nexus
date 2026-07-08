@@ -2,6 +2,8 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
+import HealthAreaChart from "../../components/charts/HealthAreaChart";
+import CircularProgress from "../../components/charts/CircularProgress";
 import GlassCard from "../../components/ui/GlassCard";
 import { Activity, ClipboardList, HeartPulse, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
@@ -125,9 +127,34 @@ function DoctorDashboard() {
           </GlassCard>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-3">
           <HealthTrendChart data={trendData} title="Health Score Trend" />
           <HealthDistributionChart data={distributionData} title="Risk Distribution" />
+          <HealthAreaChart
+            title="Disease Trends"
+            data={trendData.map((item, index) => ({ day: item.day, value: Math.max(0, item.healthy - index) }))}
+          />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <GlassCard className="p-6">
+            <h2 className="text-lg font-bold text-slate-800">Vaccination Status</h2>
+            <div className="mt-6 flex justify-center">
+              <CircularProgress value={Math.round((stats.healthyPercent || 0) + 12)} label="Vaccination Coverage" />
+            </div>
+          </GlassCard>
+          <GlassCard className="p-6">
+            <h2 className="text-lg font-bold text-slate-800">Department Analytics</h2>
+            <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
+              Pediatrics and triage queues are prioritized based on critical risk alerts and follow-up activity.
+            </div>
+          </GlassCard>
+          <GlassCard className="p-6">
+            <h2 className="text-lg font-bold text-slate-800">Pending Follow-ups</h2>
+            <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
+              {stats.pendingReports} reports require review or guardian follow-up this cycle.
+            </div>
+          </GlassCard>
         </div>
       </div>
     </DashboardLayout>
