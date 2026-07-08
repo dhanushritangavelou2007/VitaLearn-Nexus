@@ -2,32 +2,21 @@ import mongoose from "mongoose";
 
 export async function connectDB(uri) {
   if (!uri) {
-    console.log("No MongoDB URI found. Starting in demo mode.");
+    console.log("⚠ MongoDB URI not found. Running in Demo Mode.");
     return null;
   }
 
-  mongoose.set("strictQuery", true);
-
   try {
-    await Promise.race([
-      mongoose.connect(uri, {
-        serverSelectionTimeoutMS: 2000,
-        connectTimeoutMS: 2000,
-      }),
-      new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("MongoDB connection timeout")), 2500);
-      }),
-    ]);
-
-    console.log("MongoDB connected");
+    await mongoose.connect(uri);
+    console.log("✅ MongoDB Connected");
     return mongoose.connection;
   } catch (error) {
-    console.warn("MongoDB unavailable, continuing in demo mode:", error.message);
+    console.log("⚠ MongoDB connection failed.");
+    console.log("Running in Demo Mode.");
     return null;
   }
 }
 
 export function isDBConnected() {
-  return mongoose.connection && mongoose.connection.readyState === 1;
+  return mongoose.connection.readyState === 1;
 }
-

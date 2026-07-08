@@ -33,11 +33,9 @@ function DoctorDashboard() {
     { name: "Critical", value: stats.critical },
   ];
 
-  useEffect(() => {
-    const hash = location.hash?.replace("#", "");
-    if (!hash) return;
-    document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [location.hash]);
+  const isAppointments = location.pathname.includes("appointments");
+  const isDiagnosis = location.pathname.includes("diagnosis");
+  const isMainDashboard = !isAppointments && !isDiagnosis;
 
   if (loading) {
     return (
@@ -78,94 +76,164 @@ function DoctorDashboard() {
           <DashboardCard title="AI Alerts" value={stats.pendingReports} subtitle="Needs follow-up" icon={Activity} color="text-slate-600" bg="bg-slate-700" />
         </div>
 
-        <div id="patients" className="grid gap-6 xl:grid-cols-12">
-          <GlassCard className="xl:col-span-5 p-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-rose-50 p-2.5 text-rose-600">
-                <HeartPulse size={20} />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-800">Today's Patients</h2>
-                <p className="text-sm text-slate-500">Students needing medical review</p>
-              </div>
-            </div>
-            <div className="mt-6 space-y-3">
-              {reviewStudents.slice(0, 5).map((student) => (
-                <div key={student.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <h3 className="font-semibold text-slate-700">{student.name}</h3>
-                      <p className="text-sm text-slate-500">{student.rollNo} • {student.medicalConditions[0] || "Review required"}</p>
-                    </div>
-                    <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">{student.risk}</span>
+        {isMainDashboard && (
+          <>
+            <div id="patients" className="grid gap-6 xl:grid-cols-12">
+              <GlassCard className="xl:col-span-5 p-6">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-2xl bg-rose-50 p-2.5 text-rose-600">
+                    <HeartPulse size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-800">Today's Patients</h2>
+                    <p className="text-sm text-slate-500">Students needing medical review</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </GlassCard>
+                <div className="mt-6 space-y-3">
+                  {reviewStudents.slice(0, 5).map((student) => (
+                    <div key={student.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold text-slate-700">{student.name}</h3>
+                          <p className="text-sm text-slate-500">{student.rollNo} • {student.medicalConditions[0] || "Review required"}</p>
+                        </div>
+                        <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">{student.risk}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
 
-          <GlassCard id="diagnosis" className="xl:col-span-3 p-6">
+              <GlassCard className="xl:col-span-7 p-6">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-800">AI Suggestions</h2>
+                    <p className="text-sm text-slate-500">Decision support for follow-up</p>
+                  </div>
+                </div>
+                <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
+                  Review recent symptom entries, prioritize breathing concerns, and coordinate with guardians before the next school session.
+                </div>
+                <div className="mt-4 space-y-3">
+                  {recentActivity.slice(0, 3).map((item) => (
+                    <div key={item.id} className="rounded-2xl border border-slate-100 bg-white p-4">
+                      <div className="text-sm font-semibold text-slate-700">{item.studentName}</div>
+                      <div className="text-xs text-slate-500">{item.title} - {item.description}</div>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            </div>
+            
+            <div id="critical" className="grid gap-6 lg:grid-cols-3">
+              <GlassCard className="p-6">
+                <h2 className="text-lg font-bold text-slate-800">Vaccination Status</h2>
+                <div className="mt-6 flex justify-center">
+                  <CircularProgress value={Math.round((stats.healthyPercent || 0) + 12)} label="Vaccination Coverage" />
+                </div>
+              </GlassCard>
+              <GlassCard className="p-6">
+                <h2 className="text-lg font-bold text-slate-800">Department Analytics</h2>
+                <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
+                  Pediatrics and triage queues are prioritized based on critical risk alerts and follow-up activity.
+                </div>
+              </GlassCard>
+              <GlassCard className="p-6">
+                <h2 className="text-lg font-bold text-slate-800">Pending Follow-ups</h2>
+                <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
+                  {stats.pendingReports} reports require review or guardian follow-up this cycle.
+                </div>
+              </GlassCard>
+            </div>
+          </>
+        )}
+
+        {isDiagnosis && (
+          <GlassCard id="diagnosis" className="p-6">
             <h2 className="text-lg font-bold text-slate-800">Diagnosis Queue</h2>
             <div className="mt-6 space-y-3">
-              {["Assign review", "Update notes", "Notify guardian"].map((item) => (
-                <div key={item} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600">{item}</div>
-              ))}
-            </div>
-          </GlassCard>
-
-          <GlassCard className="xl:col-span-4 p-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
-                <ShieldCheck size={20} />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-800">AI Suggestions</h2>
-                <p className="text-sm text-slate-500">Decision support for follow-up</p>
-              </div>
-            </div>
-            <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
-              Review recent symptom entries, prioritize breathing concerns, and coordinate with guardians before the next school session.
-            </div>
-            <div className="mt-4 space-y-3">
-              {recentActivity.slice(0, 3).map((item) => (
-                <div key={item.id} className="rounded-2xl border border-slate-100 bg-white p-4">
-                  <div className="text-sm font-semibold text-slate-700">{item.studentName}</div>
-                  <div className="text-xs text-slate-500">{item.title} - {item.description}</div>
+              {students.filter(s => s.risk === 'critical' || s.risk === 'observation').map((student) => (
+                <div key={student.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-slate-700">{student.name}</h3>
+                    <p className="text-sm text-slate-500">Needs review for: {student.medicalConditions?.join(', ') || student.symptoms?.join(', ') || 'General Checkup'}</p>
+                  </div>
+                  <a href={`/passport/${student.id}`} className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold hover:bg-blue-200">
+                    Review Case
+                  </a>
                 </div>
               ))}
+              {students.filter(s => s.risk === 'critical' || s.risk === 'observation').length === 0 && (
+                <p className="text-sm text-slate-500">No students currently in the diagnosis queue.</p>
+              )}
             </div>
           </GlassCard>
-        </div>
+        )}
 
-        <div id="appointments" className="grid gap-6 lg:grid-cols-3">
-          <HealthTrendChart data={trendData} title="Health Score Trend" />
-          <HealthDistributionChart data={distributionData} title="Risk Distribution" />
-          <HealthAreaChart
-            title="Disease Trends"
-            data={trendData.map((item, index) => ({ day: item.day, value: Math.max(0, item.healthy - index) }))}
-          />
-        </div>
-
-        <div id="critical" className="grid gap-6 lg:grid-cols-3">
-          <GlassCard className="p-6">
-            <h2 className="text-lg font-bold text-slate-800">Vaccination Status</h2>
-            <div className="mt-6 flex justify-center">
-              <CircularProgress value={Math.round((stats.healthyPercent || 0) + 12)} label="Vaccination Coverage" />
+        {isAppointments && (
+          <GlassCard id="appointments" className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-slate-800">Doctor Appointments</h2>
+              <select 
+                className="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm text-slate-700 outline-none"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  document.querySelectorAll('.appointment-row').forEach(row => {
+                    if (val === 'all') {
+                      row.style.display = (row.dataset.risk === 'critical' || row.dataset.risk === 'observation') ? 'table-row' : 'none';
+                    } else {
+                      row.style.display = row.dataset.risk === val ? 'table-row' : 'none';
+                    }
+                  });
+                }}
+              >
+                <option value="all">Critical & Observation</option>
+                <option value="critical">Critical Only</option>
+                <option value="observation">Observation Only</option>
+              </select>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-6 py-4 font-semibold rounded-tl-xl">Student</th>
+                    <th className="px-6 py-4 font-semibold">Risk</th>
+                    <th className="px-6 py-4 font-semibold">Condition</th>
+                    <th className="px-6 py-4 font-semibold rounded-tr-xl">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {students.filter(s => s.risk === 'critical' || s.risk === 'observation').map(student => (
+                    <tr key={student.id} className="appointment-row hover:bg-slate-50 transition-colors" data-risk={student.risk}>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-slate-800">{student.name}</div>
+                        <div className="text-xs text-slate-500">Roll: {student.rollNo}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${student.risk === 'critical' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {student.risk}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600">
+                        {student.medicalConditions?.join(', ') || 'None'}
+                      </td>
+                      <td className="px-6 py-4">
+                        <a href={`/passport/${student.id}`} className="text-blue-600 hover:underline text-sm font-medium">Review</a>
+                      </td>
+                    </tr>
+                  ))}
+                  {students.filter(s => s.risk === 'critical' || s.risk === 'observation').length === 0 && (
+                    <tr><td colSpan="4" className="text-center py-8 text-slate-500">No appointments needed.</td></tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </GlassCard>
-          <GlassCard className="p-6">
-            <h2 className="text-lg font-bold text-slate-800">Department Analytics</h2>
-            <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
-              Pediatrics and triage queues are prioritized based on critical risk alerts and follow-up activity.
-            </div>
-          </GlassCard>
-          <GlassCard className="p-6">
-            <h2 className="text-lg font-bold text-slate-800">Pending Follow-ups</h2>
-            <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
-              {stats.pendingReports} reports require review or guardian follow-up this cycle.
-            </div>
-          </GlassCard>
-        </div>
+        )}
       </div>
     </DashboardLayout>
   );

@@ -20,6 +20,7 @@ import appointmentRoutes from "./routes/appointmentRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 
 dotenv.config();
+import mongoose from "mongoose";
 console.log("MongoDB URI:", process.env.MONGODB_URI);
 
 const app = express();
@@ -40,8 +41,22 @@ app.use(
   })
 );
 
-app.get("/health", (_req, res) => {
-  res.json({ success: true, message: "VitaLearn Nexus backend is healthy." });
+app.get("/health", (req, res) => {
+
+    res.json({
+
+        success:true,
+
+        mongoConnected:
+            mongoose.connection.readyState===1,
+
+        mode:
+            mongoose.connection.readyState===1
+                ?"Database"
+                :"Demo"
+
+    });
+
 });
 
 app.use("/auth", authRoutes);

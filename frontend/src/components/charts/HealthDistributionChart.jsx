@@ -1,29 +1,70 @@
 import GlassCard from "../ui/GlassCard";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
-const fallbackData = [
-  { name: "Healthy", value: 596 },
-  { name: "Review", value: 18 },
-  { name: "Critical", value: 10 },
+const COLORS = [
+  "#22c55e",
+  "#f59e0b",
+  "#ef4444",
 ];
 
-const COLORS = ["#22c55e", "#f59e0b", "#ef4444", "#3b82f6"];
+function HealthDistributionChart({
+  data = [],
+  title = "Health Distribution",
+}) {
+  const chartData = data.filter(
+    (item) => Number(item.value) > 0
+  );
 
-function HealthDistributionChart({ data = fallbackData, title = "Health Distribution" }) {
   return (
     <GlassCard className="p-6">
-      <h2 className="mb-6 text-2xl font-bold text-slate-900">{title}</h2>
+      <h2 className="mb-6 text-2xl font-bold text-slate-900">
+        {title}
+      </h2>
+
       <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie data={data} dataKey="value" outerRadius={110} label>
-              {data.map((entry, index) => (
-                <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </ResponsiveContainer>
+
+        {chartData.length === 0 ? (
+          <div className="flex h-full items-center justify-center text-slate-500">
+            No health distribution available.
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label={({ name, percent }) =>
+                  `${name} ${(percent * 100).toFixed(0)}%`
+                }
+              >
+                {chartData.map((entry, index) => (
+                  <Cell
+                    key={entry.name}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+
+              <Tooltip />
+
+              <Legend />
+
+            </PieChart>
+          </ResponsiveContainer>
+        )}
+
       </div>
     </GlassCard>
   );

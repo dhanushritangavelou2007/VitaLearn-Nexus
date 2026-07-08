@@ -23,7 +23,7 @@ import {
 function ReportSymptoms() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getStudentById, updateSymptoms, setSelectedStudent } = useStudents();
+  const { getStudentById, fetchStudentById, updateSymptoms, setSelectedStudent, loading } = useStudents();
   const student = getStudentById(id);
 
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
@@ -36,10 +36,29 @@ function ReportSymptoms() {
   const [timeline, setTimeline] = useState([]);
 
   useEffect(() => {
+    let active = true;
     if (student) {
       setSelectedStudent(student);
+      return;
     }
-  }, [student, setSelectedStudent]);
+    fetchStudentById(id).then((record) => {
+      if (active && record) setSelectedStudent(record);
+    });
+    return () => {
+      active = false;
+    };
+  }, [student, setSelectedStudent, fetchStudentById, id]);
+
+  if (loading && !student) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-3xl mx-auto space-y-6 pb-10">
+          <div className="h-20 animate-pulse rounded-3xl bg-slate-200/70" />
+          <div className="h-96 animate-pulse rounded-3xl bg-slate-200/70" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (!student) {
     return (

@@ -11,7 +11,7 @@ import { useStudents } from "../../hooks/useStudents";
 function ParentDashboard() {
   const location = useLocation();
   const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
-  const child = students[0];
+  const child = students.find(s => s.name === "Aarav Sharma") || students[0];
   const stats = calculateDashboardStats();
   const trendData = [
     { day: "Mon", healthy: Math.max(0, Math.round(stats.averageHealthScore - 3)) },
@@ -41,11 +41,9 @@ function ParentDashboard() {
     { name: "Critical", value: rawDist.Critical },
   ];
 
-  useEffect(() => {
-    const hash = location.hash?.replace("#", "");
-    if (!hash) return;
-    document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [location.hash]);
+  const isTimeline = location.pathname.includes("timeline");
+  const isNotifications = location.pathname.includes("notifications");
+  const isMainDashboard = !isTimeline && !isNotifications;
 
   if (loading || !child) {
     return (
@@ -86,26 +84,51 @@ function ParentDashboard() {
           <DashboardCard title="AI Alerts" value={stats.pendingReports} subtitle="Monitor closely" icon={Bell} color="text-slate-700" bg="bg-slate-700" />
         </div>
 
-        <div id="passport" className="grid gap-6 xl:grid-cols-12">
-          <GlassCard className="xl:col-span-7 p-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
-                <HeartPulse size={20} />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-800">Child Health Passport</h2>
-                <p className="text-sm text-slate-500">Latest wellness summary for {child.name}</p>
-              </div>
-            </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <InfoCard label="Risk Status" value="Observation" accent="blue" />
-              <InfoCard label="Attendance" value={child.attendance} accent="emerald" />
-              <InfoCard label="Last Update" value={child.lastUpdate} accent="amber" />
-              <InfoCard label="Vaccinations" value={`${child.vaccinations.length} recorded`} accent="indigo" />
-            </div>
-          </GlassCard>
+        {isMainDashboard && (
+          <>
+            <div id="passport" className="grid gap-6 xl:grid-cols-12">
+              <GlassCard className="xl:col-span-7 p-6">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
+                    <HeartPulse size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-800">Child Health Passport</h2>
+                    <p className="text-sm text-slate-500">Latest wellness summary for {child.name}</p>
+                  </div>
+                </div>
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <InfoCard label="Risk Status" value="Observation" accent="blue" />
+                  <InfoCard label="Attendance" value={child.attendance} accent="emerald" />
+                  <InfoCard label="Last Update" value={child.lastUpdate} accent="amber" />
+                  <InfoCard label="Vaccinations" value={`${child.vaccinations.length} recorded`} accent="indigo" />
+                </div>
+              </GlassCard>
 
-          <GlassCard id="notifications" className="xl:col-span-5 p-6">
+              <GlassCard className="xl:col-span-5 p-6 opacity-0 hidden">
+                 {/* Reserved space */}
+              </GlassCard>
+            </div>
+
+            <GlassCard id="reports" className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl bg-indigo-50 p-2.5 text-indigo-600">
+                  <ShieldCheck size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-800">AI Health Suggestions</h2>
+                  <p className="text-sm text-slate-500">Helpful guidance based on the latest health record</p>
+                </div>
+              </div>
+              <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600">
+                Keep a water bottle available and ensure a healthy breakfast before school. A short rest after classes may help if symptoms continue.
+              </div>
+            </GlassCard>
+          </>
+        )}
+
+        {isNotifications && (
+          <GlassCard id="notifications" className="p-6">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-amber-50 p-2.5 text-amber-600">
                 <Bell size={20} />
@@ -120,27 +143,14 @@ function ParentDashboard() {
               <NotificationItem title="Vaccination reminder" description="Upcoming immunization due next week." />
             </div>
           </GlassCard>
-        </div>
+        )}
 
-        <GlassCard id="reports" className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-indigo-50 p-2.5 text-indigo-600">
-              <ShieldCheck size={20} />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-800">AI Health Suggestions</h2>
-              <p className="text-sm text-slate-500">Helpful guidance based on the latest health record</p>
-            </div>
+        {isTimeline && (
+          <div id="timeline" className="grid gap-6 lg:grid-cols-2">
+            <HealthTrendChart data={trendData} title="Attendance and Wellness Trend" />
+            <HealthDistributionChart data={distributionData} title="Child Health Distribution" />
           </div>
-          <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600">
-            Keep a water bottle available and ensure a healthy breakfast before school. A short rest after classes may help if symptoms continue.
-          </div>
-        </GlassCard>
-
-        <div id="timeline" className="grid gap-6 lg:grid-cols-2">
-          <HealthTrendChart data={trendData} title="Attendance and Wellness Trend" />
-          <HealthDistributionChart data={distributionData} title="Child Health Distribution" />
-        </div>
+        )}
       </div>
     </DashboardLayout>
   );

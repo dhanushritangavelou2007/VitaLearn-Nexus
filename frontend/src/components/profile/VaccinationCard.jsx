@@ -20,6 +20,14 @@ function VaccinationCard({ student }) {
             <span className="text-emerald-600 text-xs font-semibold">Recorded</span>
           </li>
         ))}
+        {["BCG", "OPV", "COVID-19", "MMR"]
+          .filter((v) => !(student.vaccinations || []).includes(v))
+          .map((missing) => (
+            <li key={missing} className="flex justify-between items-center border-b border-slate-100 pb-2 last:border-b-0 last:pb-1">
+              <span className="text-slate-600 font-medium">{missing}</span>
+              <span className="text-amber-600 text-xs font-semibold bg-amber-50 px-2 py-0.5 rounded-sm">Upcoming</span>
+            </li>
+          ))}
       </ul>
     </GlassCard>
   );

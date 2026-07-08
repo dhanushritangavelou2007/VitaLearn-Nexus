@@ -1,19 +1,30 @@
-import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
-import CircularProgress from "../../components/charts/CircularProgress";
 import GlassCard from "../../components/ui/GlassCard";
-import { Activity, HeartPulse, ShieldCheck, Syringe, Award } from "lucide-react";
+import { Activity, HeartPulse, ShieldCheck, Award } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
 
 function StudentDashboard() {
   const location = useLocation();
-  const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
-  const student = students[0];
-  const stats = calculateDashboardStats();
+ const {
+  students,
+  currentUser,
+  calculateDashboardStats,
+  loading,
+  error,
+  refreshStudents,
+} = useStudents();
+ const student =
+  students.find(
+    (s) =>
+      s.email === currentUser?.email ||
+      s.id === currentUser?.studentId
+  ) || students[0];
+
+const stats = calculateDashboardStats(students);
   const trendData = [
     { day: "Mon", healthy: Math.max(0, Math.round(stats.averageHealthScore - 3)) },
     { day: "Tue", healthy: Math.max(0, Math.round(stats.averageHealthScore - 1)) },
@@ -23,17 +34,26 @@ function StudentDashboard() {
     { day: "Sat", healthy: Math.max(0, Math.round(stats.averageHealthScore + 3)) },
   ];
   const distributionData = [
-    { name: "Healthy", value: stats.healthy },
-    { name: "Review", value: stats.needReview - stats.critical },
-    { name: "Critical", value: stats.critical },
-  ];
+  {
+    name: "Healthy",
+    value: Number(stats?.riskDistribution?.healthy || 0),
+  },
+  {
+    name: "Observation",
+    value:
+      Number(stats?.riskDistribution?.moderate || 0) +
+      Number(stats?.riskDistribution?.high || 0),
+  },
+  {
+    name: "Critical",
+    value: Number(stats?.riskDistribution?.critical || 0),
+  },
+];
 
-  useEffect(() => {
-    const hash = location.hash?.replace("#", "");
-    if (!hash) return;
-    const target = document.getElementById(hash);
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [location.hash]);
+  const isAchievements = location.pathname.includes("achievements");
+  const isTimeline = location.pathname.includes("timeline");
+  const isVaccination = location.pathname.includes("vaccination");
+  const isMainDashboard = !isAchievements && !isTimeline && !isVaccination;
 
   if (loading || !student) {
     return (
@@ -74,87 +94,87 @@ function StudentDashboard() {
           <DashboardCard title="Achievements" value="4" subtitle="Health milestones" icon={Award} color="text-amber-600" bg="bg-amber-500" />
         </div>
 
-        <div id="passport" className="grid gap-6 xl:grid-cols-12">
-          <GlassCard className="xl:col-span-7 p-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
-                <HeartPulse size={20} />
+        {isMainDashboard && (
+          <div id="passport" className="grid gap-6 xl:grid-cols-12">
+            <GlassCard className="xl:col-span-8 p-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
+                  <HeartPulse size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-800">My Health Passport</h2>
+                  <p className="text-sm text-slate-500">Your current wellness summary</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-800">Digital Passport</h2>
-                <p className="text-sm text-slate-500">Current wellness overview</p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <InfoCard label="Height" value={student.vitals.height} accent="blue" />
+                <InfoCard label="Weight" value={student.vitals.weight} accent="emerald" />
+                <InfoCard label="BMI" value={student.vitals.bmi} accent="amber" />
+                <InfoCard label="Blood Group" value={student.bloodGroup} accent="rose" />
               </div>
-            </div>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <InfoCard label="Health Status" value="Healthy" accent="emerald" />
-              <InfoCard label="Attendance" value={student.attendance} accent="blue" />
-              <InfoCard label="Allergies" value={student.allergies[0] || "None"} accent="amber" />
-              <InfoCard label="Vaccinations" value={`${student.vaccinations.length} completed`} accent="indigo" />
-            </div>
-          </GlassCard>
+            </GlassCard>
 
-          <GlassCard id="timeline" className="xl:col-span-5 p-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-2xl bg-indigo-50 p-2.5 text-indigo-600">
-                <ShieldCheck size={20} />
+            <GlassCard className="xl:col-span-4 p-6 bg-linear-to-br from-indigo-500 to-purple-600 text-white border-0">
+              <div className="flex flex-col h-full justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-white/90">Health Score</h2>
+                  <p className="text-sm text-white/70">Based on recent checkups</p>
+                </div>
+                <div className="mt-6 flex items-end gap-3">
+                  <span className="text-5xl font-bold">{student.healthScore}</span>
+                  <span className="mb-1 text-lg font-medium text-white/80">/ 100</span>
+                </div>
+                <div className="mt-4 rounded-xl bg-white/20 p-3 backdrop-blur-md">
+                  <p className="text-sm font-medium">Keep up the good work! Stay hydrated.</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-800">Wellness Tips</h2>
-                <p className="text-sm text-slate-500">Helpful reminders for today</p>
-              </div>
-            </div>
-            <div className="mt-6 space-y-3">
-              <ReminderCard title="Hydration" description="Carry water and stay hydrated." />
-              <ReminderCard title="Medication" description="Bring your inhaler if required." />
-              <ReminderCard title="Check-in" description="Report symptoms early to the school nurse." />
-            </div>
-          </GlassCard>
-        </div>
-
-        <GlassCard id="vaccination" className="p-6">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-cyan-50 p-2.5 text-cyan-600">
-              <Syringe size={20} />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-slate-800">Vaccination Record</h2>
-              <p className="text-sm text-slate-500">Your completed immunizations</p>
-            </div>
+            </GlassCard>
           </div>
-          <div className="mt-6 flex flex-wrap gap-2">
-            {student.vaccinations.map((item) => (
-              <span key={item} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700">
-                {item}
-              </span>
-            ))}
+        )}
+
+        {isTimeline && (
+          <div id="timeline" className="grid gap-6 lg:grid-cols-2">
+            <HealthTrendChart data={trendData} title="My Wellness Trend" />
+            <HealthDistributionChart data={distributionData} title="Health Distribution" />
           </div>
-        </GlassCard>
+        )}
 
-        <div id="reports" className="grid gap-6 lg:grid-cols-2">
-          <HealthTrendChart data={trendData} title="Wellness Trend" />
-          <HealthDistributionChart data={distributionData} title="Health Distribution" />
-        </div>
+        {isAchievements && (
+          <div id="achievements" className="grid gap-6">
+            <GlassCard className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="rounded-2xl bg-purple-50 p-2.5 text-purple-600">
+                  <Activity size={20} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-800">AI Wellness Summary</h2>
+                  <p className="text-sm text-slate-500">Automated health evaluation</p>
+                </div>
+              </div>
+              <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-6 leading-relaxed text-indigo-900">
+                {student.aiSummary || "Health summary is being generated by AI..."}
+              </div>
+            </GlassCard>
+          </div>
+        )}
 
-        <div id="achievements" className="grid gap-6 lg:grid-cols-2">
-          <GlassCard className="p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-800">Daily Water Tracker</h2>
-              <button onClick={() => updateWater(250)} className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-600 hover:bg-blue-200">
-                +250ml
-              </button>
-            </div>
-            <div className="mt-6 flex justify-center">
-              <CircularProgress value={Math.round((waterTracker.intake / waterTracker.goal) * 100)} label={`${waterTracker.intake}ml / ${waterTracker.goal}ml`} />
-            </div>
-          </GlassCard>
-          <GlassCard className="p-6">
-            <h2 className="text-lg font-bold text-slate-800">Sleep Tracker</h2>
-            <div className="mt-6 flex justify-center">
-              <CircularProgress value={Math.round((sleepTracker.hours / sleepTracker.goal) * 100)} label={`${sleepTracker.hours}h / ${sleepTracker.goal}h`} />
-            </div>
-            <p className="mt-4 text-center text-sm font-medium text-slate-500">Quality: <span className="text-indigo-600">{sleepTracker.quality}</span></p>
-          </GlassCard>
-        </div>
+        {isVaccination && (
+          <div id="vaccination" className="grid gap-6">
+            <GlassCard className="p-6">
+              <h2 className="text-lg font-bold text-slate-800">Vaccination Records</h2>
+              <div className="mt-6 space-y-3">
+                {student.vaccinations.map((vac) => (
+                  <div key={vac} className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
+                    <div className="rounded-full bg-emerald-100 p-2 text-emerald-600">
+                      <ShieldCheck size={16} />
+                    </div>
+                    <span className="font-semibold text-emerald-800">{vac}</span>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
@@ -166,24 +186,13 @@ function InfoCard({ label, value, accent }) {
     blue: "bg-blue-50 text-blue-700",
     amber: "bg-amber-50 text-amber-700",
     indigo: "bg-indigo-50 text-indigo-700",
+    rose: "bg-rose-50 text-rose-700",
   };
 
   return (
     <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
       <p className="text-sm font-medium text-slate-500">{label}</p>
-      <p className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-sm font-semibold ${styles[accent]}`}>{value}</p>
-    </div>
-  );
-}
-
-function ReminderCard({ title, description }) {
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-      <div className="flex items-center gap-2">
-        <Activity size={16} className="text-cyan-500" />
-        <h3 className="font-semibold text-slate-700">{title}</h3>
-      </div>
-      <p className="mt-2 text-sm text-slate-500">{description}</p>
+      <p className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-sm font-semibold ${styles[accent] || styles.blue}`}>{value}</p>
     </div>
   );
 }

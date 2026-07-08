@@ -14,10 +14,13 @@ import { useStudents } from "../../hooks/useStudents";
 import { calculateAge, getRiskLabel, getStudentAvatar } from "../../data/students";
 import { Download, FileText, HeartPulse, Activity, ShieldCheck, Syringe } from "lucide-react";
 import { exportJsonAsPdf, printElement, downloadProfessionalPassport } from "../../utils/exportHelpers";
+import { useAuth } from "../../hooks/useAuth";
+import DoctorReviewPanel from "../../components/profile/DoctorReviewPanel";
 
 function StudentProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { role } = useAuth();
   const { getStudentById, fetchStudentById, generateHealthSummary, setSelectedStudent, loading, error, refreshStudents } = useStudents();
   const student = getStudentById(id);
   const aiSummary = generateHealthSummary(student);
@@ -71,7 +74,22 @@ function StudentProfile() {
           <h1 className="text-2xl font-bold text-slate-800">Student not found</h1>
           <p className="mt-2 text-slate-500">No health passport exists for this student ID.</p>
           <button onClick={() => navigate("/teacher/students")} className="mt-6 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/30 hover:bg-blue-700 transition-all">
-            Back to Students
+            Go Back
+          </button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Restrict access for parent/student to only their own passport
+  if ((role === "parent" || role === "student") && student.name !== "Aarav Sharma") {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-3xl rounded-3xl bg-white/70 backdrop-blur-xl border border-rose-200 p-8 shadow-sm">
+          <h1 className="text-2xl font-bold text-rose-700">Unauthorized Access</h1>
+          <p className="mt-2 text-rose-500">You do not have permission to view this student's passport.</p>
+          <button onClick={() => navigate(`/${role}/dashboard`)} className="mt-6 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-rose-500/30 hover:bg-rose-700 transition-all">
+            Back to Dashboard
           </button>
         </div>
       </DashboardLayout>
@@ -170,6 +188,10 @@ function StudentProfile() {
               <HealthTrendChart data={attendanceTrend} title="Attendance Graph" />
               <HealthDistributionChart data={riskDistribution} title="Risk Indicator" />
             </div>
+
+            {role === "doctor" && (
+              <DoctorReviewPanel student={student} aiSummary={aiSummary} />
+            )}
           </div>
         </div>
 

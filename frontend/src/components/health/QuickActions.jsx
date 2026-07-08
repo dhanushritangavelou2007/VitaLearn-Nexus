@@ -53,32 +53,30 @@ function QuickActions() {
         </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
+      <div className="flex flex-col gap-4">
         {actions.map((action) => (
           <GlassCard
             key={action.title}
             onClick={() => navigate(action.path)}
-            className="group flex h-full cursor-pointer flex-col p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-35px_rgba(37,99,235,0.45)]"
+            className="group flex cursor-pointer items-center gap-4 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_30px_90px_-35px_rgba(37,99,235,0.45)]"
           >
-            <div className="rounded-2xl bg-linear-to-br from-blue-600 to-teal-500 p-3 text-white shadow-lg">
-              <action.icon size={24} />
+            <div className="rounded-2xl bg-linear-to-br from-blue-600 to-teal-500 p-3 text-white shadow-lg shrink-0">
+              <action.icon size={20} />
             </div>
 
-            <h3 className="mt-5 text-lg font-semibold text-slate-900">
-              {action.title}
-            </h3>
-
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              {action.description}
-            </p>
-
-            <div className="mt-auto flex items-center gap-2 text-sm font-semibold text-blue-600">
-              Open
-              <ArrowRight
-                size={16}
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
+            <div className="flex-1">
+              <h3 className="text-md font-semibold text-slate-900">
+                {action.title}
+              </h3>
+              <p className="text-xs text-slate-500 line-clamp-1">
+                {action.description}
+              </p>
             </div>
+
+            <ArrowRight
+              size={18}
+              className="text-blue-600 transition-transform duration-300 group-hover:translate-x-1 shrink-0"
+            />
           </GlassCard>
         ))}
       </div>

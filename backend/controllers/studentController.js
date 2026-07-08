@@ -4,7 +4,7 @@ import { AppError } from "../utils/AppError.js";
 import { listStudents, getStudentById as getStudentServiceById, updateStudent as updateStudentService } from "../services/studentService.js";
 
 export const getStudents = asyncHandler(async (req, res) => {
-  const { items, pagination } = await listStudents(req.query);
+  const { items, pagination } = await listStudents(req.query, req.user);
   res.json({ success: true, data: items, pagination });
 });
 

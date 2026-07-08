@@ -65,10 +65,10 @@ function Dashboard() {
 
           <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="mb-2 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">
+              <h1 className="mb-2 text-3xl font-bold tracking-tight text-white md:text-4xl">
                 Good Morning, Ms. Priya
               </h1>
-              <p className="max-w-xl text-lg font-medium text-slate-700 md:text-xl">
+              <p className="max-w-xl text-lg font-medium text-indigo-100 md:text-xl">
                 Classroom health overview looks good today. Let's keep the students healthy and safe.
               </p>
             </div>

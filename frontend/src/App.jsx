@@ -46,11 +46,22 @@ function App() {
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       <Route element={<ProtectedRoute />}>
-        {/* Dashboards */}
+        {/* Dashboards and Sub-sections */}
         <Route path="/teacher/dashboard" element={<RoleGuard role="teacher"><Dashboard /></RoleGuard>} />
+        
         <Route path="/doctor/dashboard" element={<RoleGuard role="doctor"><DoctorDashboard /></RoleGuard>} />
+        <Route path="/doctor/appointments" element={<RoleGuard role="doctor"><DoctorDashboard /></RoleGuard>} />
+        <Route path="/doctor/diagnosis" element={<RoleGuard role="doctor"><DoctorDashboard /></RoleGuard>} />
+        
         <Route path="/parent/dashboard" element={<RoleGuard role="parent"><ParentDashboard /></RoleGuard>} />
+        <Route path="/parent/timeline" element={<RoleGuard role="parent"><ParentDashboard /></RoleGuard>} />
+        <Route path="/parent/notifications" element={<RoleGuard role="parent"><ParentDashboard /></RoleGuard>} />
+        
         <Route path="/student/dashboard" element={<RoleGuard role="student"><StudentDashboard /></RoleGuard>} />
+        <Route path="/student/achievements" element={<RoleGuard role="student"><StudentDashboard /></RoleGuard>} />
+        <Route path="/student/timeline" element={<RoleGuard role="student"><StudentDashboard /></RoleGuard>} />
+        <Route path="/student/vaccination" element={<RoleGuard role="student"><StudentDashboard /></RoleGuard>} />
+        
         <Route path="/admin/dashboard" element={<RoleGuard role="admin"><AdminDashboard /></RoleGuard>} />
 
         {/* Shared Routes */}

@@ -1,8 +1,10 @@
 import { Router } from "express";
+import { getAdminDashboard } from "../controllers/adminController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-router.get("/", (_req, res) => res.json({ success: true, message: "Admin route placeholder" }));
+router.use(protect);
+router.get("/", getAdminDashboard);
 
 export default router;
-

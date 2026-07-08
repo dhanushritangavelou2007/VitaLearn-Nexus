@@ -1,8 +1,10 @@
 import { Router } from "express";
+import { getDoctorDashboard } from "../controllers/doctorController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-router.get("/", (_req, res) => res.json({ success: true, message: "Doctor route placeholder" }));
+router.use(protect);
+router.get("/", getDoctorDashboard);
 
 export default router;
-

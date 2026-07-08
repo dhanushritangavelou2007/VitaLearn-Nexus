@@ -9,13 +9,37 @@ import { getRiskLabel, getRiskStyle } from "../../data/students";
 import { useStudents } from "../../hooks/useStudents";
 import { getRecentActivity } from "../../utils/studentAnalytics";
 import { exportJsonAsExcel, exportJsonAsPdf, printElement } from "../../utils/exportHelpers";
+import { useAuth } from "../../hooks/useAuth";
 
 function Reports() {
   const navigate = useNavigate();
-  const { students, loading, error, refreshStudents } = useStudents();
+  const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
   const [query, setQuery] = useState("");
   const [riskFilter, setRiskFilter] = useState("All");
-  const reports = getRecentActivity(students, 50);
+  const { role } = useAuth();
+  
+  const stats = calculateDashboardStats();
+  const trendData = [
+    { day: "Mon", healthy: Math.max(0, Math.round(stats.averageHealthScore - 3)) },
+    { day: "Tue", healthy: Math.max(0, Math.round(stats.averageHealthScore - 1)) },
+    { day: "Wed", healthy: Math.max(0, Math.round(stats.averageHealthScore + 1)) },
+    { day: "Thu", healthy: Math.max(0, Math.round(stats.averageHealthScore - 2)) },
+    { day: "Fri", healthy: Math.max(0, Math.round(stats.averageHealthScore + 2)) },
+    { day: "Sat", healthy: Math.max(0, Math.round(stats.averageHealthScore + 3)) },
+  ];
+  const distributionData = [
+    { name: "Healthy", value: stats.healthy },
+    { name: "Observation", value: stats.riskDistribution?.observation || 0 },
+    { name: "Review", value: stats.riskDistribution?.review || 0 },
+    { name: "Critical", value: stats.critical },
+  ];
+
+  const reports = getRecentActivity(
+    role === "parent" || role === "student"
+      ? students.filter((s) => s.name === "Aarav Sharma" || s.id === students[0]?.id).slice(0, 1)
+      : students,
+    50
+  );
 
   const filteredReports = useMemo(() => {
     const term = query.toLowerCase();
@@ -84,25 +108,39 @@ function Reports() {
                 </select>
               </div>
               <button
-                onClick={() =>
-                  exportJsonAsPdf({
-                    title: "Student-Reports",
-                    subtitle: "Centralized student report export",
-                    rows: filteredReports.map((report) => [report.studentName, report.title, report.description, report.risk, report.date]),
-                  })
-                }
+                onClick={() => {
+                  if (role === "admin") {
+                    const rows = students.filter(s => riskFilter === "All" || s.risk === riskFilter).filter(s => s.name.toLowerCase().includes(query.toLowerCase())).map((student) => [
+                      student.name, student.attendance, student.risk, `${student.vaccinations?.length || 0} / 4`, student.medicalConditions?.join(", ") || "None"
+                    ]);
+                    exportJsonAsPdf({ title: "Admin Student Report", subtitle: "School health intelligence", rows });
+                  } else {
+                    exportJsonAsPdf({
+                      title: "Student-Reports",
+                      subtitle: "Centralized student report export",
+                      rows: filteredReports.map((report) => [report.studentName, report.title, report.description, report.risk, report.date]),
+                    });
+                  }
+                }}
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white"
               >
                 <Download size={16} />
                 Export PDF
               </button>
               <button
-                onClick={() =>
-                  exportJsonAsExcel({
-                    title: "Student Reports",
-                    rows: [["Student", "Report", "Status", "Risk", "Date"], ...filteredReports.map((report) => [report.studentName, report.title, report.description, report.risk, report.date])],
-                  })
-                }
+                onClick={() => {
+                  if (role === "admin") {
+                    const rows = students.filter(s => riskFilter === "All" || s.risk === riskFilter).filter(s => s.name.toLowerCase().includes(query.toLowerCase())).map((student) => [
+                      student.name, student.attendance, student.risk, `${student.vaccinations?.length || 0} / 4`, student.medicalConditions?.join(", ") || "None"
+                    ]);
+                    exportJsonAsExcel({ title: "Student Reports", rows: [["Student", "Attendance", "Risk", "Vaccinations", "Conditions"], ...rows] });
+                  } else {
+                    exportJsonAsExcel({
+                      title: "Student Reports",
+                      rows: [["Student", "Report", "Status", "Risk", "Date"], ...filteredReports.map((report) => [report.studentName, report.title, report.description, report.risk, report.date])],
+                    });
+                  }
+                }}
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white"
               >
                 <Download size={16} />
@@ -117,54 +155,100 @@ function Reports() {
 
         <GlassCard className="overflow-hidden p-0">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-225 text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 text-xs uppercase tracking-wider text-slate-500">
-                  <th className="px-6 py-4 font-semibold">Student</th>
-                  <th className="px-6 py-4 font-semibold">Report</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold">Date</th>
-                  <th className="px-6 py-4 font-semibold text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100/80">
-                {filteredReports.map((report) => {
-                  const style = getRiskStyle(report.risk);
-                  return (
-                    <tr key={report.id} className="hover:bg-white/60 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-slate-800">{report.studentName}</div>
-                        <div className="text-xs text-slate-500">ID {report.studentId}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-slate-700">{report.title}</div>
-                        <div className="text-xs text-slate-500">{report.description}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border ${style.pill}`}>
-                          {getRiskLabel(report.risk)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-500">{report.date}</td>
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => navigate(`/teacher/student-profile/${report.studentId}`)}
-                          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
-                        >
-                          View <ArrowRight size={14} />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            {role === "admin" ? (
+              <table className="w-full min-w-225 text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-6 py-4 font-semibold">Student</th>
+                    <th className="px-6 py-4 font-semibold">Attendance</th>
+                    <th className="px-6 py-4 font-semibold">Risk Level</th>
+                    <th className="px-6 py-4 font-semibold">Vaccinations</th>
+                    <th className="px-6 py-4 font-semibold">Medical Conditions</th>
+                    <th className="px-6 py-4 font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100/80">
+                  {students.filter(s => riskFilter === "All" || s.risk === riskFilter).filter(s => s.name.toLowerCase().includes(query.toLowerCase())).map((student) => {
+                    const style = getRiskStyle(student.risk);
+                    return (
+                      <tr key={student.id} className="hover:bg-white/60 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="font-semibold text-slate-800">{student.name}</div>
+                          <div className="text-xs text-slate-500">ID VLN-{String(student.id).padStart(4, "0")}</div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-700">{student.attendance}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border ${style.pill}`}>
+                            {getRiskLabel(student.risk)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-700">{student.vaccinations?.length || 0} / 4 Core</td>
+                        <td className="px-6 py-4 text-sm text-slate-500">
+                          {student.medicalConditions?.length ? student.medicalConditions.join(", ") : "None"}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={() => navigate(`/passport/${student.id}`)}
+                            className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+                          >
+                            View <ArrowRight size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <table className="w-full min-w-225 text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80 text-xs uppercase tracking-wider text-slate-500">
+                    <th className="px-6 py-4 font-semibold">Student</th>
+                    <th className="px-6 py-4 font-semibold">Report</th>
+                    <th className="px-6 py-4 font-semibold">Status</th>
+                    <th className="px-6 py-4 font-semibold">Date</th>
+                    <th className="px-6 py-4 font-semibold text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100/80">
+                  {filteredReports.map((report) => {
+                    const style = getRiskStyle(report.risk);
+                    return (
+                      <tr key={report.id} className="hover:bg-white/60 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="font-semibold text-slate-800">{report.studentName}</div>
+                          <div className="text-xs text-slate-500">ID {report.studentId}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-slate-700">{report.title}</div>
+                          <div className="text-xs text-slate-500">{report.description}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border ${style.pill}`}>
+                            {getRiskLabel(report.risk)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-500">{report.date}</td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={() => navigate(`/passport/${report.studentId}`)}
+                            className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+                          >
+                            View <ArrowRight size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
           </div>
         </GlassCard>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <HealthTrendChart />
-          <HealthDistributionChart />
+          <HealthTrendChart data={trendData} title="Health Score Trend" />
+          <HealthDistributionChart data={distributionData} title="Risk Distribution" />
         </div>
       </div>
     </DashboardLayout>

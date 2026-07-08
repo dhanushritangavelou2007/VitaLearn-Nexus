@@ -15,6 +15,7 @@ import BaseDemoRepository from "./demo/BaseDemoRepository.js";
 
 // Import demo data to seed the demo repositories
 import { DEMO_USERS } from "../utils/constants.js";
+import { DEMO_STUDENTS } from "./demoStudents.js";
 
 class BaseDBRepository {
   constructor(modelName) {
@@ -77,40 +78,21 @@ class ExtendedDemoRepository extends BaseDemoRepository {
 const demoRepositories = {};
 
 function initDemoRepositories() {
-  const seedStudents = [
-    {
-      _id: "demo-student-1",
-      id: "demo-student-1",
-      rollNo: "8A01",
-      name: "Aarav Sharma",
-      class: "VIII-A",
-      className: "VIII",
-      section: "A",
-      gender: "Male",
-      dob: "2010-04-15",
-      bloodGroup: "O+",
-      parent: { name: "Rajesh Sharma", contact: "+91-9876543210", email: "rajesh.s@example.com" },
-      allergies: ["Dust"],
-      medicalConditions: ["Mild Asthma"],
-      vitals: { height: "155 cm", weight: "45 kg", bmi: 18.7, vision: "6/6", bloodPressure: "110/70", heartRate: "78", temperature: "98.4" },
-      vaccinations: ["BCG", "OPV", "COVID-19", "MMR"],
-      symptoms: ["Occasional cough"],
-      reports: [],
-      risk: "observation",
-      attendance: "96%",
-      lastUpdate: "Today",
-      passportStatus: "Completed",
-    },
-  ];
-
   demoRepositories["User"] = new ExtendedDemoRepository(
     DEMO_USERS.map((u, i) => ({ _id: `demo-user-${i}`, id: `demo-user-${i}`, ...u }))
   );
-  demoRepositories["Student"] = new ExtendedDemoRepository([...seedStudents]);
+  
+  const mappedStudents = DEMO_STUDENTS.map(s => ({
+    ...s,
+    _id: String(s.id),
+    id: String(s.id)
+  }));
+  
+  demoRepositories["Student"] = new ExtendedDemoRepository(mappedStudents);
   demoRepositories["Report"] = new ExtendedDemoRepository([
     {
       _id: "demo-report-1",
-      student: "demo-student-1",
+      student: "1",
       type: "General Checkup",
       status: "Normal",
       date: "2024-01-15",

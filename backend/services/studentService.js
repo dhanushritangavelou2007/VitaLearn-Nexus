@@ -1,9 +1,19 @@
 import { getRepository } from "../repositories/index.js";
 import { generateAIHealthReport } from "../utils/aiEngine.js";
 
-export async function listStudents({ page = 1, limit = 20, search = "", risk, className }) {
+export async function listStudents({ page = 1, limit = 20, search = "", risk, className }, user) {
   const repo = getRepository("Student");
   const query = {};
+
+  if (user) {
+    if (user.role === "parent") {
+      query["parent.email"] = user.email;
+    } else if (user.role === "student") {
+      // In demo mode, we assign student by demo-student-1 for the default student user
+      query.id = "demo-student-1"; 
+    }
+  }
+
   if (search) {
     query.$or = [
       { name: new RegExp(search, "i") },

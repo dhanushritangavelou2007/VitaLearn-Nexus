@@ -119,6 +119,7 @@ export function calculateDashboardStats(studentList = []) {
 
 export function generateHealthSummary(student) {
   if (!student) return "No student record is selected for health summary generation.";
+  if (student.aiSummary) return student.aiSummary;
 
   const bmi = parseVitalNumber(student.vitals?.bmi);
   const attendance = parsePercent(student.attendance);
