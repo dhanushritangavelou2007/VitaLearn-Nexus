@@ -46,7 +46,7 @@ function Topbar() {
           Logout
         </button>
 
-        <div className={`flex items-center gap-3 rounded-full ${isDarkMode ? "bg-slate-800 border-slate-700 hover:bg-slate-700" : "bg-white/60 border-slate-200/60 hover:bg-white"} px-2 py-1.5 pr-4 border shadow-sm backdrop-blur-sm cursor-pointer transition`}>
+        <div onClick={() => navigate("/settings")} className={`flex items-center gap-3 rounded-full ${isDarkMode ? "bg-slate-800 border-slate-700 hover:bg-slate-700" : "bg-white/60 border-slate-200/60 hover:bg-white"} px-2 py-1.5 pr-4 border shadow-sm backdrop-blur-sm cursor-pointer transition`}>
           <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold overflow-hidden">
             <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Profile" className="h-full w-full object-cover" />
           </div>

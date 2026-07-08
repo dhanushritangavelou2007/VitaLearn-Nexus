@@ -17,6 +17,7 @@ import reportRoutes from "./routes/reportRoutes.js";
 import symptomRoutes from "./routes/symptomRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 dotenv.config();
 console.log("MongoDB URI:", process.env.MONGODB_URI);
@@ -53,6 +54,7 @@ app.use("/reports", reportRoutes);
 app.use("/symptoms", symptomRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/appointments", appointmentRoutes);
+app.use("/notifications", notificationRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

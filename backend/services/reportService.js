@@ -1,6 +1,7 @@
-import Report from "../models/Report.js";
+import { getRepository } from "../repositories/index.js";
 
 export async function listReports({ page = 1, limit = 20, search = "", risk }) {
+  const repo = getRepository("Report");
   const query = {};
   if (search) {
     query.$or = [
@@ -11,10 +12,11 @@ export async function listReports({ page = 1, limit = 20, search = "", risk }) {
   if (risk) query.risk = risk;
 
   const skip = (Number(page) - 1) * Number(limit);
-  const [items, total] = await Promise.all([
-    Report.find(query).populate("student createdBy", "name rollNo role").sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
-    Report.countDocuments(query),
-  ]);
+  
+  // Note: Populate is not natively supported by our base DemoRepo, but we can do a basic find.
+  // In a real scenario we'd do a simulated populate, but for this hackathon we keep it simple.
+  const items = await repo.find(query, { createdAt: -1 }, skip, Number(limit));
+  const total = await repo.countDocuments(query);
 
   return {
     items,

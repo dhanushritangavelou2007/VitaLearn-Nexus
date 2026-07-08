@@ -29,12 +29,12 @@ function IndexRedirect() {
 
 function LegacyStudentProfileRedirect() {
   const { id } = useParams();
-  return <Navigate to={`/teacher/student-profile/${id || 1}`} replace />;
+  return <Navigate to={`/passport/${id || 1}`} replace />;
 }
 
 function LegacyStudentSymptomRedirect() {
   const { id } = useParams();
-  return <Navigate to={`/teacher/report-symptoms/${id || 1}`} replace />;
+  return <Navigate to={`/report-symptoms/${id || 1}`} replace />;
 }
 
 function App() {
@@ -46,24 +46,31 @@ function App() {
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       <Route element={<ProtectedRoute />}>
+        {/* Dashboards */}
         <Route path="/teacher/dashboard" element={<RoleGuard role="teacher"><Dashboard /></RoleGuard>} />
-        <Route path="/teacher/students" element={<RoleGuard role="teacher"><Students /></RoleGuard>} />
-        <Route path="/teacher/create-passport" element={<RoleGuard role="teacher"><CreatePassport /></RoleGuard>} />
-        <Route path="/teacher/student-profile/:id" element={<RoleGuard role="teacher"><StudentProfile /></RoleGuard>} />
-        <Route path="/teacher/report-symptoms/:id" element={<RoleGuard role="teacher"><ReportSymptoms /></RoleGuard>} />
-        <Route path="/teacher/reports" element={<RoleGuard role="teacher"><Reports /></RoleGuard>} />
-        <Route path="/settings" element={<Settings />} />
-
         <Route path="/doctor/dashboard" element={<RoleGuard role="doctor"><DoctorDashboard /></RoleGuard>} />
         <Route path="/parent/dashboard" element={<RoleGuard role="parent"><ParentDashboard /></RoleGuard>} />
         <Route path="/student/dashboard" element={<RoleGuard role="student"><StudentDashboard /></RoleGuard>} />
         <Route path="/admin/dashboard" element={<RoleGuard role="admin"><AdminDashboard /></RoleGuard>} />
 
-        <Route path="/students" element={<Navigate to="/teacher/students" replace />} />
-        <Route path="/students/create-passport" element={<Navigate to="/teacher/create-passport" replace />} />
+        {/* Shared Routes */}
+        <Route path="/students" element={<RoleGuard role={["teacher", "doctor", "admin"]}><Students /></RoleGuard>} />
+        <Route path="/create-passport" element={<RoleGuard role="teacher"><CreatePassport /></RoleGuard>} />
+        <Route path="/passport/:id" element={<RoleGuard role={["teacher", "doctor", "parent", "student", "admin"]}><StudentProfile /></RoleGuard>} />
+        <Route path="/report-symptoms/:id" element={<RoleGuard role={["teacher", "doctor"]}><ReportSymptoms /></RoleGuard>} />
+        <Route path="/reports" element={<RoleGuard role={["teacher", "doctor", "parent", "student", "admin"]}><Reports /></RoleGuard>} />
+        
+        <Route path="/settings" element={<Settings />} />
+
+        {/* Legacy Redirects (keep them just in case old links exist) */}
+        <Route path="/teacher/students" element={<Navigate to="/students" replace />} />
+        <Route path="/teacher/create-passport" element={<Navigate to="/create-passport" replace />} />
+        <Route path="/teacher/student-profile/:id" element={<LegacyStudentProfileRedirect />} />
+        <Route path="/teacher/report-symptoms/:id" element={<LegacyStudentSymptomRedirect />} />
+        <Route path="/teacher/reports" element={<Navigate to="/reports" replace />} />
+        <Route path="/students/create-passport" element={<Navigate to="/create-passport" replace />} />
         <Route path="/students/:id" element={<LegacyStudentProfileRedirect />} />
         <Route path="/students/:id/report-symptoms" element={<LegacyStudentSymptomRedirect />} />
-        <Route path="/reports" element={<Navigate to="/teacher/reports" replace />} />
       </Route>
     </Routes>
   );

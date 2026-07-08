@@ -90,6 +90,17 @@ export function StudentProvider({ children }) {
     return calculateDashboardStats(students);
   }, [dashboardSummary, students]);
 
+  const [waterTracker, setWaterTracker] = useState({ intake: 1200, goal: 2000 });
+  const [sleepTracker, setSleepTracker] = useState({ hours: 6.5, goal: 8, quality: "Fair" });
+
+  const updateWater = useCallback((amount) => {
+    setWaterTracker(prev => ({ ...prev, intake: Math.min(prev.intake + amount, prev.goal) }));
+  }, []);
+
+  const updateSleep = useCallback((updates) => {
+    setSleepTracker(prev => ({ ...prev, ...updates }));
+  }, []);
+
   const value = useMemo(
     () => ({
       students,
@@ -110,6 +121,10 @@ export function StudentProvider({ children }) {
       loading,
       error,
       refreshStudents: loadData,
+      waterTracker,
+      updateWater,
+      sleepTracker,
+      updateSleep,
     }),
     [
       students,
@@ -128,6 +143,10 @@ export function StudentProvider({ children }) {
       loading,
       error,
       loadData,
+      waterTracker,
+      updateWater,
+      sleepTracker,
+      updateSleep,
     ]
   );
 

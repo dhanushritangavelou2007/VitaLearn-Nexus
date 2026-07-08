@@ -45,3 +45,71 @@ export function printElement(elementId) {
   win.print();
   win.close();
 }
+
+export function downloadProfessionalPassport(student, aiSummary) {
+  const doc = new jsPDF();
+  let y = 20;
+
+  const addHeader = (text) => {
+    doc.setFontSize(16);
+    doc.setTextColor(30, 64, 175); // Blue
+    doc.text(text, 14, y);
+    y += 8;
+  };
+
+  const addText = (label, value) => {
+    doc.setFontSize(11);
+    doc.setTextColor(100, 116, 139); // Slate-500
+    doc.text(`${label}:`, 14, y);
+    doc.setTextColor(15, 23, 42); // Slate-900
+    
+    // Simple text wrapping
+    const textLines = doc.splitTextToSize(String(value), 140);
+    doc.text(textLines, 50, y);
+    y += 6 * textLines.length;
+  };
+
+  doc.setFontSize(22);
+  doc.setTextColor(15, 23, 42);
+  doc.text("VitaLearn Health Passport", 14, y);
+  y += 12;
+
+  addHeader("Student Information");
+  addText("Name", student.name);
+  addText("Roll No", student.rollNo);
+  addText("Class", student.class);
+  addText("Age/Gender", `${student.dob} / ${student.gender}`);
+  addText("Blood Group", student.bloodGroup);
+  y += 6;
+
+  addHeader("Health Overview");
+  addText("Status", student.risk);
+  addText("Health Score", student.healthScore);
+  addText("Attendance", student.attendance);
+  addText("BMI", student.vitals?.bmi);
+  y += 6;
+
+  addHeader("Medical Records");
+  addText("Allergies", student.allergies?.join(", ") || "None");
+  addText("Conditions", student.medicalConditions?.join(", ") || "None");
+  addText("Vaccinations", student.vaccinations?.join(", ") || "None");
+  y += 6;
+
+  addHeader("Emergency Contact");
+  addText("Parent Name", student.parent?.name);
+  addText("Contact", student.parent?.contact);
+  y += 6;
+
+  if (y > 250) {
+    doc.addPage();
+    y = 20;
+  }
+
+  addHeader("AI Health Summary");
+  doc.setFontSize(10);
+  doc.setTextColor(71, 85, 105);
+  const summaryLines = doc.splitTextToSize(aiSummary || "No summary generated.", 180);
+  doc.text(summaryLines, 14, y);
+  
+  doc.save(`Vitalearn-Passport-${student.rollNo}.pdf`);
+}

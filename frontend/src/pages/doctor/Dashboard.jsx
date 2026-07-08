@@ -15,7 +15,7 @@ function DoctorDashboard() {
   const location = useLocation();
   const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
   const criticalStudents = students.filter((student) => student.risk === "critical");
-  const reviewStudents = students.filter((student) => student.risk === "review" || student.risk === "critical");
+  const reviewStudents = students.filter((student) => student.risk === "high" || student.risk === "critical");
   const stats = calculateDashboardStats();
   const recentActivity = getRecentActivity(students, 6);
   const trendData = [
@@ -28,7 +28,8 @@ function DoctorDashboard() {
   ];
   const distributionData = [
     { name: "Healthy", value: stats.healthy },
-    { name: "Review", value: stats.needReview - stats.critical },
+    { name: "Moderate", value: stats.riskDistribution?.moderate || 0 },
+    { name: "High", value: stats.riskDistribution?.high || 0 },
     { name: "Critical", value: stats.critical },
   ];
 

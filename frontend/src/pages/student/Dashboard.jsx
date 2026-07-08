@@ -137,16 +137,22 @@ function StudentDashboard() {
 
         <div id="achievements" className="grid gap-6 lg:grid-cols-2">
           <GlassCard className="p-6">
-            <h2 className="text-lg font-bold text-slate-800">Daily Water Tracker</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-800">Daily Water Tracker</h2>
+              <button onClick={() => updateWater(250)} className="rounded-full bg-blue-100 px-3 py-1 text-sm font-semibold text-blue-600 hover:bg-blue-200">
+                +250ml
+              </button>
+            </div>
             <div className="mt-6 flex justify-center">
-              <CircularProgress value={Math.min(100, Math.round((student.attendance ? Number(student.attendance.replace("%", "")) : 0) + 5))} label="Hydration" />
+              <CircularProgress value={Math.round((waterTracker.intake / waterTracker.goal) * 100)} label={`${waterTracker.intake}ml / ${waterTracker.goal}ml`} />
             </div>
           </GlassCard>
           <GlassCard className="p-6">
             <h2 className="text-lg font-bold text-slate-800">Sleep Tracker</h2>
             <div className="mt-6 flex justify-center">
-              <CircularProgress value={Math.min(100, Math.max(60, stats.averageHealthScore))} label="Sleep Quality" />
+              <CircularProgress value={Math.round((sleepTracker.hours / sleepTracker.goal) * 100)} label={`${sleepTracker.hours}h / ${sleepTracker.goal}h`} />
             </div>
+            <p className="mt-4 text-center text-sm font-medium text-slate-500">Quality: <span className="text-indigo-600">{sleepTracker.quality}</span></p>
           </GlassCard>
         </div>
       </div>

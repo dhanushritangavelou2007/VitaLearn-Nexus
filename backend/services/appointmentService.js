@@ -1,11 +1,10 @@
-import Appointment from "../models/Appointment.js";
+import { getRepository } from "../repositories/index.js";
 
 export async function listAppointments({ page = 1, limit = 20 }) {
+  const repo = getRepository("Appointment");
   const skip = (Number(page) - 1) * Number(limit);
-  const [items, total] = await Promise.all([
-    Appointment.find().populate("student doctor parent", "name rollNo role").sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
-    Appointment.countDocuments(),
-  ]);
+  const items = await repo.find({}, { createdAt: -1 }, skip, Number(limit));
+  const total = await repo.countDocuments({});
 
   return {
     items,

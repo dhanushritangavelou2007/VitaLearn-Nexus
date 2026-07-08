@@ -27,3 +27,7 @@ export async function connectDB(uri) {
   }
 }
 
+export function isDBConnected() {
+  return mongoose.connection && mongoose.connection.readyState === 1;
+}
+

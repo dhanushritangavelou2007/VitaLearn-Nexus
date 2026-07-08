@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
@@ -99,23 +100,53 @@ function AdminDashboard() {
               { name: "Incidents", value: highRiskCount },
             ]}
           />
-          <GlassCard className="p-6">
-            <h2 className="text-lg font-bold text-slate-800">Pending Tasks</h2>
-            <div className="mt-6 space-y-3">
-              {[
-                `Review ${stats.pendingReports} pending reports`,
-                `Follow up ${highRiskCount} critical cases`,
-                `Monitor ${stats.appointments || 0} scheduled appointments`,
-              ].map((item) => (
-                <div key={item} className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600">
-                  {item}
-                </div>
-              ))}
+          <GlassCard className="p-6 flex flex-col max-h-[400px]">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-slate-800">Pending Tasks</h2>
+              <button className="text-sm font-semibold text-blue-600 hover:text-blue-700">View All</button>
+            </div>
+            <div className="space-y-3 overflow-y-auto pr-2">
+              <TaskItem id={1} title={`Review ${stats.pendingReports} pending reports`} />
+              <TaskItem id={2} title={`Follow up ${highRiskCount} critical cases`} />
+              <TaskItem id={3} title={`Monitor ${stats.appointments || 0} scheduled appointments`} />
             </div>
           </GlassCard>
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+function TaskItem({ title }) {
+  const [status, setStatus] = React.useState("pending");
+
+  if (status === "completed") {
+    return (
+      <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-600 flex justify-between items-center">
+        <span className="line-through">{title}</span>
+        <span className="font-semibold">Completed</span>
+      </div>
+    );
+  }
+
+  if (status === "rejected") {
+    return (
+      <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-600 flex justify-between items-center">
+        <span className="line-through">{title}</span>
+        <span className="font-semibold">Rejected</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+      <p className="text-sm text-slate-600 mb-3">{title}</p>
+      <div className="flex gap-2">
+        <button onClick={() => setStatus("completed")} className="rounded-lg bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-200">Approve</button>
+        <button onClick={() => setStatus("rejected")} className="rounded-lg bg-rose-100 px-3 py-1 text-xs font-semibold text-rose-700 hover:bg-rose-200">Reject</button>
+        <button onClick={() => setStatus("completed")} className="rounded-lg bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-300">Mark Complete</button>
+      </div>
+    </div>
   );
 }
 

@@ -13,7 +13,7 @@ import GlassCard from "../../components/ui/GlassCard";
 import { useStudents } from "../../hooks/useStudents";
 import { calculateAge, getRiskLabel, getStudentAvatar } from "../../data/students";
 import { Download, FileText, HeartPulse, Activity, ShieldCheck, Syringe } from "lucide-react";
-import { exportJsonAsPdf, printElement } from "../../utils/exportHelpers";
+import { exportJsonAsPdf, printElement, downloadProfessionalPassport } from "../../utils/exportHelpers";
 
 function StudentProfile() {
   const { id } = useParams();
@@ -175,26 +175,13 @@ function StudentProfile() {
 
         <div className="flex flex-wrap gap-3">
           <button
-            onClick={() =>
-              exportJsonAsPdf({
-                title: `Passport-${student.rollNo}`,
-                subtitle: `${student.name} | ${student.class}`,
-                rows: [
-                  ["Passport ID", passportId],
-                  ["Name", student.name],
-                  ["Class", student.class],
-                  ["Risk", statusLabel],
-                  ["Health Score", student.healthScore],
-                  ["Attendance", student.attendance],
-                ],
-              })
-            }
+            onClick={() => downloadProfessionalPassport(student, aiSummary)}
             className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-md shadow-blue-500/25"
           >
             <Download size={16} />
             Download Passport
           </button>
-          <button onClick={() => navigate(`/teacher/report-symptoms/${student.id}`)} className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 font-semibold text-white">
+          <button onClick={() => navigate(`/report-symptoms/${student.id}`)} className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 font-semibold text-white">
             <FileText size={16} />
             Add Report
           </button>

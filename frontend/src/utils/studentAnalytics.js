@@ -1,7 +1,7 @@
 const RISK_ORDER = {
   healthy: 0,
-  observation: 1,
-  review: 2,
+  moderate: 1,
+  high: 2,
   critical: 3,
 };
 
@@ -65,10 +65,13 @@ export function deriveRisk(student) {
   const hasBreathingConcern = activeSymptoms.some((symptom) =>
     symptom.toLowerCase().includes("breathing") || symptom.toLowerCase().includes("wheezing")
   );
+  
+  const vaccinations = student?.vaccinations || [];
+  const missingVaccinations = REQUIRED_VACCINATIONS.filter((vaccine) => !vaccinations.includes(vaccine));
 
   if (temperature >= 102 || hasBreathingConcern || score < 60) return "critical";
-  if (score < 75 || activeSymptoms.length >= 2) return "review";
-  if (score < 88 || activeSymptoms.length === 1) return "observation";
+  if (score < 75 || activeSymptoms.length >= 2 || missingVaccinations.length >= 2) return "high";
+  if (score < 88 || activeSymptoms.length === 1 || missingVaccinations.length === 1) return "moderate";
   return "healthy";
 }
 
@@ -79,7 +82,7 @@ export function calculateDashboardStats(studentList = []) {
       ...distribution,
       [student.risk]: (distribution[student.risk] || 0) + 1,
     }),
-    { healthy: 0, observation: 0, review: 0, critical: 0 }
+    { healthy: 0, moderate: 0, high: 0, critical: 0 }
   );
   const healthScores = studentList.map(calculateHealthScore);
   const reportCount = studentList.reduce((count, student) => count + (student.reports?.length || 0), 0);
@@ -95,7 +98,7 @@ export function calculateDashboardStats(studentList = []) {
     total,
     healthy: riskDistribution.healthy,
     critical: riskDistribution.critical,
-    needReview: riskDistribution.observation + riskDistribution.review + riskDistribution.critical,
+    needReview: riskDistribution.moderate + riskDistribution.high + riskDistribution.critical,
     doctorAttention: riskDistribution.critical,
     reportsToday: studentList.filter((student) => student.lastUpdate === "Today").length,
     pendingReports,
