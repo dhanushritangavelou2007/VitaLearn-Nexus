@@ -1,61 +1,24 @@
-# VitaLearn Nexus
+<div align="center">
+  <img src="./assets/logo.png" alt="VitaLearn Nexus Logo" width="200" />
+  
+  # VitaLearn Nexus
+  **AI-Powered Digital Student Health Passport & School Health Intelligence Platform**
 
-<p align="center">
-  <img src="./assets/logo.png" width="180" alt="VitaLearn Nexus Logo">
-</p>
-
-<h3 align="center">
-AI-Powered Digital Student Health Passport & School Health Intelligence Platform
-</h3>
-
-<p align="center">
-A centralized healthcare ecosystem connecting Students, Parents, Teachers, Doctors, and School Administrators through secure digital health records and AI-assisted analytics.
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react" alt="React">
-  <img src="https://img.shields.io/badge/Node.js-Express-green?style=for-the-badge&logo=node.js" alt="Node.js">
-  <img src="https://img.shields.io/badge/MongoDB-Atlas-green?style=for-the-badge&logo=mongodb" alt="MongoDB">
-  <img src="https://img.shields.io/badge/TailwindCSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS">
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="MIT License">
-</p>
+  [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+  [![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+  [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com/)
+  [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+</div>
 
 ---
 
-## 📖 About
+## 📖 Overview
 
-VitaLearn Nexus is an AI-assisted Digital Student Health Passport developed to modernize healthcare management inside schools.
+**VitaLearn Nexus** is a state-of-the-art Digital Student Health Passport and School Health Intelligence Platform designed to centralize student healthcare management in educational institutions. 
 
-Instead of maintaining paper medical records, every student receives a secure digital health passport containing:
+By replacing fragmented paper-based medical records with a secure, intelligent, and scalable digital ecosystem, the platform enables seamless collaboration between **School Administrators, Teachers, Doctors, Parents, and Students**. It promotes preventive healthcare, early intervention, and robust communication between schools and families, all backed by AI-assisted health insights.
 
-- Medical History
-- Vaccination Records
-- BMI & Vital Monitoring
-- AI Health Summary
-- Risk Classification
-- Doctor Diagnosis
-- Parent Health Reports
-- Teacher Observations
-
-The platform enables collaboration between Teachers, Doctors, Parents, Students, and School Administrators while maintaining secure role-based access control.
-
----
-
-## 🎯 Problem Statement
-
-Schools often maintain fragmented paper health records that are:
-
-- Difficult to access
-- Easy to lose
-- Hard to update
-- Impossible to analyze
-
-Current systems make it difficult for:
-
-- Teachers to identify health risks quickly
-- Parents to monitor school health updates
-- Doctors to access centralized medical history
-- Administrators to analyze school-wide health trends
+> **Important Principle:** AI is designed to *assist* users by summarizing health information, identifying trends, and answering general health questions. AI *never* replaces qualified medical professionals, and all medical decisions remain under the strict supervision of authorized doctors.
 
 ---
 
@@ -187,67 +150,26 @@ The platform provides:
 
 ---
 
-## 📂 Project Structure
+## 🚀 Quick Start (Local Deployment)
 
-```text
-VitaLearn-Nexus/
-├── frontend/
-│   ├── src/
-│   ├── assets/
-│   ├── components/
-│   ├── context/
-│   ├── hooks/
-│   ├── pages/
-│   ├── routes/
-│   ├── services/
-│   └── utils/
-│
-├── backend/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── repositories/
-│   ├── routes/
-│   ├── services/
-│   ├── utils/
-│   └── server.js
-│
-└── README.md
+VitaLearn Nexus is designed for resilience. It features a **Demo Mode Fallback** which seamlessly provisions the application with a shared dataset of 20 fully-fleshed student profiles if a MongoDB connection is unavailable.
+
+### Prerequisites
+- [Node.js](https://nodejs.org/en/download/) (v18 or higher recommended)
+- [Git](https://git-scm.com/downloads)
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/your-org/vitalearn-nexus.git
+cd vitalearn-nexus
 ```
 
----
-
-## 🚀 Features
-
-- Digital Health Passport
-- AI Health Summary
-- Risk Detection
-- Medical Reports
-- Vaccination Tracking
-- School Analytics
-- Multi-role Dashboards
-- PDF Export
-- Excel Export
-- Demo Mode
-- MongoDB Support
-- Responsive Design
-- Dark Mode
-
----
-
-## 💻 Installation
-
-Clone the repository.
-
-```bash
-git clone https://github.com/YOUR_USERNAME/VitaLearn-Nexus.git
-```
-
-Navigate to the project.
-
-```bash
-cd VitaLearn-Nexus
+### 2. Environment Variables (Optional)
+By default, the application runs perfectly in **Demo Mode** without a database. If you wish to use a live MongoDB instance, create a `.env` file in the `backend/` directory:
+```env
+PORT=5000
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/vitalearn
+JWT_SECRET=your_super_secret_jwt_key_here
 ```
 
 ### 🚀 Quick Start (Single Command)
