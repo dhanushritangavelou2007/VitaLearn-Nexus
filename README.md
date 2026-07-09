@@ -1,6 +1,6 @@
 
   
-  # VitaLearn Nexus
+  # VitaLearn-Nexus
   **AI-Powered Digital Student Health Passport & School Health Intelligence Platform**
 
   [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
