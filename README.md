@@ -46,7 +46,7 @@ By replacing the fragmented paper-based medical records with a secure, intellige
 
 ## 🚀 Quick Start (Local Deployment)
 
-VitaLearn Nexus is designed for resilience. It features a **Demo Mode Fallback** which seamlessly provisions the application with a shared dataset of 20 fully-fleshed student profiles if a MongoDB connection is unavailable.
+VitaLearn Nexus is designed for resilience. It features a **Demo Mode Fallback** which seamlessly provisions the application with a shared dataset of 20 fully-fleshed student profiles and more if a MongoDB connection is available.
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/en/download/) (v18 or higher recommended)
