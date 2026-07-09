@@ -1,6 +1,4 @@
-<div align="center">
-  <img src="./assets/logo.png" alt="VitaLearn Nexus Logo" width="200" />
-  
+
   # VitaLearn Nexus
   **AI-Powered Digital Student Health Passport & School Health Intelligence Platform**
 
@@ -168,8 +166,6 @@ cd vitalearn-nexus
 By default, the application runs perfectly in **Demo Mode** without a database. If you wish to use a live MongoDB instance, create a `.env` file in the `backend/` directory:
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/vitalearn
-JWT_SECRET=your_super_secret_jwt_key_here
 ```
 
 ### 🚀 Quick Start (Single Command)
@@ -275,11 +271,14 @@ screenshots/
 
 **Developed by**
 
-Dhanushri Tangavelou
+DHANUSHRI TANGAVELOU
+ARADHANA.S
+JAYASREE.N.S
+SARUNITHA.E
 
 B.Tech Electronics and Communication Engineering
 
-Pondicherry University
+Pondicherry Central University, Puducherry 
 
 ---
 
@@ -288,9 +287,5 @@ Pondicherry University
 This project is licensed under the MIT License.
 
 ---
-
-## ⭐ Support
-
-If you like this project, don't forget to **star this repository**.
 
 Made with ❤️ for healthier schools.
