@@ -25,7 +25,7 @@ function DashboardCard({
       </div>
       
       {link ? (
-        <Link to={link} className="mt-6 mt-auto flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700">
+        <Link to={link} className="mt-auto flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700">
           View Details
           <ArrowUpRight
             size={18}
@@ -33,7 +33,7 @@ function DashboardCard({
           />
         </Link>
       ) : (
-        <div className="mt-6 mt-auto flex items-center gap-2 text-sm font-medium text-slate-400">
+        <div className="mt-6 flex items-center gap-2 text-sm font-medium text-slate-400">
           {/* Optional: Render non-clickable placeholder or nothing */}
         </div>
       )}

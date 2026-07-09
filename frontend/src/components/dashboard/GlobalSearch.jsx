@@ -60,7 +60,7 @@ function GlobalSearch() {
       </div>
 
       {open && query ? (
-        <div className="absolute right-0 top-14 z-30 w-[28rem] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
+        <div className="absolute right-0 top-14 z-30 w-md overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl">
           <div className="border-b border-slate-100 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
             Global Search
           </div>
