@@ -1,5 +1,4 @@
-<div align="center">
-  <img src="./assets/logo.png" alt="VitaLearn Nexus Logo" width="200" />
+
   
   # VitaLearn Nexus
   **AI-Powered Digital Student Health Passport & School Health Intelligence Platform**
