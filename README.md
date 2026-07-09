@@ -270,10 +270,13 @@ screenshots/
 
 **Developed by**
 
-DHANUSHRI TANGAVELOU
-ARADHANA.S
-JAYASREE.N.S
-SARUNITHA.E
+DHANUSHRI TANGAVELOU;
+
+ARADHANA.S;
+
+JAYASREE.N.S;
+
+SARUNITHA.E;
 
 B.Tech Electronics and Communication Engineering
 
