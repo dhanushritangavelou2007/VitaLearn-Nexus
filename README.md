@@ -55,7 +55,7 @@ VitaLearn Nexus is designed for resilience. It features a **Demo Mode Fallback**
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-org/vitalearn-nexus.git
+git clone :https://github.com/dhanushritangavelou2007/VitaLearn-Nexus.git
 cd vitalearn-nexus
 ```
 
@@ -63,8 +63,6 @@ cd vitalearn-nexus
 By default, the application runs perfectly in **Demo Mode** without a database. If you wish to use a live MongoDB instance, create a `.env` file in the `backend/` directory:
 ```env
 PORT=5000
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/vitalearn
-JWT_SECRET=your_super_secret_jwt_key_here
 ```
 
 ### 3. Start the Application
