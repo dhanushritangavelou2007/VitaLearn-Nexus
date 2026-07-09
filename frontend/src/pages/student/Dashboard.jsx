@@ -3,15 +3,19 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
+import HealthAreaChart from "../../components/charts/HealthAreaChart";
+import RiskBarChart from "../../components/charts/RiskBarChart";
 import GlassCard from "../../components/ui/GlassCard";
 import { Activity, HeartPulse, ShieldCheck, Award } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
+import { calculateHealthScore } from "../../utils/studentAnalytics";
 
 function StudentDashboard() {
   const location = useLocation();
-  const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
+  const { students, calculateDashboardStats, generateHealthSummary, loading, error, refreshStudents } = useStudents();
   const student = students.find(s => s.name === "Aarav Sharma") || students[0];
   const stats = calculateDashboardStats();
+  const calculatedHealthScore = student ? (student.healthScore || calculateHealthScore(student)) : 0;
   
   const trendData = [
     { day: "Mon", healthy: Math.max(0, Math.round(stats.averageHealthScore - 3)) },
@@ -33,7 +37,7 @@ function StudentDashboard() {
   const isVaccination = location.pathname.includes("vaccination");
   const isMainDashboard = !isAchievements && !isTimeline && !isVaccination;
 
-  if (loading || !student) {
+  if (loading) {
     return (
       <DashboardLayout>
         <div className="mx-auto max-w-7xl space-y-6 pb-10">
@@ -57,6 +61,19 @@ function StudentDashboard() {
     );
   }
 
+  if (!student) {
+    return (
+      <DashboardLayout>
+        <div className="mx-auto max-w-2xl rounded-3xl border border-amber-200 bg-amber-50 p-8 text-amber-700">
+          <h1 className="text-2xl font-bold">No student records found</h1>
+          <p className="mt-2">We couldn't find your student profile.</p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+
+
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-7xl space-y-6 pb-10">
@@ -66,10 +83,17 @@ function StudentDashboard() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          <DashboardCard title="Health Score" value={student.healthScore} subtitle="Current wellness" icon={HeartPulse} color="text-emerald-600" bg="bg-emerald-500" />
-          <DashboardCard title="Attendance" value={student.attendance} subtitle="School term" icon={ShieldCheck} color="text-blue-600" bg="bg-blue-500" />
-          <DashboardCard title="BMI" value={student.vitals.bmi} subtitle="Healthy range" icon={Activity} color="text-slate-700" bg="bg-slate-700" />
-          <DashboardCard title="Achievements" value="4" subtitle="Health milestones" icon={Award} color="text-amber-600" bg="bg-amber-500" />
+          <DashboardCard title="Health Score" value={`${calculatedHealthScore}/100`} subtitle="Current wellness" icon={HeartPulse} color="text-emerald-600" bg="bg-emerald-500" />
+          <DashboardCard title="BMI" value={student.vitals?.bmi || "N/A"} subtitle="Healthy range" icon={Activity} color="text-slate-700" bg="bg-slate-700" />
+          <DashboardCard title="Blood Pressure" value={student.vitals?.bloodPressure || "N/A"} subtitle="mmHg" icon={HeartPulse} color="text-rose-600" bg="bg-rose-500" />
+          <DashboardCard title="Temperature" value={`${student.vitals?.temperature || "N/A"}`} subtitle="Current" icon={ShieldCheck} color="text-blue-600" bg="bg-blue-500" />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <DashboardCard title="Activity Level" value="High" subtitle="Active 60m today" icon={Activity} color="text-orange-500" bg="bg-orange-500" />
+          <DashboardCard title="Attendance" value={student.attendance || "N/A"} subtitle="Overall" icon={ShieldCheck} color="text-amber-500" bg="bg-amber-500" />
+          <DashboardCard title="Sleep Duration" value="8h 15m" subtitle="Last night" icon={ShieldCheck} color="text-indigo-500" bg="bg-indigo-500" />
+          <DashboardCard title="My Goals" value="3/5" subtitle="Goals completed" icon={Award} color="text-purple-500" bg="bg-purple-500" />
         </div>
 
         {isMainDashboard && (
@@ -80,15 +104,19 @@ function StudentDashboard() {
                   <HeartPulse size={20} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800">My Health Passport</h2>
-                  <p className="text-sm text-slate-500">Your current wellness summary</p>
+                  <h2 className="text-lg font-bold text-slate-800">AI Health Tips</h2>
+                  <p className="text-sm text-slate-500">Personalized for you</p>
                 </div>
               </div>
+              <div className="mt-6 rounded-xl border border-indigo-100 bg-indigo-50 p-5 text-sm leading-relaxed text-indigo-900">
+                 {student.aiSummary || "Keep up your great activity level! Remember to drink water after playing sports. Your sleep duration is excellent."}
+              </div>
+              
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <InfoCard label="Height" value={student.vitals.height} accent="blue" />
-                <InfoCard label="Weight" value={student.vitals.weight} accent="emerald" />
-                <InfoCard label="BMI" value={student.vitals.bmi} accent="amber" />
-                <InfoCard label="Blood Group" value={student.bloodGroup} accent="rose" />
+                <InfoCard label="Height" value={student.vitals.height || "N/A"} accent="blue" />
+                <InfoCard label="Weight" value={student.vitals.weight || "N/A"} accent="emerald" />
+                <InfoCard label="Blood Group" value={student.bloodGroup || "N/A"} accent="rose" />
+                <InfoCard label="Allergies" value={student.allergies?.join(', ') || "None"} accent="amber" />
               </div>
             </GlassCard>
 
@@ -99,7 +127,7 @@ function StudentDashboard() {
                   <p className="text-sm text-white/70">Based on recent checkups</p>
                 </div>
                 <div className="mt-6 flex items-end gap-3">
-                  <span className="text-5xl font-bold">{student.healthScore}</span>
+                  <span className="text-5xl font-bold">{calculatedHealthScore}</span>
                   <span className="mb-1 text-lg font-medium text-white/80">/ 100</span>
                 </div>
                 <div className="mt-4 rounded-xl bg-white/20 p-3 backdrop-blur-md">
@@ -112,8 +140,44 @@ function StudentDashboard() {
 
         {isTimeline && (
           <div id="timeline" className="grid gap-6 lg:grid-cols-2">
-            <HealthTrendChart data={trendData} title="My Wellness Trend" />
-            <HealthDistributionChart data={distributionData} title="Health Distribution" />
+            <HealthTrendChart 
+              data={trendData} 
+              title="Health Timeline" 
+            />
+            <HealthAreaChart 
+              data={[
+                { day: "Week 1", value: 18.5 },
+                { day: "Week 2", value: 18.7 },
+                { day: "Week 3", value: 18.6 },
+                { day: "Week 4", value: parseFloat(student.vitals?.bmi || 18.7) },
+              ]}
+              title="BMI Trend"
+            />
+          </div>
+        )}
+        
+        {isTimeline && (
+          <div className="grid gap-6 lg:grid-cols-2 mt-6">
+            <HealthTrendChart 
+              data={[
+                { day: "Jan", height: Math.max(0, parseFloat(student.vitals?.height || 140) - 3), weight: Math.max(0, parseFloat(student.vitals?.weight || 35) - 2) },
+                { day: "Mar", height: Math.max(0, parseFloat(student.vitals?.height || 140) - 2), weight: Math.max(0, parseFloat(student.vitals?.weight || 35) - 1) },
+                { day: "May", height: Math.max(0, parseFloat(student.vitals?.height || 140) - 1), weight: Math.max(0, parseFloat(student.vitals?.weight || 35) - 0.5) },
+                { day: "Jul", height: parseFloat(student.vitals?.height || 140), weight: parseFloat(student.vitals?.weight || 35) },
+              ]} 
+              title="Growth Curve (Height)" 
+              dataKey="height"
+              strokeColor="#8b5cf6"
+            />
+            <RiskBarChart 
+              data={[
+                { name: "Activity", value: 85 },
+                { name: "Sleep", value: 90 },
+                { name: "Hydration", value: 70 },
+                { name: "Nutrition", value: 80 },
+              ]}
+              title="Wellness Progress"
+            />
           </div>
         )}
 

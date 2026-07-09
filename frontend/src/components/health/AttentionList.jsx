@@ -1,7 +1,8 @@
-import students from "../../data/students";
+import { useStudents } from "../../hooks/useStudents";
 import RiskBadge from "./RiskBadge";
 
 function AttentionList() {
+  const { students } = useStudents();
   const attentionStudents = students.filter(
     (student) =>
       student.risk === "review" || student.risk === "critical"

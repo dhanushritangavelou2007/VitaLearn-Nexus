@@ -8,14 +8,16 @@ const RISK_ORDER = {
 const REQUIRED_VACCINATIONS = ["BCG", "OPV", "COVID-19", "MMR"];
 
 export function parsePercent(value) {
-  if (typeof value === "number") return value;
-  const parsed = Number.parseFloat(String(value || "").replace("%", ""));
+  if (value == null) return 0;
+  if (typeof value === "number") return Number.isNaN(value) ? 0 : value;
+  const parsed = Number.parseFloat(String(value).replace("%", ""));
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
 export function parseVitalNumber(value) {
-  if (typeof value === "number") return value;
-  const parsed = Number.parseFloat(String(value || ""));
+  if (value == null) return 0;
+  if (typeof value === "number") return Number.isNaN(value) ? 0 : value;
+  const parsed = Number.parseFloat(String(value));
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
@@ -46,15 +48,16 @@ export function calculateHealthScore(student) {
   const conditions = (student?.medicalConditions || []).filter((condition) => condition && condition !== "None").length;
 
   let score = 100;
-  if (bmi && (bmi < 18.5 || bmi > 24.9)) score -= 8;
-  if (attendance < 90) score -= 10;
+  if (bmi > 0 && (bmi < 18.5 || bmi > 24.9)) score -= 8;
+  if (attendance > 0 && attendance < 90) score -= 10;
   if (temperature >= 100.4) score -= 14;
-  if (heartRate && (heartRate < 60 || heartRate > 110)) score -= 8;
+  if (heartRate > 0 && (heartRate < 60 || heartRate > 110)) score -= 8;
   score -= activeSymptoms * 6;
   score -= conditions * 5;
-  score -= (RISK_ORDER[student?.risk] || 0) * 8;
+  score -= (RISK_ORDER[student?.risk?.toLowerCase()] || 0) * 8;
 
-  return Math.max(0, Math.min(100, Math.round(score)));
+  const finalScore = Math.max(0, Math.min(100, Math.round(score)));
+  return Number.isNaN(finalScore) ? 100 : finalScore;
 }
 
 export function deriveRisk(student) {
@@ -82,8 +85,15 @@ export function calculateDashboardStats(studentList = []) {
       ...distribution,
       [student.risk]: (distribution[student.risk] || 0) + 1,
     }),
-    { healthy: 0, moderate: 0, high: 0, critical: 0 }
+    { healthy: 0, moderate: 0, high: 0, critical: 0, observation: 0, review: 0 }
   );
+  
+  // Normalize risk based on old labels vs new labels
+  const healthy = riskDistribution.healthy;
+  const moderate = riskDistribution.moderate + riskDistribution.observation;
+  const high = riskDistribution.high + riskDistribution.review;
+  const critical = riskDistribution.critical;
+  
   const healthScores = studentList.map(calculateHealthScore);
   const reportCount = studentList.reduce((count, student) => count + (student.reports?.length || 0), 0);
   const pendingReports = studentList.reduce(
@@ -91,29 +101,42 @@ export function calculateDashboardStats(studentList = []) {
       count + (student.reports || []).filter((report) => /pending|review|needs/i.test(report.status)).length,
     0
   );
+  
+  const pendingVaccinations = studentList.reduce(
+    (count, student) => count + REQUIRED_VACCINATIONS.filter(v => !(student.vaccinations || []).includes(v)).length,
+    0
+  );
+
   const average = (values) =>
     values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
 
   return {
     total,
-    healthy: riskDistribution.healthy,
-    critical: riskDistribution.critical,
-    needReview: riskDistribution.moderate + riskDistribution.high + riskDistribution.critical,
-    doctorAttention: riskDistribution.critical,
+    healthy,
+    moderate,
+    high,
+    critical,
+    needReview: moderate + high + critical,
+    doctorAttention: critical,
     reportsToday: studentList.filter((student) => student.lastUpdate === "Today").length,
     pendingReports,
     reportCount,
+    appointments: 8, // Mocked for hackathon dashboard
+    teacherCount: 12, // Mocked
+    doctorCount: 4, // Mocked
+    parentCount: 18, // Mocked
+    pendingVaccinations,
     averageAttendance: average(studentList.map((student) => parsePercent(student.attendance))),
     averageBMI: total
       ? Number(
           (
             studentList.reduce((sum, student) => sum + parseVitalNumber(student.vitals?.bmi), 0) / total
           ).toFixed(1)
-        )
+        ) || 0
       : 0,
-    averageHealthScore: average(healthScores),
-    riskDistribution,
-    healthyPercent: total ? Math.round((riskDistribution.healthy / total) * 100) : 0,
+    averageHealthScore: average(healthScores) || 0,
+    riskDistribution: { healthy: healthy || 0, moderate: moderate || 0, high: high || 0, critical: critical || 0 },
+    healthyPercent: total ? Math.round((healthy / total) * 100) : 0,
   };
 }
 

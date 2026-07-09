@@ -7,10 +7,17 @@ export async function listStudents({ page = 1, limit = 20, search = "", risk, cl
 
   if (user) {
     if (user.role === "parent") {
-      query["parent.email"] = user.email;
+      if (user.email === "parent@vitalearn.ai") {
+        query["parent.email"] = "rajesh.s@example.com";
+      } else {
+        query["parent.email"] = user.email;
+      }
     } else if (user.role === "student") {
-      // In demo mode, we assign student by demo-student-1 for the default student user
-      query.id = "demo-student-1"; 
+      if (user.email === "student@vitalearn.ai") {
+        query.id = "1";
+      } else {
+        query.id = user.id;
+      }
     }
   }
 

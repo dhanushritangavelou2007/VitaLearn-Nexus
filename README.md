@@ -1,143 +1,374 @@
-<div align="center">
-  <img src="./assets/logo.png" alt="VitaLearn Nexus Logo" width="200" />
-  
-  # VitaLearn Nexus
-  **AI-Powered Digital Student Health Passport & School Health Intelligence Platform**
+# VitaLearn Nexus
 
-  [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-  [![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
-  [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com/)
-  [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-</div>
+<p align="center">
+  <img src="./assets/logo.png" width="180" alt="VitaLearn Nexus Logo">
+</p>
 
----
+<h3 align="center">
+AI-Powered Digital Student Health Passport & School Health Intelligence Platform
+</h3>
 
-## 📖 Overview
+<p align="center">
+A centralized healthcare ecosystem connecting Students, Parents, Teachers, Doctors, and School Administrators through secure digital health records and AI-assisted analytics.
+</p>
 
-**VitaLearn Nexus** is a state-of-the-art Digital Student Health Passport and School Health Intelligence Platform designed to centralize student healthcare management in educational institutions. 
-
-By replacing fragmented paper-based medical records with a secure, intelligent, and scalable digital ecosystem, the platform enables seamless collaboration between **School Administrators, Teachers, Doctors, Parents, and Students**. It promotes preventive healthcare, early intervention, and robust communication between schools and families, all backed by AI-assisted health insights.
-
-> **Important Principle:** AI is designed to *assist* users by summarizing health information, identifying trends, and answering general health questions. AI *never* replaces qualified medical professionals, and all medical decisions remain under the strict supervision of authorized doctors.
-
----
-
-## ✨ Core Features
-
-- **🔐 Robust Security & Authentication:** Role-Based Access Control (RBAC), JWT Authentication, Password Hashing, and secure API routing.
-- **📄 Digital Health Passport:** Comprehensive medical history, growth tracking (BMI, Vitals), vaccination records, and downloadable health reports.
-- **🧠 AI-Powered Insights:** Localized AI health summaries, trend analysis, and educational explanations (assisting, not diagnosing).
-- **💬 Real-Time Communication:** Secure chat modules connecting Parents ↔ Teachers, Parents ↔ Doctors, and Teachers ↔ Doctors.
-- **📊 Role-Specific Dashboards:** Custom-tailored intelligent dashboards for School Admins, Doctors, Teachers, Parents, and Students.
-- **🌗 Modern UI/UX:** Glassmorphism, smooth Framer Motion animations, dark/light mode persistency, and fully responsive design.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react" alt="React">
+  <img src="https://img.shields.io/badge/Node.js-Express-green?style=for-the-badge&logo=node.js" alt="Node.js">
+  <img src="https://img.shields.io/badge/MongoDB-Atlas-green?style=for-the-badge&logo=mongodb" alt="MongoDB">
+  <img src="https://img.shields.io/badge/TailwindCSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="MIT License">
+</p>
 
 ---
 
-## 👥 User Roles & Capabilities
+## 📖 About
 
-| Role | Access Level | Key Capabilities |
-|------|--------------|------------------|
-| **🏫 School Admin** | Super User | Manage all users, link parents/students, assign classes, view global analytics. |
-| **👩‍⚕️ Doctor** | Medical Staff | Conduct checkups, record detailed vitals/vaccinations, update medical reports, review AI summaries, manage diagnosis queues. |
-| **👨‍🏫 Teacher** | Staff | View assigned classes, record attendance, submit classroom health observations, receive AI alerts. |
-| **👨‍👩‍👧 Parent** | Guardian | View child's health passport, submit symptom reports, download medical histories, track vaccinations. |
-| **🧑‍🎓 Student** | Viewer | View personal health passport, track AI-generated health summaries, access timelines. |
+VitaLearn Nexus is an AI-assisted Digital Student Health Passport developed to modernize healthcare management inside schools.
+
+Instead of maintaining paper medical records, every student receives a secure digital health passport containing:
+
+- Medical History
+- Vaccination Records
+- BMI & Vital Monitoring
+- AI Health Summary
+- Risk Classification
+- Doctor Diagnosis
+- Parent Health Reports
+- Teacher Observations
+
+The platform enables collaboration between Teachers, Doctors, Parents, Students, and School Administrators while maintaining secure role-based access control.
 
 ---
 
-## 🚀 Quick Start (Local Deployment)
+## 🎯 Problem Statement
 
-VitaLearn Nexus is designed for resilience. It features a **Demo Mode Fallback** which seamlessly provisions the application with a shared dataset of 20 fully-fleshed student profiles if a MongoDB connection is unavailable.
+Schools often maintain fragmented paper health records that are:
 
-### Prerequisites
-- [Node.js](https://nodejs.org/en/download/) (v18 or higher recommended)
-- [Git](https://git-scm.com/downloads)
+- Difficult to access
+- Easy to lose
+- Hard to update
+- Impossible to analyze
 
-### 1. Clone the Repository
+Current systems make it difficult for:
+
+- Teachers to identify health risks quickly
+- Parents to monitor school health updates
+- Doctors to access centralized medical history
+- Administrators to analyze school-wide health trends
+
+---
+
+## 💡 Solution
+
+VitaLearn Nexus provides:
+
+- Digital Student Health Passport
+- AI Health Summary
+- Student Risk Classification
+- School Health Analytics
+- Vaccination Tracking
+- Medical Report Management
+- Role-Based Dashboards
+- Secure Authentication
+
+---
+
+## 👥 User Roles
+
+### 👨‍🏫 Teacher
+
+- View assigned students
+- Record symptoms
+- Generate health passports
+- Download PDF reports
+- Export Excel reports
+- View risk indicators
+- Receive AI alerts
+
+### 👩‍⚕️ Doctor
+
+- Review all students
+- View critical cases
+- Manage diagnosis queue
+- Edit diagnoses
+- Approve AI reports
+- Review vaccinations
+- Manage appointments
+
+### 👨‍👩‍👧 Parent
+
+- View child's health passport
+- View health reports
+- Submit symptom reports
+- Download reports
+- View vaccination history
+
+### 🧑‍🎓 Student
+
+- View personal health passport
+- AI-generated health summary
+- Health timeline
+- Vaccination records
+- Wellness dashboard
+
+### 🏫 Admin
+
+- School analytics
+- User management
+- Student management
+- Teacher management
+- Doctor management
+- Pending reports
+- Overall statistics
+
+---
+
+## 🧠 AI Features
+
+The AI system assists users by:
+
+- Generating health summaries
+- Identifying health trends
+- Highlighting risk categories
+- Providing educational explanations
+- Suggesting follow-up observations
+
+> AI never replaces a qualified medical professional.
+>
+> Final diagnosis always remains under doctor supervision.
+
+---
+
+## 📊 Dashboard Analytics
+
+The platform provides:
+
+- Student Health Distribution
+- Risk Classification
+- Attendance Statistics
+- BMI Analysis
+- Health Timeline
+- Vaccination Coverage
+- Critical Student Count
+- Pending Reports
+
+---
+
+## 🔐 Security
+
+- JWT Authentication
+- Password Hashing (bcrypt)
+- Protected Routes
+- Role-Based Access Control
+- Secure REST APIs
+
+---
+
+## 🛠 Technology Stack
+
+### Frontend
+
+- React (Vite)
+- Tailwind CSS
+- React Router
+- Axios
+- Recharts
+- Lucide React
+
+### Backend
+
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Mongoose
+- JWT
+- bcryptjs
+
+---
+
+## 📂 Project Structure
+
+```text
+VitaLearn-Nexus/
+├── frontend/
+│   ├── src/
+│   ├── assets/
+│   ├── components/
+│   ├── context/
+│   ├── hooks/
+│   ├── pages/
+│   ├── routes/
+│   ├── services/
+│   └── utils/
+│
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── repositories/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   └── server.js
+│
+└── README.md
+```
+
+---
+
+## 🚀 Features
+
+- Digital Health Passport
+- AI Health Summary
+- Risk Detection
+- Medical Reports
+- Vaccination Tracking
+- School Analytics
+- Multi-role Dashboards
+- PDF Export
+- Excel Export
+- Demo Mode
+- MongoDB Support
+- Responsive Design
+- Dark Mode
+
+---
+
+## 💻 Installation
+
+Clone the repository.
+
 ```bash
-git clone https://github.com/your-org/vitalearn-nexus.git
-cd vitalearn-nexus
+git clone https://github.com/YOUR_USERNAME/VitaLearn-Nexus.git
 ```
 
-### 2. Environment Variables (Optional)
-By default, the application runs perfectly in **Demo Mode** without a database. If you wish to use a live MongoDB instance, create a `.env` file in the `backend/` directory:
-```env
-PORT=5000
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/vitalearn
-JWT_SECRET=your_super_secret_jwt_key_here
+Navigate to the project.
+
+```bash
+cd VitaLearn-Nexus
 ```
 
-### 3. Start the Application
+### 🚀 Quick Start (Single Command)
 
-We have provided a convenient Bash script to install dependencies and spin up both the frontend and backend concurrently.
+We have provided a convenient Bash script to install all dependencies and start both the frontend and backend servers concurrently.
 
-**Using the Bash Script (macOS/Linux/Git Bash on Windows):**
+**macOS / Linux / Git Bash (Windows):**
 ```bash
 chmod +x start.sh
 ./start.sh
 ```
 
-**Manual Startup (If bash is unavailable):**
-```bash
-# Terminal 1: Start the Backend
-cd backend
-npm install
-npm run dev
+### 🛠 Manual Startup (Alternative)
 
-# Terminal 2: Start the Frontend
+If you prefer to start them manually, open two terminal windows.
+
+**Terminal 1 (Frontend):**
+```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-The application will be available at:
-- **Frontend:** http://localhost:5173
-- **Backend API:** http://localhost:5000
+**Terminal 2 (Backend):**
+```bash
+cd backend
+npm install
+npm run dev
+```
 
 ---
 
-## 🔑 Demo Accounts
+## ⚙ Environment Variables
 
-Use the following pre-configured credentials to explore the platform in Demo Mode:
+Create a `.env` file inside the `backend` folder.
+
+```env
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=your_mongodb_connection
+JWT_SECRET=your_secret
+JWT_EXPIRES_IN=7d
+CLIENT_URL=http://localhost:5173
+```
+
+---
+
+## 🌐 Local URLs
+
+Frontend
+
+<http://localhost:5173>
+
+Backend
+
+<http://localhost:5000>
+
+---
+
+## 🎮 Demo Accounts
 
 | Role | Email | Password |
-|------|-------|----------|
-| **Teacher** | `teacher@vitalearn.ai` | `Teacher@123` |
-| **Doctor** | `doctor@vitalearn.ai` | `Doctor@123` |
-| **Parent** | `parent@vitalearn.ai` | `Parent@123` |
-| **Student** | `student@vitalearn.ai` | `Student@123` |
-| **Admin** | `admin@vitalearn.ai` | `Admin@123` |
+| :--- | :--- | :--- |
+| Teacher | <teacher@vitalearn.ai> | Teacher@123 |
+| Doctor | <doctor@vitalearn.ai> | Doctor@123 |
+| Parent | <parent@vitalearn.ai> | Parent@123 |
+| Student | <student@vitalearn.ai> | Student@123 |
+| Admin | <admin@vitalearn.ai> | Admin@123 |
 
 ---
 
-## 🛠 Tech Stack
+## 📈 Future Enhancements
 
-### Frontend
-- **Framework:** React.js (Vite)
-- **Styling:** Tailwind CSS, Glassmorphism elements
-- **Routing:** React Router v6
-- **Data Visualization:** Recharts
-- **Animations:** Framer Motion
-- **Icons:** Lucide React
-
-### Backend
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Database:** MongoDB Atlas (Mongoose ODM)
-- **Architecture:** Repository Pattern (Graceful Demo Fallback)
-- **Security:** bcryptjs, jsonwebtoken, helmet, express-rate-limit
+- Mobile Application
+- Wearable Device Integration
+- AI Predictive Health Analysis
+- Multi-School Deployment
+- Government Health Portal Integration
+- Emergency SOS Alerts
+- Real-time Notifications
+- Cloud Storage
+- OCR Medical Report Upload
+- AI Chat Assistant
 
 ---
 
-## 🌍 Future Scope
+## 📸 Screenshots
 
-- **Multi-School Architecture:** Support for district-level and multi-tenant scaling.
-- **Wearable Integration:** Direct syncing with smartwatches and fitness trackers.
-- **Government Health Reporting:** Automated anonymized epidemiology reporting.
-- **Mobile Application:** Dedicated iOS and Android apps using React Native.
+Add screenshots after deployment.
+
+```text
+screenshots/
+├── teacher-dashboard.png
+├── doctor-dashboard.png
+├── parent-dashboard.png
+├── student-dashboard.png
+└── admin-dashboard.png
+```
+
+---
+
+## 🤝 Contributors
+
+**Developed by**
+
+Dhanushri Tangavelou
+
+B.Tech Electronics and Communication Engineering
+
+Pondicherry University
 
 ---
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
+
+---
+
+## ⭐ Support
+
+If you like this project, don't forget to **star this repository**.
+
+Made with ❤️ for healthier schools.

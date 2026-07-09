@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import { Search, Filter, CheckCircle2, Clock, AlertCircle, MoreVertical, Eye, FilePlus, Activity } from "lucide-react";
 import { getRiskLabel, getRiskStyle, getStudentAvatar } from "../../data/students";
@@ -14,10 +14,17 @@ const statusIcons = {
 
 function Students() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { students, loading, error, refreshStudents } = useStudents();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterRisk, setFilterRisk] = useState("All");
+  const [filterRisk, setFilterRisk] = useState(searchParams.get("filter") || "All");
   const [sortBy, setSortBy] = useState("latest");
+
+  useEffect(() => {
+    if (searchParams.get("filter")) {
+      setFilterRisk(searchParams.get("filter"));
+    }
+  }, [searchParams]);
 
   const filteredStudents = useMemo(() => {
     const normalizedSearch = searchTerm.toLowerCase();
@@ -166,10 +173,10 @@ function Students() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => navigate(`/teacher/student-profile/${student.id}`)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View Profile">
+                        <button onClick={() => navigate(`/passport/${student.id}`)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View Profile">
                           <Eye size={18} />
                         </button>
-                        <button onClick={() => navigate(`/teacher/report-symptoms/${student.id}`)} className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Report Symptoms">
+                        <button onClick={() => navigate(`/report-symptoms/${student.id}`)} className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Report Symptoms">
                           <Activity size={18} />
                         </button>
                         <button className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">

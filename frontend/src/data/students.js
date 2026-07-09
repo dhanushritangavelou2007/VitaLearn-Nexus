@@ -513,24 +513,55 @@ export function getAISummary(student) {
   const symptoms = (student?.symptoms || []).filter((symptom) => symptom && symptom !== "None");
   const conditions = (student?.medicalConditions || []).filter((condition) => condition && condition !== "None");
   const bmi = toNumber(student?.vitals?.bmi, 0);
-
-  if (score >= 85) {
-    return `${student?.name || "Student"} maintains excellent overall wellness. Routine monitoring and annual check-up reminders remain appropriate.`;
-  }
-
-  if (conditions.some((condition) => /asthma|diabetes|thyroid|hyperthyroidism|anemia/i.test(condition))) {
-    return `${student?.name || "Student"} has a documented medical history that requires close supervision. Recommend continued follow-up, hydration support, and guardian coordination.`;
-  }
-
+  const risk = getRisk(student);
+  
+  let lifestyle = "Maintains a balanced routine.";
+  let nutrition = "Needs consistent dietary tracking.";
+  let hydration = "Adequate, but should increase water intake during activities.";
+  let exercise = "Participates in standard physical education.";
+  let medRec = "No urgent medical recommendations at this time.";
+  let followUp = "Standard annual checkup recommended.";
+  
   if (bmi > 25) {
-    return `${student?.name || "Student"} shows elevated BMI indicators. Encourage daily physical activity and dietary counseling at school and home.`;
+    nutrition = "Requires a low-calorie, nutrient-rich diet.";
+    exercise = "Recommend 60 mins of daily cardio.";
+    medRec = "Monitor lipid profile and blood pressure.";
+    followUp = "Review BMI progress in 3 months.";
+  } else if (bmi < 18.5 && bmi > 0) {
+    nutrition = "Needs a high-protein, calorie-dense diet.";
+    exercise = "Recommend strength training and moderate activity.";
+    followUp = "Review weight gain progress in 2 months.";
   }
-
+  
+  if (conditions.some(c => /asthma/i.test(c))) {
+    medRec = "Keep inhaler accessible at all times. Avoid dusty environments.";
+    exercise = "Moderate physical activity; avoid overexertion in cold weather.";
+  }
+  if (conditions.some(c => /diabetes/i.test(c))) {
+    nutrition = "Strict monitoring of sugar intake and regular meals required.";
+    medRec = "Routine blood sugar tracking before physical activities.";
+  }
+  
   if (symptoms.length > 0) {
-    return `${student?.name || "Student"} has reported ${symptoms.slice(0, 2).join(", ")}. Continue observation and maintain a calm, supportive environment until symptoms subside.`;
+    medRec = `Active symptoms (${symptoms.join(", ")}): Requires immediate observation and possible medical intervention if they worsen.`;
+    followUp = "Re-evaluate within 48 hours.";
   }
 
-  return `${student?.name || "Student"} is progressing steadily. Keep attendance and vaccination records current and continue routine wellness checks.`;
+  return `### Comprehensive Health Profile
+**Core Metrics**: ${student?.name || "Student"} has a Health Score of **${score}/100** (Risk Level: **${getRiskLabel(risk)}**). 
+**Vitals**: BMI is **${bmi}**, and Attendance is **${student?.attendance || "N/A"}**.
+**Symptoms & Vaccinations**: Reported symptoms include **${symptoms.length > 0 ? symptoms.join(", ") : "None"}**. Vaccination count is **${student?.vaccinations?.length || 0}**.
+
+### Wellness Insights
+- **Lifestyle**: ${lifestyle}
+- **Nutrition**: ${nutrition}
+- **Hydration**: ${hydration}
+- **Exercise**: ${exercise}
+
+### Clinical Recommendations
+- **Medical**: ${medRec}
+- **Follow-up**: ${followUp}
+`;
 }
 
 export function getPendingVaccinations(student) {
@@ -625,8 +656,30 @@ export function getRiskStyle(risk) {
   return riskStyles[risk] || riskStyles.observation;
 }
 
+const boyAvatars = [
+  "https://images.unsplash.com/photo-1488161628813-04466f872be2?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1603867104192-3c8121633519?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1471286174890-9c11241eb988?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1542157159-0f622955fbd5?w=150&h=150&fit=crop&auto=format",
+];
+
+const girlAvatars = [
+  "https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1504199367641-aba29b5129b8?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1514315384763-ba401779410f?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1610486888497-2936270b284e?w=150&h=150&fit=crop&auto=format",
+  "https://images.unsplash.com/photo-1602052793312-b99c2a920e14?w=150&h=150&fit=crop&auto=format",
+];
+
 export function getStudentAvatar(student) {
-  return `https://i.pravatar.cc/150?u=${student.id}-${student.rollNo}`;
+  const index = (student.id - 1) % 6;
+  if (student.gender === "Female") {
+    return girlAvatars[index];
+  }
+  return boyAvatars[index];
 }
 
 export function formatList(items) {

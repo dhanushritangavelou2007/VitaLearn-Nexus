@@ -1,17 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
 import RiskBarChart from "../../components/charts/RiskBarChart";
 import GlassCard from "../../components/ui/GlassCard";
-import { Activity, BarChart3, ShieldCheck, Users } from "lucide-react";
+import { Activity, BarChart3, ShieldCheck, Users, Heart, AlertCircle, Calendar } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
+import { Link } from "react-router-dom";
 
 function AdminDashboard() {
-  const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
+  const { calculateDashboardStats, loading, error, refreshStudents } = useStudents();
   const stats = calculateDashboardStats();
-  const highRiskCount = students.filter((student) => student.risk === "critical").length;
   const trendData = [
     { day: "Mon", healthy: Math.max(0, Math.round(stats.averageHealthScore - 3)) },
     { day: "Tue", healthy: Math.max(0, Math.round(stats.averageHealthScore - 1)) },
@@ -20,11 +20,7 @@ function AdminDashboard() {
     { day: "Fri", healthy: Math.max(0, Math.round(stats.averageHealthScore + 2)) },
     { day: "Sat", healthy: Math.max(0, Math.round(stats.averageHealthScore + 3)) },
   ];
-  const distributionData = [
-    { name: "Healthy", value: stats.healthy },
-    { name: "Review", value: stats.needReview - stats.critical },
-    { name: "Critical", value: stats.critical },
-  ];
+
 
   if (loading) {
     return (
@@ -58,59 +54,88 @@ function AdminDashboard() {
           <p className="mt-2 text-slate-200">Monitor the school’s health ecosystem, staff coverage, and student wellness trends.</p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          <DashboardCard title="Teachers" value={stats.teacherCount || 0} subtitle="Active staff members" icon={Users} color="text-blue-600" bg="bg-blue-500" />
-          <DashboardCard title="Doctors" value={stats.doctorCount || 0} subtitle="Medical support staff" icon={ShieldCheck} color="text-emerald-600" bg="bg-emerald-500" />
-          <DashboardCard title="Students" value={stats.total} subtitle="Monitored passports" icon={Activity} color="text-slate-700" bg="bg-slate-700" />
-          <DashboardCard title="Reports" value={stats.reportCount} subtitle={`${highRiskCount} high risk`} icon={BarChart3} color="text-amber-600" bg="bg-amber-500" />
+        {/* Top KPIs */}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <DashboardCard title="Total Students" value={stats.total} subtitle="Enrolled" icon={Users} color="text-slate-700" bg="bg-slate-700" />
+          <DashboardCard title="Teachers" value={stats.teacherCount || 0} subtitle="Staff members" icon={Users} color="text-blue-600" bg="bg-blue-500" />
+          <DashboardCard title="Doctors" value={stats.doctorCount || 0} subtitle="Medical staff" icon={ShieldCheck} color="text-emerald-600" bg="bg-emerald-500" />
+          <DashboardCard title="Parents" value={stats.parentCount || 0} subtitle="Active accounts" icon={Users} color="text-indigo-600" bg="bg-indigo-500" />
+          <DashboardCard title="Appointments" value={stats.appointments || 0} subtitle="Scheduled" icon={Calendar} color="text-purple-600" bg="bg-purple-500" />
+        </div>
+
+        {/* Health Stats */}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <DashboardCard title="Healthy" value={stats.healthy} subtitle="No issues" icon={Heart} color="text-emerald-500" bg="bg-emerald-500" />
+          <DashboardCard title="Moderate" value={stats.moderate} subtitle="Observation" icon={Activity} color="text-blue-500" bg="bg-blue-500" />
+          <DashboardCard title="Critical" value={stats.critical} subtitle="Doctor Attention" icon={AlertCircle} color="text-red-500" bg="bg-red-500" />
+          <DashboardCard title="Pending Reports" value={stats.pendingReports} subtitle="Needs review" icon={BarChart3} color="text-amber-500" bg="bg-amber-500" />
         </div>
 
         <div className="grid gap-6 xl:grid-cols-12">
-          <GlassCard className="xl:col-span-7 p-6">
-            <h2 className="text-lg font-bold text-slate-800">School Health Intelligence</h2>
-            <div className="mt-6 space-y-4">
-              <InsightItem title="Student coverage" description="All classroom health passports are being monitored." />
-              <InsightItem title="Risk alerts" description="Follow-up is needed for current high-risk cases." />
-              <InsightItem title="Compliance" description="Vaccination and report records are up to date for most students." />
-            </div>
-          </GlassCard>
-
-          <GlassCard className="xl:col-span-5 p-6">
-            <h2 className="text-lg font-bold text-slate-800">Admin Actions</h2>
-            <div className="mt-6 space-y-3">
-              <ActionCard title="Review teacher assignments" description="Ensure wellness coverage is balanced across classes." />
-              <ActionCard title="Escalate urgent cases" description="Coordinate with the medical team for critical follow-up." />
-              <ActionCard title="Audit reports" description="Confirm data integrity and recent activity logs." />
-            </div>
-          </GlassCard>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <HealthTrendChart data={trendData} title="School Health Trend" />
-          <HealthDistributionChart data={distributionData} title="Risk Distribution" />
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <RiskBarChart
-            title="Student Distribution"
-            data={[
-              { name: "Students", value: stats.total },
-              { name: "Reports", value: stats.reportCount },
-              { name: "Appointments", value: stats.appointments || 0 },
-              { name: "Incidents", value: highRiskCount },
-            ]}
-          />
-          <GlassCard className="p-6 flex flex-col max-h-[400px]">
+          <GlassCard className="xl:col-span-4 p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-slate-800">Pending Tasks</h2>
-              <button className="text-sm font-semibold text-blue-600 hover:text-blue-700">View All</button>
+              <h2 className="text-lg font-bold text-slate-800">School Analytics</h2>
+              <Link to="/students" className="text-sm font-semibold text-blue-600 hover:text-blue-700">View Details</Link>
             </div>
-            <div className="space-y-3 overflow-y-auto pr-2">
-              <TaskItem id={1} title={`Review ${stats.pendingReports} pending reports`} />
-              <TaskItem id={2} title={`Follow up ${highRiskCount} critical cases`} />
-              <TaskItem id={3} title={`Monitor ${stats.appointments || 0} scheduled appointments`} />
+            <div className="mt-2 space-y-4">
+              <InsightItem title="Average Attendance" description={`${stats.averageAttendance || 95}% across all classes`} />
+              <InsightItem title="Average BMI" description={`${stats.averageBmi || 20} (Healthy range)`} />
+              <InsightItem title="Average Health Score" description={`${stats.averageHealthScore}/100`} />
+              <InsightItem title="Vaccination Coverage" description={`${stats.pendingVaccinations} pending mandatory vaccinations`} />
             </div>
           </GlassCard>
+
+          <GlassCard className="xl:col-span-4 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-slate-800">Department Analytics</h2>
+              <Link to="/reports" className="text-sm font-semibold text-blue-600 hover:text-blue-700">View Details</Link>
+            </div>
+            <div className="mt-2 space-y-3">
+              <ActionCard title="Science Department" description={`${stats.averageHealthScore}% avg score. ${stats.critical} critical cases.`} />
+              <ActionCard title="Commerce Department" description={`${Math.max(0, stats.averageHealthScore - 2)}% avg score. ${stats.pendingReports} pending reports.`} />
+              <ActionCard title="Arts Department" description={`${Math.min(100, stats.averageHealthScore + 1)}% avg score. ${stats.observation || 2} moderate risk.`} />
+            </div>
+          </GlassCard>
+
+          <GlassCard className="xl:col-span-4 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-slate-800">Pending Follow-ups</h2>
+              <Link to="/reports" className="text-sm font-semibold text-blue-600 hover:text-blue-700">Manage</Link>
+            </div>
+            <div className="mt-2 space-y-3">
+              <TaskItem title="Approve Medical Leave for Aryan Gupta" />
+              <TaskItem title="Review new health policy from Dr. Smith" />
+              <TaskItem title="Schedule vaccination drive next week" />
+            </div>
+          </GlassCard>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3 mb-6">
+          <div className="lg:col-span-2">
+            <HealthTrendChart data={trendData} title="Monthly Reports Trend" />
+          </div>
+          <div className="lg:col-span-1">
+            <HealthDistributionChart 
+              data={[
+                { name: "Healthy", value: stats.riskDistribution.healthy },
+                { name: "Moderate", value: stats.riskDistribution.moderate },
+                { name: "High", value: stats.riskDistribution.high },
+                { name: "Critical", value: stats.riskDistribution.critical },
+              ]} 
+              title="Health Distribution" 
+            />
+          </div>
+        </div>
+        <div className="grid gap-6 lg:grid-cols-1">
+          <RiskBarChart 
+            data={[
+              { name: "Healthy", value: stats.riskDistribution.healthy },
+              { name: "Moderate", value: stats.riskDistribution.moderate },
+              { name: "High", value: stats.riskDistribution.high },
+              { name: "Critical", value: stats.riskDistribution.critical },
+            ]}
+            title="Risk Distribution"
+          />
         </div>
       </div>
     </DashboardLayout>

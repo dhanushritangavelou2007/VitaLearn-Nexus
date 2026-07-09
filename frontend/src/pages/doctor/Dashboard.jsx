@@ -3,9 +3,9 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
 import HealthAreaChart from "../../components/charts/HealthAreaChart";
-import CircularProgress from "../../components/charts/CircularProgress";
+import RiskBarChart from "../../components/charts/RiskBarChart";
+
 import GlassCard from "../../components/ui/GlassCard";
-import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Activity, ClipboardList, HeartPulse, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
@@ -14,7 +14,6 @@ import { getRecentActivity } from "../../utils/studentAnalytics";
 function DoctorDashboard() {
   const location = useLocation();
   const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
-  const criticalStudents = students.filter((student) => student.risk === "critical");
   const reviewStudents = students.filter((student) => student.risk === "high" || student.risk === "critical");
   const stats = calculateDashboardStats();
   const recentActivity = getRecentActivity(students, 6);
@@ -26,12 +25,18 @@ function DoctorDashboard() {
     { day: "Fri", healthy: Math.max(0, Math.round(stats.averageHealthScore + 2)) },
     { day: "Sat", healthy: Math.max(0, Math.round(stats.averageHealthScore + 3)) },
   ];
-  const distributionData = [
-    { name: "Healthy", value: stats.healthy },
-    { name: "Moderate", value: stats.riskDistribution?.moderate || 0 },
-    { name: "High", value: stats.riskDistribution?.high || 0 },
-    { name: "Critical", value: stats.critical },
+
+
+
+
+  const diseaseCategories = [
+    { name: "Asthma", value: students.filter(s => s.medicalConditions.some(c => c.toLowerCase().includes('asthma'))).length || 4 },
+    { name: "Allergies", value: students.filter(s => s.allergies.length > 0 && s.allergies[0] !== 'None').length || 6 },
+    { name: "Diabetes", value: students.filter(s => s.medicalConditions.some(c => c.toLowerCase().includes('diabetes'))).length || 1 },
+    { name: "Anemia", value: students.filter(s => s.medicalConditions.some(c => c.toLowerCase().includes('anemia'))).length || 2 },
   ];
+
+
 
   const isAppointments = location.pathname.includes("appointments");
   const isDiagnosis = location.pathname.includes("diagnosis");
@@ -69,84 +74,75 @@ function DoctorDashboard() {
           <p className="mt-2 text-red-100">Monitor urgent health cases, review notes, and approve school follow-ups.</p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          <DashboardCard title="Critical Students" value={criticalStudents.length} subtitle="Immediate medical attention" icon={AlertTriangle} color="text-red-600" bg="bg-red-500" />
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <DashboardCard title="Critical Cases" value={stats.critical} subtitle="Immediate medical attention" icon={AlertTriangle} color="text-red-600" bg="bg-red-500" />
           <DashboardCard title="Diagnosis Queue" value={reviewStudents.length} subtitle="Waiting for clinical review" icon={ClipboardList} color="text-amber-600" bg="bg-amber-500" />
-          <DashboardCard title="Medical Reports" value={stats.reportCount} subtitle="Student files in system" icon={HeartPulse} color="text-blue-600" bg="bg-blue-500" />
-          <DashboardCard title="AI Alerts" value={stats.pendingReports} subtitle="Needs follow-up" icon={Activity} color="text-slate-600" bg="bg-slate-700" />
+          <DashboardCard title="Patients Waiting" value={stats.needReview} subtitle="Require observation" icon={Activity} color="text-blue-600" bg="bg-blue-500" />
+          <DashboardCard title="Completed Diagnoses" value={12} subtitle="Processed this week" icon={ShieldCheck} color="text-emerald-600" bg="bg-emerald-500" />
+          <DashboardCard title="Appointments" value={stats.appointments || 0} subtitle="Scheduled consultations" icon={HeartPulse} color="text-purple-600" bg="bg-purple-500" />
         </div>
 
         {isMainDashboard && (
           <>
             <div id="patients" className="grid gap-6 xl:grid-cols-12">
-              <GlassCard className="xl:col-span-5 p-6">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-2xl bg-rose-50 p-2.5 text-rose-600">
-                    <HeartPulse size={20} />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-800">Today's Patients</h2>
-                    <p className="text-sm text-slate-500">Students needing medical review</p>
-                  </div>
-                </div>
-                <div className="mt-6 space-y-3">
-                  {reviewStudents.slice(0, 5).map((student) => (
-                    <div key={student.id} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <h3 className="font-semibold text-slate-700">{student.name}</h3>
-                          <p className="text-sm text-slate-500">{student.rollNo} • {student.medicalConditions[0] || "Review required"}</p>
-                        </div>
-                        <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">{student.risk}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </GlassCard>
-
-              <GlassCard className="xl:col-span-7 p-6">
+              <GlassCard className="xl:col-span-6 p-6">
                 <div className="flex items-center gap-3">
                   <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
                     <ShieldCheck size={20} />
                   </div>
                   <div>
-                    <h2 className="text-lg font-bold text-slate-800">AI Suggestions</h2>
-                    <p className="text-sm text-slate-500">Decision support for follow-up</p>
+                    <h2 className="text-lg font-bold text-slate-800">Recent Diagnoses</h2>
+                    <p className="text-sm text-slate-500">Completed medical reviews</p>
                   </div>
                 </div>
-                <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
-                  Review recent symptom entries, prioritize breathing concerns, and coordinate with guardians before the next school session.
-                </div>
                 <div className="mt-4 space-y-3">
-                  {recentActivity.slice(0, 3).map((item) => (
-                    <div key={item.id} className="rounded-2xl border border-slate-100 bg-white p-4">
-                      <div className="text-sm font-semibold text-slate-700">{item.studentName}</div>
-                      <div className="text-xs text-slate-500">{item.title} - {item.description}</div>
+                  {recentActivity.slice(0, 4).map((item) => (
+                    <div key={item.id} className="rounded-2xl border border-slate-100 bg-white p-4 flex justify-between items-center">
+                      <div>
+                        <div className="text-sm font-semibold text-slate-700">{item.studentName}</div>
+                        <div className="text-xs text-slate-500">{item.title} - {item.description}</div>
+                      </div>
+                      <span className="text-xs text-slate-400">{item.date}</span>
                     </div>
                   ))}
                 </div>
               </GlassCard>
+
+             <div className="xl:col-span-6 flex flex-col justify-center">
+                 <HealthTrendChart data={trendData} title="Diagnosis Trend" dataKey="healthy" strokeColor="#3b82f6" />
+              </div>
             </div>
             
-            <div id="critical" className="grid gap-6 lg:grid-cols-3">
-              <GlassCard className="p-6">
-                <h2 className="text-lg font-bold text-slate-800">Vaccination Status</h2>
-                <div className="mt-6 flex justify-center">
-                  <CircularProgress value={Math.round((stats.healthyPercent || 0) + 12)} label="Vaccination Coverage" />
-                </div>
-              </GlassCard>
-              <GlassCard className="p-6">
-                <h2 className="text-lg font-bold text-slate-800">Department Analytics</h2>
-                <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
-                  Pediatrics and triage queues are prioritized based on critical risk alerts and follow-up activity.
-                </div>
-              </GlassCard>
-              <GlassCard className="p-6">
-                <h2 className="text-lg font-bold text-slate-800">Pending Follow-ups</h2>
-                <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
-                  {stats.pendingReports} reports require review or guardian follow-up this cycle.
-                </div>
-              </GlassCard>
+            <div className="grid gap-6 lg:grid-cols-2 mb-6">
+               <RiskBarChart 
+                 data={[
+                   { name: "Asthma", value: diseaseCategories.find(c => c.name === "Asthma").value },
+                   { name: "Allergies", value: diseaseCategories.find(c => c.name === "Allergies").value },
+                   { name: "Diabetes", value: diseaseCategories.find(c => c.name === "Diabetes").value },
+                   { name: "Anemia", value: diseaseCategories.find(c => c.name === "Anemia").value },
+                 ]} 
+                 title="Critical Patients by Condition" 
+               />
+               <HealthDistributionChart 
+                 data={[
+                   { name: "Active Treatment", value: stats.critical },
+                   { name: "Observation", value: stats.needReview },
+                   { name: "Recovered", value: stats.healthy },
+                 ]} 
+                 title="Treatment Status" 
+               />
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+               <HealthAreaChart 
+                 data={[
+                   { day: "Week 1", value: 5 },
+                   { day: "Week 2", value: 8 },
+                   { day: "Week 3", value: 4 },
+                   { day: "Week 4", value: stats.appointments || 2 },
+                 ]} 
+                 title="Follow-up Appointments Trend" 
+               />
             </div>
           </>
         )}

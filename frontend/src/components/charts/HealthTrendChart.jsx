@@ -10,7 +10,7 @@ const fallbackData = [
   { day: "Sat", healthy: 610 },
 ];
 
-function HealthTrendChart({ data = fallbackData, title = "Weekly Health Trend" }) {
+function HealthTrendChart({ data = fallbackData, title = "Weekly Health Trend", dataKey = "healthy", strokeColor = "#2563eb" }) {
   return (
     <GlassCard className="p-6">
       <h2 className="mb-6 text-2xl font-bold text-slate-900">{title}</h2>
@@ -21,7 +21,7 @@ function HealthTrendChart({ data = fallbackData, title = "Weekly Health Trend" }
             <XAxis dataKey="day" />
             <YAxis />
             <Tooltip />
-            <Line type="monotone" dataKey="healthy" stroke="#2563eb" strokeWidth={4} />
+            <Line type="monotone" dataKey={dataKey} stroke={strokeColor} strokeWidth={4} />
           </LineChart>
         </ResponsiveContainer>
       </div>

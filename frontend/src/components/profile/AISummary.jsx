@@ -18,7 +18,7 @@ function AISummary({ summary }) {
           <Sparkles size={20} />
           <span className="font-semibold">Summary</span>
         </div>
-        <p>{summary}</p>
+        <div className="whitespace-pre-wrap text-sm">{summary}</div>
       </div>
       <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
         <strong>Note:</strong> This summary is AI-generated to assist with reviewing records. It is informational only and should be reviewed by qualified healthcare professionals before making medical decisions.

@@ -32,7 +32,6 @@ function Sidebar() {
     doctor: [
       { name: "Dashboard", path: "/doctor/dashboard", icon: Stethoscope },
       { name: "Patients", path: "/students", icon: Users },
-      { name: "Critical Students", path: "/students", icon: HeartPulse },
       { name: "Appointments", path: "/doctor/appointments", icon: Activity },
       { name: "Diagnosis", path: "/doctor/diagnosis", icon: FileText },
       { name: "Reports", path: "/reports", icon: FileText },
@@ -41,6 +40,8 @@ function Sidebar() {
     parent: [
       { name: "Dashboard", path: "/parent/dashboard", icon: School },
       { name: "Passport", path: "/passport/1", icon: HeartPulse },
+      { name: "Report Symptoms", path: "/report-symptoms/1", icon: Activity },
+      { name: "Vaccinations", path: "/parent/vaccination", icon: HeartPulse },
       { name: "Reports", path: "/reports", icon: FileText },
       { name: "Timeline", path: "/parent/timeline", icon: Activity },
       { name: "Notifications", path: "/parent/notifications", icon: Bell },
@@ -49,6 +50,7 @@ function Sidebar() {
     student: [
       { name: "Dashboard", path: "/student/dashboard", icon: Sparkles },
       { name: "Passport", path: "/passport/1", icon: HeartPulse },
+      { name: "Report Symptoms", path: "/student/report-symptoms", icon: Activity },
       { name: "Reports", path: "/reports", icon: FileText },
       { name: "Achievements", path: "/student/achievements", icon: ShieldCheck },
       { name: "Timeline", path: "/student/timeline", icon: Activity },

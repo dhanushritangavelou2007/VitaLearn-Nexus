@@ -21,7 +21,8 @@ export default class BaseDemoRepository {
         } else if (value instanceof RegExp) {
           if (!value.test(item[key])) return false;
         } else {
-          if (item[key] !== value) return false;
+          const itemValue = key.includes('.') ? key.split('.').reduce((acc, part) => acc && acc[part], item) : item[key];
+          if (itemValue !== value) return false;
         }
       }
 

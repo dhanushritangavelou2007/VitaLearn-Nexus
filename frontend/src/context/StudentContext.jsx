@@ -12,8 +12,10 @@ import {
   updateStudent as updateStudentApi,
 } from "../services/studentService";
 import { calculateDashboardStats, generateHealthSummary } from "../utils/studentAnalytics";
+import { useAuth } from "../hooks/useAuth";
 
 export function StudentProvider({ children }) {
+  const { user } = useAuth();
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [dashboardSummary, setDashboardSummary] = useState(null);
@@ -36,7 +38,7 @@ export function StudentProvider({ children }) {
 
   useEffect(() => {
     void Promise.resolve().then(loadData);
-  }, [loadData]);
+  }, [loadData, user]);
 
   const addStudent = useCallback(async (student) => {
     const created = await createStudentApi(student);
@@ -86,8 +88,11 @@ export function StudentProvider({ children }) {
   const getStudentByLocalId = useCallback((id) => students.find((student) => String(student.id) === String(id)), [students]);
 
   const dashboardStats = useMemo(() => {
-    if (dashboardSummary) return dashboardSummary;
-    return calculateDashboardStats(students);
+    const localStats = calculateDashboardStats(students);
+    if (dashboardSummary) {
+      return { ...dashboardSummary, ...localStats, riskDistribution: localStats.riskDistribution };
+    }
+    return localStats;
   }, [dashboardSummary, students]);
 
   const value = useMemo(

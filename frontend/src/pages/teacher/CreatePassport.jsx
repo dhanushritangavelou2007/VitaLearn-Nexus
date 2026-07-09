@@ -153,7 +153,7 @@ function CreatePassport() {
                       
                       <div className="mt-6 flex justify-center relative z-10">
                         <div className="h-24 w-24 rounded-2xl bg-white p-1 shadow-lg rotate-3 transition-transform hover:rotate-0">
-                          <img src={`https://i.pravatar.cc/150?u=${formData.rollNo || formData.name}`} alt={formData.name} className="h-full w-full rounded-xl object-cover" />
+                          <img src={`https://images.unsplash.com/photo-1519689680058-324335c77eba?w=150&h=150&fit=crop&auto=format`} alt={formData.name} className="h-full w-full rounded-xl object-cover" />
                         </div>
                       </div>
                     </div>

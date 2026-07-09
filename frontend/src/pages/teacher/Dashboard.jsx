@@ -5,6 +5,8 @@ import AIInsights from "../../components/dashboard/AIInsights";
 import QuickActions from "../../components/health/QuickActions";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
+import RiskBarChart from "../../components/charts/RiskBarChart";
+import HealthAreaChart from "../../components/charts/HealthAreaChart";
 import { Users, Activity, HeartPulse, Stethoscope } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
 import { getRecentActivity } from "../../utils/studentAnalytics";
@@ -25,6 +27,24 @@ function Dashboard() {
     { name: "Healthy", value: stats.healthy },
     { name: "Review", value: stats.needReview - stats.critical },
     { name: "Critical", value: stats.critical },
+  ];
+
+  const bmiTrendData = [
+    { day: "Mon", bmi: stats.averageBMI },
+    { day: "Tue", bmi: Math.max(0, stats.averageBMI - 0.1) },
+    { day: "Wed", bmi: stats.averageBMI },
+    { day: "Thu", bmi: Math.round((stats.averageBMI + 0.2)*10)/10 },
+    { day: "Fri", bmi: stats.averageBMI },
+    { day: "Sat", bmi: stats.averageBMI },
+  ];
+
+  const attendanceTrendData = [
+    { day: "Mon", attendance: Math.max(0, stats.averageAttendance - 2) },
+    { day: "Tue", attendance: Math.min(100, stats.averageAttendance + 1) },
+    { day: "Wed", attendance: stats.averageAttendance },
+    { day: "Thu", attendance: Math.max(0, stats.averageAttendance - 1) },
+    { day: "Fri", attendance: Math.min(100, stats.averageAttendance + 2) },
+    { day: "Sat", attendance: 100 },
   ];
 
   if (loading) {
@@ -81,7 +101,7 @@ function Dashboard() {
         </div>
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <DashboardCard
-            title="Total Students"
+            title="Class Strength"
             value={stats.total}
             subtitle={`${stats.averageAttendance}% avg attendance`}
             icon={Users}
@@ -89,7 +109,7 @@ function Dashboard() {
             bg="bg-blue-600"
           />
           <DashboardCard
-            title="Healthy"
+            title="Healthy Students"
             value={stats.healthy}
             subtitle={`${stats.averageHealthScore}/100 avg health score`}
             icon={HeartPulse}
@@ -97,21 +117,27 @@ function Dashboard() {
             bg="bg-emerald-500"
           />
           <DashboardCard
-            title="Needs Review"
-            value={stats.needReview}
-            subtitle={`Avg BMI ${stats.averageBMI}`}
+            title="Need Observation"
+            value={stats.moderate}
+            subtitle="Monitor closely"
             icon={Activity}
             color="text-emerald-500"
             bg="bg-amber-500"
           />
           <DashboardCard
-            title="Doctor Attention"
+            title="Critical Students"
             value={stats.critical}
             subtitle={`${stats.pendingReports} pending reports`}
             icon={Stethoscope}
             color="text-red-500"
             bg="bg-red-500"
           />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <DashboardCard title="Attendance" value={`${stats.averageAttendance}%`} subtitle="Class average" icon={Users} color="text-slate-600" bg="bg-slate-500" />
+          <DashboardCard title="Today's Reports" value={stats.reportsToday} subtitle="Recently updated" icon={Activity} color="text-blue-600" bg="bg-blue-500" />
+          <DashboardCard title="Teacher Alerts" value={stats.needReview} subtitle="Action required" icon={HeartPulse} color="text-amber-600" bg="bg-amber-500" />
         </div>
 
         <div className="grid gap-6 xl:grid-cols-12 items-stretch">
@@ -125,9 +151,36 @@ function Dashboard() {
           </div>
         </div>
 
+        <div className="grid gap-6 lg:grid-cols-2 mb-6">
+          <HealthTrendChart data={attendanceTrendData} title="Attendance Trend" dataKey="attendance" strokeColor="#10b981" />
+          <RiskBarChart 
+            data={[
+              { name: "Healthy", value: stats.healthy },
+              { name: "Observation", value: stats.moderate },
+              { name: "Review", value: stats.needReview },
+              { name: "Critical", value: stats.critical },
+            ]} 
+            title="Class Health (Student Count)" 
+          />
+        </div>
+        
         <div className="grid gap-6 lg:grid-cols-2">
-          <HealthTrendChart data={trendData} title="Health Score Trend" />
-          <HealthDistributionChart data={distributionData} title="Risk Distribution" />
+          <HealthAreaChart 
+            data={[
+              { day: "Week 1", value: stats.averageBMI - 0.2 },
+              { day: "Week 2", value: stats.averageBMI - 0.1 },
+              { day: "Week 3", value: stats.averageBMI },
+              { day: "Week 4", value: stats.averageBMI + 0.1 },
+            ]}
+            title="Class BMI Trend"
+          />
+          <HealthDistributionChart 
+            data={[
+              { name: "Completed", value: Math.max(0, stats.total - (stats.pendingVaccinations || 0)) },
+              { name: "Pending", value: stats.pendingVaccinations || 0 },
+            ]}
+            title="Vaccination Coverage"
+          />
         </div>
       </div>
     </DashboardLayout>

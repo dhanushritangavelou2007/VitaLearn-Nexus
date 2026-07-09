@@ -48,7 +48,14 @@ function Topbar() {
 
         <div onClick={() => navigate("/settings")} className={`flex items-center gap-3 rounded-full ${isDarkMode ? "bg-slate-800 border-slate-700 hover:bg-slate-700" : "bg-white/60 border-slate-200/60 hover:bg-white"} px-2 py-1.5 pr-4 border shadow-sm backdrop-blur-sm cursor-pointer transition`}>
           <div className="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold overflow-hidden">
-            <img src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="Profile" className="h-full w-full object-cover" />
+            <img src={
+              role === 'teacher' ? 'https://images.unsplash.com/photo-1544717302-de2939b7ef71?w=150&h=150&fit=crop&auto=format' :
+              role === 'doctor' ? 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&auto=format' :
+              role === 'parent' ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&auto=format' :
+              role === 'student' ? 'https://images.unsplash.com/photo-1488161628813-04466f872be2?w=150&h=150&fit=crop&auto=format' :
+              role === 'admin' ? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&auto=format' :
+              'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&auto=format'
+            } alt="Profile" className="h-full w-full object-cover" />
           </div>
           <div className="hidden sm:block">
             <p className={`text-sm font-semibold leading-tight ${isDarkMode ? "text-slate-100" : "text-slate-700"}`}>

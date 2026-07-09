@@ -144,9 +144,13 @@ function StudentProfile() {
               </div>
               <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
                 <Info label="Age / Gender" value={`${calculateAge(student.dob)} / ${student.gender}`} />
-                <Info label="Attendance" value={student.attendance} />
-                <Info label="Class" value={student.class} />
-                <Info label="Roll No." value={student.rollNo} />
+                <Info label="Blood Group" value={student.bloodGroup || "N/A"} />
+                <Info label="Attendance" value={student.attendance || "N/A"} />
+                <Info label="Class / Roll" value={`${student.class} - ${student.rollNo}`} />
+                <Info label="Height / Weight" value={`${student.vitals?.height || "N/A"} / ${student.vitals?.weight || "N/A"}`} />
+                <Info label="BMI" value={student.vitals?.bmi || "N/A"} />
+                <Info label="Last Updated" value={student.lastUpdate || "Today"} />
+                <Info label="Teacher Note" value={student.teacherObservation || "Doing well in class."} />
               </div>
             </GlassCard>
             <EmergencyContact student={student} />
@@ -154,14 +158,20 @@ function StudentProfile() {
 
           <div className="lg:col-span-2 space-y-6">
             <GlassCard className="rounded-3xl bg-linear-to-br from-blue-600 to-indigo-700 p-6 text-white shadow-lg">
-              <div className="flex items-center justify-between gap-6">
+              <div className="flex items-start justify-between gap-6">
                 <div>
                   <p className="text-xs uppercase tracking-widest text-blue-100">Digital Health Passport</p>
                   <h2 className="mt-2 text-3xl font-bold">{passportId}</h2>
                   <p className="mt-2 text-sm text-blue-100">Status: {statusLabel}</p>
+                  <p className="mt-1 text-sm font-medium text-white/80">{student.name}</p>
                 </div>
-                <div className="rounded-2xl bg-white/15 p-4 text-center backdrop-blur-sm">
-                  <img src={getStudentAvatar(student)} alt={student.name} className="h-24 w-24 rounded-2xl object-cover" />
+                <div className="flex gap-4">
+                  <div className="rounded-2xl bg-white p-2 flex items-center justify-center shadow-inner">
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=96x96&data=${encodeURIComponent(window.location.origin + "/passport/" + student.id)}`} alt="QR Code" className="h-24 w-24 rounded-lg" />
+                  </div>
+                  <div className="rounded-2xl bg-white/15 p-2 text-center backdrop-blur-sm">
+                    <img src={getStudentAvatar(student)} alt={student.name} className="h-24 w-24 rounded-xl object-cover" />
+                  </div>
                 </div>
               </div>
               <div className="mt-6 grid gap-4 sm:grid-cols-3">

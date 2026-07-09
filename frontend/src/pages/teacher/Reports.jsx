@@ -167,35 +167,43 @@ function Reports() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/80">
-                  {students.filter(s => riskFilter === "All" || s.risk === riskFilter).filter(s => s.name.toLowerCase().includes(query.toLowerCase())).map((student) => {
-                    const style = getRiskStyle(student.risk);
-                    return (
-                      <tr key={student.id} className="hover:bg-white/60 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="font-semibold text-slate-800">{student.name}</div>
-                          <div className="text-xs text-slate-500">ID VLN-{String(student.id).padStart(4, "0")}</div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-700">{student.attendance}</td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border ${style.pill}`}>
-                            {getRiskLabel(student.risk)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-700">{student.vaccinations?.length || 0} / 4 Core</td>
-                        <td className="px-6 py-4 text-sm text-slate-500">
-                          {student.medicalConditions?.length ? student.medicalConditions.join(", ") : "None"}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => navigate(`/passport/${student.id}`)}
-                            className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
-                          >
-                            View <ArrowRight size={14} />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {students.filter(s => riskFilter === "All" || s.risk === riskFilter).filter(s => s.name.toLowerCase().includes(query.toLowerCase())).length > 0 ? (
+                    students.filter(s => riskFilter === "All" || s.risk === riskFilter).filter(s => s.name.toLowerCase().includes(query.toLowerCase())).map((student) => {
+                      const style = getRiskStyle(student.risk);
+                      return (
+                        <tr key={student.id} className="hover:bg-white/60 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-slate-800">{student.name}</div>
+                            <div className="text-xs text-slate-500">ID VLN-{String(student.id).padStart(4, "0")}</div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-700">{student.attendance}</td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border ${style.pill}`}>
+                              {getRiskLabel(student.risk)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-700">{student.vaccinations?.length || 0} / 4 Core</td>
+                          <td className="px-6 py-4 text-sm text-slate-500">
+                            {student.medicalConditions?.length ? student.medicalConditions.join(", ") : "None"}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() => navigate(`/passport/${student.id}`)}
+                              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+                            >
+                              View <ArrowRight size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="6" className="px-6 py-8 text-center text-slate-500 text-sm">
+                        No students found matching your criteria.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             ) : (
@@ -210,35 +218,43 @@ function Reports() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100/80">
-                  {filteredReports.map((report) => {
-                    const style = getRiskStyle(report.risk);
-                    return (
-                      <tr key={report.id} className="hover:bg-white/60 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="font-semibold text-slate-800">{report.studentName}</div>
-                          <div className="text-xs text-slate-500">ID {report.studentId}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-slate-700">{report.title}</div>
-                          <div className="text-xs text-slate-500">{report.description}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border ${style.pill}`}>
-                            {getRiskLabel(report.risk)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-500">{report.date}</td>
-                        <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => navigate(`/passport/${report.studentId}`)}
-                            className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
-                          >
-                            View <ArrowRight size={14} />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {filteredReports.length > 0 ? (
+                    filteredReports.map((report) => {
+                      const style = getRiskStyle(report.risk);
+                      return (
+                        <tr key={report.id} className="hover:bg-white/60 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-slate-800">{report.studentName}</div>
+                            <div className="text-xs text-slate-500">ID {report.studentId}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-slate-700">{report.title}</div>
+                            <div className="text-xs text-slate-500">{report.description}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border ${style.pill}`}>
+                              {getRiskLabel(report.risk)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-500">{report.date}</td>
+                          <td className="px-6 py-4 text-right">
+                            <button
+                              onClick={() => navigate(`/passport/${report.studentId}`)}
+                              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+                            >
+                              View <ArrowRight size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-8 text-center text-slate-500 text-sm">
+                        No reports found for the selected criteria.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             )}

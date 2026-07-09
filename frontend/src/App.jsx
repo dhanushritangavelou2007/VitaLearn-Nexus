@@ -9,6 +9,7 @@ import Settings from "./pages/teacher/Settings";
 import DoctorDashboard from "./pages/doctor/Dashboard";
 import ParentDashboard from "./pages/parent/Dashboard";
 import StudentDashboard from "./pages/student/Dashboard";
+import StudentReportSymptoms from "./pages/student/ReportSymptoms";
 import AdminDashboard from "./pages/admin/Dashboard";
 import Login from "./pages/auth/Login";
 import Unauthorized from "./pages/auth/Unauthorized";
@@ -56,11 +57,13 @@ function App() {
         <Route path="/parent/dashboard" element={<RoleGuard role="parent"><ParentDashboard /></RoleGuard>} />
         <Route path="/parent/timeline" element={<RoleGuard role="parent"><ParentDashboard /></RoleGuard>} />
         <Route path="/parent/notifications" element={<RoleGuard role="parent"><ParentDashboard /></RoleGuard>} />
+        <Route path="/parent/vaccination" element={<RoleGuard role="parent"><ParentDashboard /></RoleGuard>} />
         
         <Route path="/student/dashboard" element={<RoleGuard role="student"><StudentDashboard /></RoleGuard>} />
         <Route path="/student/achievements" element={<RoleGuard role="student"><StudentDashboard /></RoleGuard>} />
         <Route path="/student/timeline" element={<RoleGuard role="student"><StudentDashboard /></RoleGuard>} />
         <Route path="/student/vaccination" element={<RoleGuard role="student"><StudentDashboard /></RoleGuard>} />
+        <Route path="/student/report-symptoms" element={<RoleGuard role="student"><StudentReportSymptoms /></RoleGuard>} />
         
         <Route path="/admin/dashboard" element={<RoleGuard role="admin"><AdminDashboard /></RoleGuard>} />
 
@@ -68,7 +71,7 @@ function App() {
         <Route path="/students" element={<RoleGuard role={["teacher", "doctor", "admin"]}><Students /></RoleGuard>} />
         <Route path="/create-passport" element={<RoleGuard role="teacher"><CreatePassport /></RoleGuard>} />
         <Route path="/passport/:id" element={<RoleGuard role={["teacher", "doctor", "parent", "student", "admin"]}><StudentProfile /></RoleGuard>} />
-        <Route path="/report-symptoms/:id" element={<RoleGuard role={["teacher", "doctor"]}><ReportSymptoms /></RoleGuard>} />
+        <Route path="/report-symptoms/:id" element={<RoleGuard role={["teacher", "doctor", "parent"]}><ReportSymptoms /></RoleGuard>} />
         <Route path="/reports" element={<RoleGuard role={["teacher", "doctor", "parent", "student", "admin"]}><Reports /></RoleGuard>} />
         
         <Route path="/settings" element={<Settings />} />
