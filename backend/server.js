@@ -25,6 +25,9 @@ console.log("MongoDB URI:", process.env.MONGODB_URI);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`VitaLearn Nexus backend running on port ${PORT}`);
+});
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
 configureCloudinary(process.env);
