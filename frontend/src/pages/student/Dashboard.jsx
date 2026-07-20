@@ -20,7 +20,7 @@ function StudentDashboard() {
   const location  = useLocation();
   const navigate  = useNavigate();
   const { user }  = useAuth();
-  const { getReportsForSender, getNotificationsForUser } = useMedicalReports();
+  const { allReports, getNotificationsForUser } = useMedicalReports();
   const { students, calculateDashboardStats, generateHealthSummary, loading, refreshStudents } =
     useStudents();
 
@@ -30,8 +30,9 @@ function StudentDashboard() {
   }, []);
 
   const userId = user?.id || user?._id || "student-default";
-  const myReports       = getReportsForSender(userId, "student");
-  const reviewedReports = myReports.filter((r) => r.status === "reviewed");
+  // Include both student's own submitted reports AND teacher-initiated reviewed reports
+  // (server-side listReportsForUser scopes them correctly via studentId link)
+  const reviewedReports = allReports.filter((r) => r.status === "reviewed");
   const myNotifications = getNotificationsForUser(userId, "student");
   const unreadCount     = myNotifications.filter((n) => !n.read).length;
 
@@ -93,8 +94,8 @@ function StudentDashboard() {
 
         {/* ── Hero Banner ─────────────────────────────────── */}
         <div className="rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 p-8 text-white shadow-lg">
-          <h1 className="text-3xl font-bold">Welcome, {currentStudent.name}</h1>
-          <p className="mt-2 text-emerald-100">Your personal health passport is ready and up to date.</p>
+          <h1 className="text-4xl font-bold tracking-tight">Welcome, {currentStudent.name}</h1>
+          <p className="mt-2 text-emerald-100 text-lg">Your personal health passport is ready and up to date.</p>
         </div>
 
         {/* ── Top Vitals Row ──────────────────────────────── */}
@@ -313,37 +314,61 @@ function StudentDashboard() {
                 </div>
                 <p className="font-semibold text-slate-600">No observations received yet</p>
                 <p className="text-sm text-slate-400 max-w-sm">
-                  Once you submit a health report and the doctor reviews it, their clinical observation will appear here.
+                  Once the teacher submits a health report and the doctor reviews it, the clinical observation will appear here.
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {reviewedReports.slice(0, 3).map((report) => (
                   <div
                     key={report.id}
                     className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50 p-5"
                   >
+                    {/* Doctor Identity Row */}
                     <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                        <span className="text-sm font-bold text-emerald-800">Observation Approved &amp; Sent</span>
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                          <Stethoscope size={16} />
+                        </div>
+                        <div>
+                          <p className="text-base font-bold text-slate-800">{report.reviewedByName || "Doctor"}</p>
+                          <span className="inline-flex items-center rounded-full bg-emerald-100 border border-emerald-200 px-2 py-0.5 text-xs font-semibold text-emerald-700">Doctor</span>
+                        </div>
                       </div>
                       <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium shrink-0">
                         <Clock size={10} />
                         {report.observationSentAt
-                          ? new Date(report.observationSentAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })
+                          ? new Date(report.observationSentAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
                           : "Recently"}
                       </span>
                     </div>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {report.symptoms?.slice(0, 3).map((s) => (
-                        <span key={s} className="rounded-full bg-white border border-emerald-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{s}</span>
-                      ))}
-                    </div>
+                    {/* Diagnosis */}
+                    {report.diagnosis && (
+                      <div className="mb-3 rounded-xl bg-white border border-slate-100 px-4 py-2">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Diagnosis</p>
+                        <p className="text-base font-bold text-slate-800">{report.diagnosis}</p>
+                      </div>
+                    )}
+                    {/* Symptoms */}
+                    {report.symptoms?.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {report.symptoms.slice(0, 3).map((s) => (
+                          <span key={s} className="rounded-full bg-white border border-emerald-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{s}</span>
+                        ))}
+                      </div>
+                    )}
+                    {/* Observation */}
                     <div className="rounded-xl bg-white border border-emerald-100 p-4">
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Doctor's Note</p>
+                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Observation</p>
                       <p className="text-sm text-slate-700 leading-relaxed">{report.observation}</p>
                     </div>
+                    {/* Recommendation */}
+                    {report.recommendation && (
+                      <div className="rounded-xl bg-blue-50 border border-blue-100 p-4 mt-3">
+                        <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1.5">Recommendation</p>
+                        <p className="text-sm text-blue-900 leading-relaxed font-medium">{report.recommendation}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
                 {reviewedReports.length > 3 && (

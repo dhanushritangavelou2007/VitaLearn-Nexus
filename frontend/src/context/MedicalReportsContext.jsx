@@ -106,20 +106,28 @@ export function MedicalReportsProvider({ children }) {
     return optimisticReport;
   }, []);
 
-  const sendObservation = useCallback((reportId, observationText) => {
+  const sendObservation = useCallback((reportId, reviewData) => {
     const sentAt = new Date().toISOString();
     let rollbackSnapshot = null;
+    // Support both legacy string and new full-review-object callers
+    const observationText = typeof reviewData === "string" ? reviewData : reviewData?.observation;
 
     setReports((prev) => {
       rollbackSnapshot = prev;
       return prev.map((r) =>
         r.id === reportId
-          ? { ...r, status: "reviewed", observation: observationText, observationSentAt: sentAt }
+          ? {
+              ...r,
+              status: "reviewed",
+              observation: observationText,
+              observationSentAt: sentAt,
+              ...(typeof reviewData === "object" ? reviewData : {}),
+            }
           : r
       );
     });
 
-    sendObservationRequest(reportId, observationText)
+    sendObservationRequest(reportId, reviewData)
       .then((updated) => {
         setReports((prev) => prev.map((r) => (r.id === reportId ? updated : r)));
         // Pull fresh notifications immediately so the sender's bell/inbox

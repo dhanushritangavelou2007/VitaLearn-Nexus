@@ -30,12 +30,19 @@ export const getReportById = asyncHandler(async (req, res, next) => {
 });
 
 // POST /reports/:id/observation — doctor-only. Sets status=reviewed and
-// notifies the original sender ONLY (privacy requirement).
+// notifies the original sender AND parent/student where applicable.
 export const respondToReport = asyncHandler(async (req, res, next) => {
-  const { observation } = req.body;
+  const { observation, diagnosis, doctorReview, recommendation, prescription } = req.body;
   if (!observation || !observation.trim()) {
     return next(new AppError("Observation text is required.", 400));
   }
-  const updated = await addObservation(req.params.id, req.user, observation.trim());
+  const reviewData = {
+    observation: observation.trim(),
+    diagnosis: diagnosis?.trim() || null,
+    doctorReview: doctorReview?.trim() || null,
+    recommendation: recommendation?.trim() || null,
+    prescription: prescription?.trim() || null,
+  };
+  const updated = await addObservation(req.params.id, req.user, reviewData);
   res.json({ success: true, data: updated });
 });

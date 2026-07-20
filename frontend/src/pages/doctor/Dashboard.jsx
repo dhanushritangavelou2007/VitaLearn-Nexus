@@ -51,15 +51,29 @@ function StatusBadge({ status }) {
 
 /* ─── Report Detail Panel ───────────────────────────────────── */
 function ReportDetailPanel({ report, onBack, onSend }) {
-  const [observationText, setObservationText] = useState(report.observation || "");
+  const [form, setForm] = useState({
+    observation: report.observation || "",
+    diagnosis: report.diagnosis || "",
+    doctorReview: report.doctorReview || "",
+    recommendation: report.recommendation || "",
+    prescription: report.prescription || "",
+  });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(report.status === "reviewed");
 
+  const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+
   const handleSend = () => {
-    if (!observationText.trim()) return;
+    if (!form.observation.trim()) return;
     setSending(true);
     setTimeout(() => {
-      onSend(report.id, observationText.trim());
+      onSend(report.id, {
+        observation: form.observation.trim(),
+        diagnosis: form.diagnosis.trim(),
+        doctorReview: form.doctorReview.trim(),
+        recommendation: form.recommendation.trim(),
+        prescription: form.prescription.trim(),
+      });
       setSent(true);
       setSending(false);
     }, 900);
@@ -89,7 +103,7 @@ function ReportDetailPanel({ report, onBack, onSend }) {
               <User size={22} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-800">{report.senderName}</h2>
+              <h2 className="text-2xl font-bold text-slate-800">{report.senderName}</h2>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${roleBadge}`}>
                   {roleLabel}
@@ -151,43 +165,129 @@ function ReportDetailPanel({ report, onBack, onSend }) {
         )}
       </GlassCard>
 
-      {/* Doctor's Observation */}
+      {/* Doctor's Clinical Review Form */}
       <GlassCard className="p-6">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-5">
           <div className="rounded-xl bg-emerald-50 p-2 text-emerald-600">
             <Stethoscope size={16} />
           </div>
-          <h3 className="font-bold text-slate-800">Doctor's Clinical Observation</h3>
+          <h3 className="text-lg font-bold text-slate-800">Doctor's Clinical Review</h3>
         </div>
 
         {sent ? (
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3">
               <CheckCircle2 size={18} className="text-emerald-600" />
-              <span className="font-semibold text-emerald-800">Observation dispatched to {report.senderName}</span>
+              <span className="font-semibold text-emerald-800">Review dispatched to {report.senderName}</span>
             </div>
-            <p className="text-sm text-emerald-700 leading-relaxed">{observationText}</p>
+            {form.diagnosis && (
+              <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Diagnosis</p>
+                <p className="text-sm font-semibold text-slate-700">{form.diagnosis}</p>
+              </div>
+            )}
+            {form.observation && (
+              <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Observation</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{form.observation}</p>
+              </div>
+            )}
+            {form.recommendation && (
+              <div className="rounded-xl bg-blue-50 border border-blue-100 p-4">
+                <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">Recommendation</p>
+                <p className="text-sm text-blue-900 leading-relaxed">{form.recommendation}</p>
+              </div>
+            )}
+            {form.prescription && (
+              <div className="rounded-xl bg-purple-50 border border-purple-100 p-4">
+                <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-1">Prescription</p>
+                <p className="text-sm text-purple-900 leading-relaxed">{form.prescription}</p>
+              </div>
+            )}
           </div>
         ) : (
-          <>
-            <textarea
-              rows={5}
-              value={observationText}
-              onChange={(e) => setObservationText(e.target.value)}
-              placeholder="Enter your clinical observation, diagnosis notes, and recommended next steps for this patient..."
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white transition-all resize-none"
-            />
-            <div className="flex items-center justify-end gap-3 mt-4">
+          <div className="space-y-4">
+            {/* Diagnosis */}
+            <div>
+              <label className="text-sm font-semibold text-slate-700 mb-1 block">
+                Clinical Diagnosis / Conditions <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={form.diagnosis}
+                onChange={set("diagnosis")}
+                placeholder="e.g. Mild Anaemia, Seasonal Allergies"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white transition-all"
+              />
+            </div>
+
+            {/* Doctor Review */}
+            <div>
+              <label className="text-sm font-semibold text-slate-700 mb-1 block">
+                Doctor Review / Clinical Notes
+              </label>
+              <textarea
+                rows={3}
+                value={form.doctorReview}
+                onChange={set("doctorReview")}
+                placeholder="Enter your clinical notes and initial assessment..."
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white transition-all resize-none"
+              />
+            </div>
+
+            {/* Observation */}
+            <div>
+              <label className="text-sm font-semibold text-slate-700 mb-1 block">
+                Observation / Health Summary <span className="text-rose-500">*</span>
+              </label>
+              <textarea
+                rows={4}
+                value={form.observation}
+                onChange={set("observation")}
+                placeholder="Describe your clinical observation and recommended next steps..."
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white transition-all resize-none"
+              />
+            </div>
+
+            {/* Recommendation */}
+            <div>
+              <label className="text-sm font-semibold text-slate-700 mb-1 block">
+                Medical Recommendation
+              </label>
+              <textarea
+                rows={2}
+                value={form.recommendation}
+                onChange={set("recommendation")}
+                placeholder="e.g. Rest for 2 days, hydrate well, revisit in a week..."
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white transition-all resize-none"
+              />
+            </div>
+
+            {/* Prescription */}
+            <div>
+              <label className="text-sm font-semibold text-slate-700 mb-1 block">
+                Prescription (if applicable)
+              </label>
+              <textarea
+                rows={2}
+                value={form.prescription}
+                onChange={set("prescription")}
+                placeholder="e.g. Paracetamol 500mg twice daily for 3 days..."
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-800 outline-none focus:border-blue-400 focus:bg-white transition-all resize-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-2">
               <button
                 onClick={handleSend}
-                disabled={!observationText.trim() || sending}
+                disabled={!form.observation.trim() || sending}
                 className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-50"
               >
                 <Send size={15} />
-                {sending ? "Dispatching…" : "Approve and Send"}
+                {sending ? "Dispatching…" : "Approve and Send Review"}
               </button>
             </div>
-          </>
+          </div>
         )}
       </GlassCard>
     </div>

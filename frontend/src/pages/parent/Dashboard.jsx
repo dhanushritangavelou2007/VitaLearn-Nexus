@@ -6,7 +6,10 @@ import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthAreaChart from "../../components/charts/HealthAreaChart";
 import VaccinationProgressRing from "../../components/charts/VaccinationProgressRing";
 import GlassCard from "../../components/ui/GlassCard";
-import { Bell, HeartPulse, ShieldCheck, Syringe, Stethoscope, CheckCircle2, Clock } from "lucide-react";
+import {
+  Bell, HeartPulse, ShieldCheck, Syringe, Stethoscope,
+  CheckCircle2, Clock, User, Phone, Mail, BookOpen, AlertCircle,
+} from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
 import { REQUIRED_VACCINATIONS } from "../../utils/healthStatus";
 import { useMedicalReports } from "../../context/MedicalReportsContext";
@@ -16,7 +19,7 @@ function ParentDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getReportsForSender, getNotificationsForUser } = useMedicalReports();
+  const { allReports, getNotificationsForUser } = useMedicalReports();
   const { students, selectedStudent, loading, error, refreshStudents, updateStudentAppointments } =
     useStudents();
   const [confirmationStatus, setConfirmationStatus] = useState("");
@@ -30,7 +33,14 @@ function ParentDashboard() {
   const child = selectedStudent || students.find((s) => s.name === "Aarav Sharma") || students[0];
 
   const parentId = user?.id || user?._id || "parent-default";
-  const myReports       = getReportsForSender(parentId, "parent");
+  const parentName = user?.name || "Parent";
+  const parentRole = user?.role || "parent";
+
+  // Reports scoped to the parent: either sent by them OR reviewed reports
+  // linked to their child (populated server-side via listReportsForUser).
+  const myReports = allReports.filter(
+    (r) => r.senderId === parentId || r.status === "reviewed"
+  );
   const reviewedReports = myReports.filter((r) => r.status === "reviewed");
   const myNotifications = getNotificationsForUser(parentId, "parent");
   const unreadCount     = myNotifications.filter((n) => !n.read).length;
@@ -116,10 +126,66 @@ function ParentDashboard() {
       <div className="mx-auto max-w-7xl space-y-6 pb-10">
 
         {/* ── Hero Banner ─────────────────────────────────── */}
-        <div className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 text-white shadow-lg">
-          <h1 className="text-3xl font-bold">Hello, {child.parent?.name || "Parent"}</h1>
-          <p className="mt-2 text-blue-100">Your child's health updates are now visible in one secure place.</p>
+        <div className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 md:p-10 text-white shadow-lg relative overflow-hidden">
+          <div className="absolute right-0 top-0 h-64 w-64 -translate-y-1/2 translate-x-1/3 rounded-full bg-white opacity-10 blur-3xl" />
+          <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight">Hello, {parentName}</h1>
+              <p className="mt-2 text-blue-100 text-lg">Your child's health updates are now visible in one secure place.</p>
+            </div>
+            <div className="flex flex-col items-start rounded-2xl border border-white/60 bg-white/20 px-6 py-4 backdrop-blur-md">
+              <p className="text-xs font-semibold uppercase tracking-wider text-blue-100">Linked Child</p>
+              <p className="mt-1 text-2xl font-bold text-white">{child.name}</p>
+              <p className="text-sm text-blue-100">Class {child.class}</p>
+            </div>
+          </div>
         </div>
+
+        {/* ── Parent Profile Card ──────────────────────────── */}
+        <GlassCard className="p-6">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="rounded-2xl bg-indigo-50 p-2.5 text-indigo-600">
+              <User size={20} />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-800">Parent Profile</h2>
+              <p className="text-sm text-slate-500">Your account and linked child details</p>
+            </div>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Parent Name</p>
+              <p className="text-xl font-bold text-slate-800">{parentName}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Parent ID</p>
+              <p className="text-sm font-semibold text-slate-700 break-all">{parentId}</p>
+            </div>
+            <div className="rounded-2xl border border-blue-50 bg-blue-50/50 p-4">
+              <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">Role</p>
+              <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-sm font-bold text-blue-700 capitalize">
+                {parentRole}
+              </span>
+            </div>
+            <div className="rounded-2xl border border-emerald-50 bg-emerald-50/50 p-4">
+              <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Linked Student</p>
+              <p className="text-base font-bold text-emerald-800">{child.name}</p>
+              <p className="text-xs text-emerald-600">Class {child.class} · Roll {child.rollNo}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                <Mail size={11} /> Contact Email
+              </p>
+              <p className="text-sm font-semibold text-slate-700">{user?.email || "parent@vitalearn.ai"}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+                <BookOpen size={11} /> Student Blood Group
+              </p>
+              <p className="text-sm font-bold text-slate-700">{child.bloodGroup || "N/A"}</p>
+            </div>
+          </div>
+        </GlassCard>
 
         {/* ── KPI Cards ───────────────────────────────────── */}
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
@@ -171,7 +237,7 @@ function ParentDashboard() {
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-slate-800">AI Health Summary</h2>
-                    <p className="text-sm text-slate-500">Latest wellness summary for {child.name}</p>
+                    <p className="text-sm text-slate-500">Latest wellness summary for <span className="font-semibold text-slate-700">{child.name}</span></p>
                   </div>
                 </div>
                 <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
@@ -183,7 +249,7 @@ function ParentDashboard() {
                 </div>
               </GlassCard>
 
-              {/* Vaccination Progress Ring — replaces old CSS border hack */}
+              {/* Vaccination Progress Ring */}
               <GlassCard className="xl:col-span-5 p-6 flex flex-col justify-center items-center bg-gradient-to-br from-indigo-50 to-purple-50">
                 <div className="flex items-center gap-2 mb-6 self-start">
                   <div className="rounded-xl bg-indigo-100 p-2 text-indigo-600">
@@ -271,8 +337,8 @@ function ParentDashboard() {
                   <Stethoscope size={20} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800">Doctor's Diagnosis and Reviews</h2>
-                  <p className="text-sm text-slate-500">Clinical observations sent to you after reviewing your health reports</p>
+                  <h2 className="text-xl font-bold text-slate-800">Doctor's Diagnosis and Reviews</h2>
+                  <p className="text-sm text-slate-500">Complete observation history for {child.name}</p>
                 </div>
               </div>
               <button
@@ -296,50 +362,20 @@ function ParentDashboard() {
                 </div>
                 <p className="font-semibold text-slate-600">No observations received yet</p>
                 <p className="text-sm text-slate-400 max-w-sm">
-                  Submit a health report and once the doctor reviews it, their clinical observation will be displayed here.
+                  Once the teacher submits a health report and the doctor reviews it, the full clinical observation will appear here.
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {reviewedReports.slice(0, 3).map((report) => (
-                  <div key={report.id} className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50 p-5">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                        <span className="text-sm font-bold text-emerald-800">Observation Approved &amp; Sent</span>
-                      </div>
-                      <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium shrink-0">
-                        <Clock size={10} />
-                        {report.observationSentAt
-                          ? new Date(report.observationSentAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })
-                          : "Recently"}
-                      </span>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mb-3">
-                      {report.symptoms?.slice(0, 3).map((s) => (
-                        <span key={s} className="rounded-full bg-white border border-emerald-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">{s}</span>
-                      ))}
-                    </div>
-                    <div className="rounded-xl bg-white border border-emerald-100 p-4">
-                      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Doctor's Note</p>
-                      <p className="text-sm text-slate-700 leading-relaxed">{report.observation}</p>
-                    </div>
-                  </div>
+              <div className="space-y-4">
+                {reviewedReports.map((report) => (
+                  <DoctorReviewCard key={report.id} report={report} />
                 ))}
-                {reviewedReports.length > 3 && (
-                  <button
-                    onClick={() => navigate("/parent/notifications")}
-                    className="w-full py-3 rounded-2xl border border-dashed border-slate-200 text-sm font-semibold text-slate-500 hover:border-emerald-300 hover:text-emerald-700 transition-colors"
-                  >
-                    View all {reviewedReports.length} observations →
-                  </button>
-                )}
               </div>
             )}
           </GlassCard>
         )}
 
-        {/* ── Notifications sub-page — redirect handled by router ── */}
+        {/* ── Notifications sub-page redirect ── */}
         {isNotifications && (
           <GlassCard id="notifications" className="p-6">
             <div className="flex items-center gap-3 mb-4">
@@ -360,9 +396,7 @@ function ParentDashboard() {
           </GlassCard>
         )}
 
-        {/* ── Vaccination Section ───────────────────────────
-             Note: "Upcoming Vaccination Calendar" removed per spec.
-             Only the vaccination records + progress ring are shown.  */}
+        {/* ── Vaccination Section ─────────────────────────── */}
         {isVaccination && (
           <div id="vaccination" className="grid gap-6 lg:grid-cols-2">
 
@@ -434,6 +468,108 @@ function ParentDashboard() {
   );
 }
 
+// ─── Doctor Review Card ───────────────────────────────────────
+// Full observation history card shown in Parent Dashboard with
+// Doctor Name, Role, Date/Time, Observation, Diagnosis, Recommendation.
+function DoctorReviewCard({ report }) {
+  const [open, setOpen] = useState(false);
+  const sentAt = report.observationSentAt
+    ? new Date(report.observationSentAt).toLocaleString("en-IN", {
+        day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+      })
+    : "Recently";
+
+  return (
+    <div className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-emerald-50 to-teal-50">
+      {/* Header row */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full text-left p-5 flex items-start justify-between gap-3"
+      >
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+            <Stethoscope size={18} />
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <p className="text-base font-bold text-slate-800">
+                {report.reviewedByName || "Doctor"}
+              </p>
+              <span className="inline-flex items-center rounded-full bg-emerald-100 border border-emerald-200 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                Doctor
+              </span>
+            </div>
+            {report.diagnosis && (
+              <p className="text-sm font-semibold text-slate-700">
+                Diagnosis: <span className="font-normal">{report.diagnosis}</span>
+              </p>
+            )}
+            <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+              <Clock size={10} /> {sentAt}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 border border-emerald-200 px-2.5 py-0.5 text-xs font-bold text-emerald-700">
+            <CheckCircle2 size={10} /> Reviewed
+          </span>
+          <span className="text-xs text-slate-400">{open ? "▲ Less" : "▼ Details"}</span>
+        </div>
+      </button>
+
+      {/* Expanded details */}
+      {open && (
+        <div className="px-5 pb-5 space-y-3 border-t border-emerald-100 pt-4">
+          {/* Observation */}
+          {report.observation && (
+            <div className="rounded-xl bg-white border border-emerald-100 p-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Observation</p>
+              <p className="text-sm text-slate-700 leading-relaxed">{report.observation}</p>
+            </div>
+          )}
+          {/* Diagnosis */}
+          {report.diagnosis && (
+            <div className="rounded-xl bg-white border border-slate-100 p-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Diagnosis</p>
+              <p className="text-base font-bold text-slate-800">{report.diagnosis}</p>
+            </div>
+          )}
+          {/* Recommendation */}
+          {report.recommendation && (
+            <div className="rounded-xl bg-blue-50 border border-blue-100 p-4">
+              <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1.5">Medical Recommendation</p>
+              <p className="text-sm text-blue-900 leading-relaxed font-medium">{report.recommendation}</p>
+            </div>
+          )}
+          {/* Prescription */}
+          {report.prescription && (
+            <div className="rounded-xl bg-purple-50 border border-purple-100 p-4">
+              <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-1.5">Prescription</p>
+              <p className="text-sm text-purple-900 leading-relaxed">{report.prescription}</p>
+            </div>
+          )}
+          {/* Doctor Review notes */}
+          {report.doctorReview && (
+            <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Doctor Review Notes</p>
+              <p className="text-sm text-slate-700 leading-relaxed">{report.doctorReview}</p>
+            </div>
+          )}
+          {/* Symptoms reported */}
+          {report.symptoms?.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider w-full">Reported Symptoms</p>
+              {report.symptoms.map((s) => (
+                <span key={s} className="rounded-full bg-rose-50 border border-rose-100 px-2.5 py-0.5 text-xs font-medium text-rose-700">{s}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Sub-components ──────────────────────────────────────────
 
 function InfoCard({ label, value, accent }) {
@@ -447,15 +583,6 @@ function InfoCard({ label, value, accent }) {
     <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
       <p className="text-sm font-medium text-slate-500">{label}</p>
       <p className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-sm font-semibold ${styles[accent]}`}>{value}</p>
-    </div>
-  );
-}
-
-function NotificationItem({ title, description }) {
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-      <h3 className="font-semibold text-slate-700">{title}</h3>
-      <p className="mt-2 text-sm text-slate-500">{description}</p>
     </div>
   );
 }

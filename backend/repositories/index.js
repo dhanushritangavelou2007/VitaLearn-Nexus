@@ -85,7 +85,11 @@ function initDemoRepositories() {
   const mappedStudents = DEMO_STUDENTS.map(s => ({
     ...s,
     _id: String(s.id),
-    id: String(s.id)
+    id: String(s.id),
+    // Link student record id:1 (Aarav Sharma) to user demo-user-3 (student@vitalearn.ai)
+    user: String(s.id) === "1" ? "demo-user-3" : (s.user || null),
+    // Link parent user demo-user-2 (parent@vitalearn.ai) to Aarav Sharma
+    parentUser: String(s.id) === "1" ? "demo-user-2" : (s.parentUser || null),
   }));
   
   demoRepositories["Student"] = new ExtendedDemoRepository(mappedStudents);
@@ -93,6 +97,7 @@ function initDemoRepositories() {
     {
       _id: "demo-report-1",
       student: "1",
+      studentId: "1",
       type: "General Checkup",
       status: "pending",
       date: "2024-01-15",
@@ -105,14 +110,61 @@ function initDemoRepositories() {
       notes: "[Re: Aarav Sharma] Seemed tired during morning assembly.",
       observation: null,
       observationSentAt: null,
+      diagnosis: null,
+      doctorReview: null,
+      recommendation: null,
+      prescription: null,
+      reviewedByName: null,
+      reviewedByRole: "doctor",
       createdAt: "2024-01-15T09:00:00.000Z",
     }
   ]);
   demoRepositories["Notification"] = new ExtendedDemoRepository([]);
   demoRepositories["Appointment"] = new ExtendedDemoRepository([]);
-  demoRepositories["Teacher"] = new ExtendedDemoRepository([]);
-  demoRepositories["Doctor"] = new ExtendedDemoRepository([]);
-  demoRepositories["Parent"] = new ExtendedDemoRepository([]);
+
+  // ── Teacher ────────────────────────────────────────────────────
+  demoRepositories["Teacher"] = new ExtendedDemoRepository([
+    {
+      _id: "demo-teacher-1",
+      id: "demo-teacher-1",
+      user: "demo-user-0",
+      name: "Ms. Priya Sharma",
+      role: "teacher",
+      subject: "General Education",
+      classAssigned: "VIII-A",
+    },
+  ]);
+
+  // ── Doctor ─────────────────────────────────────────────────────
+  demoRepositories["Doctor"] = new ExtendedDemoRepository([
+    {
+      _id: "demo-doctor-1",
+      id: "demo-doctor-1",
+      user: "demo-user-1",
+      name: "Dr. Ananya Rao",
+      role: "doctor",
+      specialization: "Pediatrics",
+      licenseNo: "MCI-2024-001",
+    },
+  ]);
+
+  // ── Parent ─────────────────────────────────────────────────────
+  // demo-user-2 = parent@vitalearn.ai (Mr. Rajesh Sharma)
+  // Linked to student id "1" = Aarav Sharma
+  demoRepositories["Parent"] = new ExtendedDemoRepository([
+    {
+      _id: "demo-parent-1",
+      id: "demo-parent-1",
+      user: "demo-user-2",
+      name: "Mr. Rajesh Sharma",
+      role: "parent",
+      email: "parent@vitalearn.ai",
+      phone: "+91-9876543210",
+      linkedStudent: "1",
+      linkedStudentName: "Aarav Sharma",
+    },
+  ]);
+
   demoRepositories["Admin"] = new ExtendedDemoRepository([]);
 }
 

@@ -1,9 +1,13 @@
 /**
  * ParentNotifications.jsx
  *
- * Displays doctor observation notifications for the currently logged-in parent.
- * Clicking a notification marks it read and shows the full observation under
- * "Doctor's Diagnosis and Reviews."
+ * Notification center for the parent — mirrors the Student notification
+ * experience with bell, unread count, history, mark-as-read, timestamps,
+ * and full doctor review details (Diagnosis, Observation, Recommendation,
+ * Prescription, Doctor Name, Role, Date/Time).
+ *
+ * Updated as part of the communication flow fix:
+ *   Teacher submits → Doctor reviews → Parent notified + dashboard updated
  */
 
 import { useState } from "react";
@@ -12,7 +16,7 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import GlassCard from "../../components/ui/GlassCard";
 import {
   Bell, CheckCircle2, Clock, Stethoscope, ChevronLeft,
-  InboxIcon, MessageSquare,
+  InboxIcon, MessageSquare, AlertCircle, Pill, ClipboardList,
 } from "lucide-react";
 import { useMedicalReports } from "../../context/MedicalReportsContext";
 import { useAuth } from "../../hooks/useAuth";
@@ -20,19 +24,20 @@ import { useAuth } from "../../hooks/useAuth";
 function ParentNotifications() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getNotificationsForUser, getReportsForSender, markNotificationRead } = useMedicalReports();
+  const { getNotificationsForUser, allReports, markNotificationRead } = useMedicalReports();
 
   const userId = user?.id || user?._id || "parent-default";
-  const notifications   = getNotificationsForUser(userId, "parent");
-  const myReports       = getReportsForSender(userId, "parent");
-  const reviewedReports = myReports.filter((r) => r.status === "reviewed");
+  // Notifications explicitly addressed to this parent (role=parent)
+  const notifications = getNotificationsForUser(userId, "parent");
+  // Reviewed reports from the server-scoped list (includes teacher-initiated reviews)
+  const reviewedReports = allReports.filter((r) => r.status === "reviewed");
 
   const [selectedReport, setSelectedReport] = useState(null);
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleNotificationClick = (notif) => {
     if (!notif.read) markNotificationRead(notif.id);
-    const report = myReports.find((r) => r.id === notif.reportId);
+    const report = allReports.find((r) => r.id === notif.reportId);
     if (report) setSelectedReport(report);
   };
 
@@ -59,7 +64,7 @@ function ParentNotifications() {
           )}
         </div>
 
-        {/* Notifications */}
+        {/* Notification List */}
         <GlassCard className="p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="rounded-2xl bg-amber-50 p-2.5 text-amber-600">
@@ -67,7 +72,7 @@ function ParentNotifications() {
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-800">Doctor's Observations</h2>
-              <p className="text-sm text-slate-500">Notifications sent after the doctor reviews your submitted reports</p>
+              <p className="text-sm text-slate-500">Notifications sent after the doctor reviews health reports</p>
             </div>
           </div>
 
@@ -77,7 +82,7 @@ function ParentNotifications() {
                 <InboxIcon size={24} className="text-slate-400" />
               </div>
               <p className="font-semibold text-slate-600">No notifications yet</p>
-              <p className="text-sm text-slate-400">Doctor's responses to your reports will appear here once sent.</p>
+              <p className="text-sm text-slate-400">Doctor's responses to reports about your child will appear here once sent.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -105,7 +110,7 @@ function ParentNotifications() {
                       <Clock size={10} /> {notif.date}
                     </p>
                     <p className="text-xs font-medium text-blue-600 mt-2 group-hover:text-blue-700">
-                      Click to view the doctor's full observation →
+                      Click to view the full clinical observation →
                     </p>
                   </div>
                 </button>
@@ -114,44 +119,104 @@ function ParentNotifications() {
           )}
         </GlassCard>
 
-        {/* Doctor's Diagnosis and Reviews */}
+        {/* Doctor's Diagnosis and Reviews History */}
         <GlassCard className="p-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
               <Stethoscope size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800">Doctor's Diagnosis and Reviews</h2>
-              <p className="text-sm text-slate-500">Clinical observations received for reports you submitted</p>
+              <h2 className="text-xl font-bold text-slate-800">Doctor's Diagnosis and Reviews</h2>
+              <p className="text-sm text-slate-500">Complete clinical observation history for your child</p>
             </div>
           </div>
 
           {selectedReport ? (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Your Original Report</p>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {selectedReport.symptoms?.map((s) => (
-                    <span key={s} className="rounded-full bg-rose-50 border border-rose-100 px-3 py-0.5 text-xs font-semibold text-rose-700">{s}</span>
-                  ))}
-                </div>
-                {selectedReport.notes && <p className="text-sm text-slate-600">{selectedReport.notes}</p>}
-              </div>
+              {/* Doctor Identity */}
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle2 size={18} className="text-emerald-600" />
-                  <span className="font-bold text-emerald-800">Doctor's Clinical Observation</span>
-                </div>
-                <p className="text-sm text-emerald-900 leading-relaxed">{selectedReport.observation}</p>
-                {selectedReport.observationSentAt && (
-                  <p className="text-xs text-emerald-600 mt-3 flex items-center gap-1">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="h-10 w-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                    <Stethoscope size={18} />
+                  </div>
+                  <div>
+                    <p className="text-base font-bold text-emerald-900">{selectedReport.reviewedByName || "Doctor"}</p>
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 border border-emerald-200 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                      Doctor
+                    </span>
+                  </div>
+                  <span className="ml-auto text-xs text-emerald-600 flex items-center gap-1">
                     <Clock size={10} />
-                    Sent on {new Date(selectedReport.observationSentAt).toLocaleString("en-IN", {
-                      day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
-                    })}
-                  </p>
-                )}
+                    {selectedReport.observationSentAt
+                      ? new Date(selectedReport.observationSentAt).toLocaleString("en-IN", {
+                          day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
+                        })
+                      : "Recently"}
+                  </span>
+                </div>
               </div>
+
+              {/* Diagnosis */}
+              {selectedReport.diagnosis && (
+                <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ClipboardList size={16} className="text-slate-600" />
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Diagnosis</p>
+                  </div>
+                  <p className="text-lg font-bold text-slate-800">{selectedReport.diagnosis}</p>
+                </div>
+              )}
+
+              {/* Observation */}
+              {selectedReport.observation && (
+                <div className="rounded-2xl border border-emerald-100 bg-white p-5">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Observation</p>
+                  <p className="text-base text-slate-700 leading-relaxed">{selectedReport.observation}</p>
+                </div>
+              )}
+
+              {/* Recommendation */}
+              {selectedReport.recommendation && (
+                <div className="rounded-2xl border border-blue-100 bg-blue-50 p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertCircle size={16} className="text-blue-600" />
+                    <p className="text-xs font-semibold text-blue-500 uppercase tracking-wider">Medical Recommendation</p>
+                  </div>
+                  <p className="text-base text-blue-900 leading-relaxed font-medium">{selectedReport.recommendation}</p>
+                </div>
+              )}
+
+              {/* Prescription */}
+              {selectedReport.prescription && (
+                <div className="rounded-2xl border border-purple-100 bg-purple-50 p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Pill size={16} className="text-purple-600" />
+                    <p className="text-xs font-semibold text-purple-500 uppercase tracking-wider">Prescription</p>
+                  </div>
+                  <p className="text-base text-purple-900 leading-relaxed">{selectedReport.prescription}</p>
+                </div>
+              )}
+
+              {/* Doctor Review Notes */}
+              {selectedReport.doctorReview && (
+                <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Doctor Review Notes</p>
+                  <p className="text-sm text-slate-700 leading-relaxed">{selectedReport.doctorReview}</p>
+                </div>
+              )}
+
+              {/* Reported Symptoms */}
+              {selectedReport.symptoms?.length > 0 && (
+                <div className="rounded-2xl border border-rose-100 bg-rose-50/50 p-5">
+                  <p className="text-xs font-semibold text-rose-400 uppercase tracking-wider mb-2">Reported Symptoms</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedReport.symptoms.map((s) => (
+                      <span key={s} className="rounded-full bg-white border border-rose-100 px-3 py-0.5 text-xs font-semibold text-rose-700">{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <button onClick={() => setSelectedReport(null)} className="text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors">
                 ← Back to all reviews
               </button>
@@ -162,7 +227,7 @@ function ParentNotifications() {
                 <MessageSquare size={22} className="text-slate-400" />
               </div>
               <p className="font-semibold text-slate-600">No observations received yet</p>
-              <p className="text-sm text-slate-400">Submit a report and the doctor's response will appear here.</p>
+              <p className="text-sm text-slate-400">Once the doctor reviews a report about your child, the full clinical observation will appear here.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -174,17 +239,27 @@ function ParentNotifications() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="text-sm font-semibold text-slate-700">
-                        {report.symptoms?.join(", ") || "Health Report"}
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-base font-bold text-slate-800">{report.reviewedByName || "Doctor"}</p>
+                        <span className="rounded-full bg-emerald-100 border border-emerald-200 px-2 py-0.5 text-xs font-semibold text-emerald-700">Doctor</span>
+                      </div>
+                      {report.diagnosis && (
+                        <p className="text-sm font-semibold text-slate-700">
+                          Diagnosis: <span className="font-normal text-slate-600">{report.diagnosis}</span>
+                        </p>
+                      )}
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {report.observationSentAt
+                          ? new Date(report.observationSentAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+                          : "Recently"}
                       </p>
-                      <p className="text-xs text-slate-400 mt-0.5">{new Date(report.submittedAt).toLocaleDateString("en-IN")}</p>
                       <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">{report.observation}</p>
                     </div>
                     <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 border border-emerald-200 px-2 py-0.5 text-xs font-bold text-emerald-700 shrink-0">
                       <CheckCircle2 size={10} /> Reviewed
                     </span>
                   </div>
-                  <p className="text-xs font-medium text-emerald-600 mt-2 group-hover:text-emerald-700">Click to read full observation →</p>
+                  <p className="text-xs font-medium text-emerald-600 mt-2 group-hover:text-emerald-700">Click to read full clinical observation →</p>
                 </button>
               ))}
             </div>

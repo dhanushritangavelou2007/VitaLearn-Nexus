@@ -29,6 +29,17 @@ const reportSchema = new mongoose.Schema(
     observation: { type: String, default: null },
     observationSentAt: { type: Date, default: null },
     reviewedBy: { type: String, default: null },
+
+    // Full doctor review fields — sent to parent AND student dashboards
+    diagnosis: { type: String, default: null },
+    doctorReview: { type: String, default: null },
+    recommendation: { type: String, default: null },
+    prescription: { type: String, default: null },
+    reviewedByName: { type: String, default: null },
+    reviewedByRole: { type: String, default: "doctor" },
+
+    // The student this report is about (string ID — demo-safe)
+    studentId: { type: String, default: null },
   },
   { timestamps: true }
 );

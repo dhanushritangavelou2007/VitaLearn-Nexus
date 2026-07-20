@@ -19,6 +19,15 @@ function normalizeReport(report) {
     observation: report.observation ?? null,
     observationSentAt: report.observationSentAt ?? null,
     submittedAt: report.createdAt || report.submittedAt,
+    // Full doctor review fields
+    diagnosis: report.diagnosis ?? null,
+    doctorReview: report.doctorReview ?? null,
+    recommendation: report.recommendation ?? null,
+    prescription: report.prescription ?? null,
+    reviewedByName: report.reviewedByName ?? null,
+    reviewedByRole: report.reviewedByRole ?? "doctor",
+    // Student link
+    studentId: report.studentId || report.student || null,
   };
 }
 
@@ -27,12 +36,15 @@ function normalizeNotification(notification) {
   return {
     id: notification._id || notification.id,
     recipientId: notification.recipient,
-    recipientRole: notification.metadata?.senderRole,
+    // Use the explicit recipientRole stored in metadata (the fix for the routing bug).
+    // Fall back to senderRole only if recipientRole is absent (legacy notifications).
+    recipientRole: notification.metadata?.recipientRole || notification.metadata?.senderRole,
     reportId: notification.metadata?.reportId,
     date: notification.message,
     message: notification.title,
     read: Boolean(notification.read),
     createdAt: notification.createdAt,
+    metadata: notification.metadata || {},
   };
 }
 
@@ -47,10 +59,12 @@ export async function submitReportRequest(payload) {
   return normalizeReport(data.data || data);
 }
 
-export async function sendObservationRequest(reportId, observationText) {
-  const { data } = await api.post(`/reports/${reportId}/observation`, {
-    observation: observationText,
-  });
+export async function sendObservationRequest(reportId, reviewData) {
+  // Support both legacy (plain string) and new (full review object) callers
+  const body = typeof reviewData === "string"
+    ? { observation: reviewData }
+    : reviewData;
+  const { data } = await api.post(`/reports/${reportId}/observation`, body);
   return normalizeReport(data.data || data);
 }
 
