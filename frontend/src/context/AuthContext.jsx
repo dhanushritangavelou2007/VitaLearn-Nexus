@@ -6,11 +6,13 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(() => getStoredSession());
   const [authLoading, setAuthLoading] = useState(Boolean(session?.token));
   const restoredTokenRef = useRef(null);
+  const loginInFlightRef = useRef(null);
   const sessionToken = session?.token;
   const sessionUser = session?.user;
 
   useEffect(() => {
     let active = true;
+
     async function restore() {
       if (!sessionToken || restoredTokenRef.current === sessionToken) {
         setAuthLoading(false);
@@ -49,17 +51,47 @@ export function AuthProvider({ children }) {
   }, [session]);
 
   const login = async (email, password, rememberMe = true) => {
-    const authSession = await authenticate(email, password);
-    const nextSession = { ...authSession, rememberMe };
-    setSession(nextSession);
-    storeSession(nextSession);
-    return nextSession;
+    if (loginInFlightRef.current) {
+      return loginInFlightRef.current;
+    }
+
+    setAuthLoading(true);
+    const pending = (async () => {
+      try {
+        const authSession = await authenticate(email, password);
+        const nextSession = { ...authSession, rememberMe };
+        setSession(nextSession);
+        storeSession(nextSession);
+        restoredTokenRef.current = nextSession.token;
+        return nextSession;
+      } catch (error) {
+        setSession(null);
+        clearSession();
+        throw error;
+      } finally {
+        setAuthLoading(false);
+        loginInFlightRef.current = null;
+      }
+    })();
+
+    loginInFlightRef.current = pending;
+    return pending;
   };
 
   const logout = async () => {
-    await logoutRequest();
-    setSession(null);
-    clearSession();
+    setAuthLoading(true);
+    loginInFlightRef.current = null;
+
+    try {
+      await logoutRequest();
+    } catch {
+      // Ignore logout errors and still clear the local session.
+    } finally {
+      setSession(null);
+      clearSession();
+      restoredTokenRef.current = null;
+      setAuthLoading(false);
+    }
   };
 
   const value = useMemo(

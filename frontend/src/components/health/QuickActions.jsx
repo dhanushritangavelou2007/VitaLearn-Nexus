@@ -21,9 +21,9 @@ function QuickActions() {
     },
     {
       title: "Report Symptoms",
-      description: "Record health observations",
+      description: "Select a student and record health observations",
       icon: Stethoscope,
-      path: "/teacher/report-symptoms/1",
+      path: "/teacher/report-symptoms",
     },
     {
       title: "View Students",

@@ -25,7 +25,7 @@ function Sidebar() {
     teacher: [
       { name: "Dashboard",       path: "/teacher/dashboard",    icon: LayoutDashboard },
       { name: "Students",        path: "/students",             icon: Users },
-      { name: "Report Symptoms", path: "/report-symptoms/1",   icon: Activity },
+      { name: "Report Symptoms", path: "/teacher/report-symptoms",   icon: Activity },
       { name: "Reports",         path: "/reports",              icon: FileText },
       { name: "Notifications",   path: "/teacher/notifications", icon: Bell },
       { name: "Settings",        path: "/settings",             icon: Settings },

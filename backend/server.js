@@ -1,9 +1,18 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
+import mongoose from "mongoose";
 import { connectDB } from "./config/db.js";
 import { configureCloudinary } from "./config/cloudinary.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
@@ -19,13 +28,15 @@ import dashboardRoutes from "./routes/dashboardRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 
-dotenv.config();
-import mongoose from "mongoose";
 console.log("MongoDB URI:", process.env.MONGODB_URI);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+
+if (!process.env.JWT_SECRET || !String(process.env.JWT_SECRET).trim()) {
+  throw new Error("JWT_SECRET is missing in the .env file.");
+}
 
 configureCloudinary(process.env);
 

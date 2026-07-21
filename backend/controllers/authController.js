@@ -6,11 +6,7 @@ export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    console.log("Login request:", email);
-
     const result = await loginUser(email, password);
-
-    console.log(result);
 
     if (!result) {
       return res.status(401).json({
@@ -24,14 +20,16 @@ export const login = async (req, res, next) => {
       ...result,
     });
   } catch (err) {
-    console.error("LOGIN ERROR");
-    console.error(err);
+    console.error("LOGIN ERROR", err);
 
-    res.status(500).json({
-      success: false,
-      message: err.message,
-      stack: err.stack,
-    });
+    if (err.message?.includes("JWT_SECRET") || err.message?.includes("Unable to generate JWT token") || err.message?.includes("Invalid or expired token")) {
+      return res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    }
+
+    next(err);
   }
 };
 

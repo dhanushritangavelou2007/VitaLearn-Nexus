@@ -42,6 +42,31 @@ import {
 
 const POLL_INTERVAL_MS = 12000;
 
+function dedupeItems(items) {
+  const seen = new Set();
+  return items.filter((item) => {
+    if (!item) return false;
+    const key = item.id || item._id || item.reportId || null;
+    const fallbackKey = key || [
+      item.senderId || "",
+      item.senderRole || "",
+      item.recipientId || item.recipient || "",
+      item.recipientRole || "",
+      item.reportId || "",
+      item.message || "",
+      item.date || "",
+      item.read ? "read" : "unread",
+    ].join("::");
+
+    if (!fallbackKey || seen.has(fallbackKey)) {
+      return false;
+    }
+
+    seen.add(fallbackKey);
+    return true;
+  });
+}
+
 export const MedicalReportsContext = createContext(null);
 
 export function MedicalReportsProvider({ children }) {
@@ -56,8 +81,8 @@ export function MedicalReportsProvider({ children }) {
         fetchReports(),
         fetchNotifications(),
       ]);
-      setReports(reportsData);
-      setNotifications(notificationsData);
+      setReports(dedupeItems(reportsData));
+      setNotifications(dedupeItems(notificationsData));
     } catch (err) {
       // A transient network hiccup shouldn't wipe out what's already on
       // screen — keep the last-known-good cache and try again next tick.
@@ -92,15 +117,15 @@ export function MedicalReportsProvider({ children }) {
       observation: null,
       observationSentAt: null,
     };
-    setReports((prev) => [optimisticReport, ...prev]);
+    setReports((prev) => dedupeItems([optimisticReport, ...prev]));
 
     submitReportRequest(payload)
       .then((saved) => {
-        setReports((prev) => prev.map((r) => (r.id === tempId ? saved : r)));
+        setReports((prev) => dedupeItems(prev.map((r) => (r.id === tempId ? saved : r))));
       })
       .catch((err) => {
         console.error("Failed to submit report:", err);
-        setReports((prev) => prev.filter((r) => r.id !== tempId));
+        setReports((prev) => dedupeItems(prev.filter((r) => r.id !== tempId)));
       });
 
     return optimisticReport;
@@ -114,7 +139,7 @@ export function MedicalReportsProvider({ children }) {
 
     setReports((prev) => {
       rollbackSnapshot = prev;
-      return prev.map((r) =>
+      return dedupeItems(prev.map((r) =>
         r.id === reportId
           ? {
               ...r,
@@ -124,12 +149,12 @@ export function MedicalReportsProvider({ children }) {
               ...(typeof reviewData === "object" ? reviewData : {}),
             }
           : r
-      );
+      ));
     });
 
     sendObservationRequest(reportId, reviewData)
       .then((updated) => {
-        setReports((prev) => prev.map((r) => (r.id === reportId ? updated : r)));
+        setReports((prev) => dedupeItems(prev.map((r) => (r.id === reportId ? updated : r))));
         // Pull fresh notifications immediately so the sender's bell/inbox
         // updates without waiting for the next poll tick.
         refresh();
@@ -153,15 +178,15 @@ export function MedicalReportsProvider({ children }) {
 
   const getReportsForSender = useCallback(
     (senderId, senderRole) =>
-      reports.filter((r) => r.senderId === senderId && r.senderRole === senderRole),
+      dedupeItems(reports.filter((r) => r.senderId === senderId && r.senderRole === senderRole)),
     [reports]
   );
 
   const getNotificationsForUser = useCallback(
     (recipientId, recipientRole) =>
-      notifications.filter(
+      dedupeItems(notifications.filter(
         (n) => n.recipientId === recipientId && n.recipientRole === recipientRole
-      ),
+      )),
     [notifications]
   );
 

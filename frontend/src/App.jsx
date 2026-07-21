@@ -77,6 +77,8 @@ function App() {
         <Route path="/students" element={<RoleGuard role={["teacher", "doctor", "admin"]}><Students /></RoleGuard>} />
         <Route path="/create-passport" element={<RoleGuard role="teacher"><CreatePassport /></RoleGuard>} />
         <Route path="/passport/:id" element={<RoleGuard role={["teacher", "doctor", "parent", "student", "admin"]}><StudentProfile /></RoleGuard>} />
+        <Route path="/teacher/report-symptoms" element={<RoleGuard role="teacher"><Students selectionMode="report" /></RoleGuard>} />
+        <Route path="/teacher/report-symptoms/:id" element={<RoleGuard role="teacher"><ReportSymptoms /></RoleGuard>} />
         <Route path="/report-symptoms/:id" element={<RoleGuard role={["teacher", "doctor", "parent"]}><ReportSymptoms /></RoleGuard>} />
         <Route path="/reports" element={<RoleGuard role={["teacher", "doctor", "parent", "student", "admin"]}><Reports /></RoleGuard>} />
         
