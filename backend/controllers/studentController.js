@@ -51,5 +51,23 @@ export const deleteStudent = asyncHandler(async (req, res, next) => {
   const repo = getRepository("Student");
   const student = await repo.findByIdAndDelete(req.params.id);
   if (!student) return next(new AppError("Student not found", 404));
+
+  // Remove all reports linked to this student to prevent orphan records
+  const reportRepo = getRepository("Report");
+  const allReports = await reportRepo.find({});
+  const studentIdStr = String(req.params.id);
+  const linkedReports = allReports.filter(
+    (r) => String(r.studentId) === studentIdStr || String(r.student) === studentIdStr
+  );
+  await Promise.all(linkedReports.map((r) => reportRepo.findByIdAndDelete(r._id || r.id)));
+
+  // Remove all notifications linked to this student
+  const notifRepo = getRepository("Notification");
+  const allNotifs = await notifRepo.find({});
+  const linkedNotifs = allNotifs.filter(
+    (n) => String(n.metadata?.studentId) === studentIdStr
+  );
+  await Promise.all(linkedNotifs.map((n) => notifRepo.findByIdAndDelete(n._id || n.id)));
+
   res.status(204).send();
 });

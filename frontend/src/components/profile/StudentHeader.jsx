@@ -1,7 +1,7 @@
 import GlassCard from "../ui/GlassCard";
 import { UserCircle, ShieldCheck, School, Droplets, Pencil } from "lucide-react";
 
-function StudentHeader({ student, statusLabel, passportId, onBack, onReport, onEdit, showEditButton = true }) {
+function StudentHeader({ student, statusLabel, passportId, onBack, onReport, onEdit, showEditButton = true, showReportButton = true }) {
   return (
     <GlassCard className="p-8">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
@@ -46,9 +46,11 @@ function StudentHeader({ student, statusLabel, passportId, onBack, onReport, onE
           <ShieldCheck size={48} className="mx-auto" />
           <h2 className="mt-3 text-3xl font-bold">{statusLabel}</h2>
           <p className="text-white/80">{student.risk === 'critical' ? 'Critical Risk Student' : student.risk === 'healthy' ? 'Low Risk Student' : 'Needs Review'}</p>
+          {showReportButton && (
           <button onClick={onReport} className="mt-4 rounded-2xl bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm">
             Report Symptom
           </button>
+          )}
         </div>
       </div>
     </GlassCard>

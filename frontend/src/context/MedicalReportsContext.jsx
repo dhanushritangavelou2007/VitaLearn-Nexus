@@ -46,7 +46,8 @@ function dedupeItems(items) {
   const seen = new Set();
   return items.filter((item) => {
     if (!item) return false;
-    const key = item.id || item._id || item.reportId || null;
+    const key = item.id || item._id || null;
+    // For notifications without a stable id, build a key from immutable fields only
     const fallbackKey = key || [
       item.senderId || "",
       item.senderRole || "",
@@ -55,13 +56,9 @@ function dedupeItems(items) {
       item.reportId || "",
       item.message || "",
       item.date || "",
-      item.read ? "read" : "unread",
     ].join("::");
 
-    if (!fallbackKey || seen.has(fallbackKey)) {
-      return false;
-    }
-
+    if (!fallbackKey || seen.has(fallbackKey)) return false;
     seen.add(fallbackKey);
     return true;
   });

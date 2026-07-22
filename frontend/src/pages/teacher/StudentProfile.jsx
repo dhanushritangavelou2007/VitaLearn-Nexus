@@ -8,7 +8,6 @@ import RecentReports from "../../components/profile/RecentReports";
 import AISummary from "../../components/profile/AISummary";
 import HealthTimeline from "../../components/profile/HealthTimeline";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
-import HealthDistributionChart from "../../components/charts/HealthDistributionChart";
 import GlassCard from "../../components/ui/GlassCard";
 import { useStudents } from "../../hooks/useStudents";
 import { calculateAge, getRiskLabel, getStudentAvatar } from "../../data/students";
@@ -228,12 +227,6 @@ function StudentProfile() {
     day: month,
     healthy: Math.max(0, Number((Number(student.vitals?.height?.replace(/[^0-9.]/g, "") || 0) + index * 0.3).toFixed(1))),
   }));
-  const riskDistribution = [
-    { name: "Healthy", value: student.risk === "healthy" ? 1 : 0 },
-    { name: "Observation", value: student.risk === "observation" ? 1 : 0 },
-    { name: "Review", value: student.risk === "review" ? 1 : 0 },
-    { name: "Critical", value: student.risk === "critical" ? 1 : 0 },
-  ];
 
   return (
     <DashboardLayout>
@@ -246,6 +239,7 @@ function StudentProfile() {
           onReport={() => navigate(`/teacher/report-symptoms/${student.id}`)}
           onEdit={role === "teacher" ? openEditor : undefined}
           showEditButton={role !== "doctor"}
+          showReportButton={role !== "doctor"}
         />
 
         {role === "teacher" && (
@@ -485,7 +479,6 @@ function StudentProfile() {
 
             <div className="grid gap-6 lg:grid-cols-2">
               <HealthTrendChart data={attendanceTrend} title="Attendance Graph" />
-              <HealthDistributionChart data={riskDistribution} title="Risk Indicator" />
             </div>
 
             {role === "doctor" && (
@@ -509,10 +502,12 @@ function StudentProfile() {
             <FileText size={16} />
             Download Medical Report
           </button>
-          <button onClick={() => navigate(`/report-symptoms/${student.id}`)} className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 font-semibold text-white">
-            <FileText size={16} />
-            Add Report
-          </button>
+          {role !== "doctor" && (
+            <button onClick={() => navigate(`/report-symptoms/${student.id}`)} className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 font-semibold text-white">
+              <FileText size={16} />
+              Add Report
+            </button>
+          )}
           <button onClick={() => printElement("passport-page")} className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700">
             Print Passport
           </button>

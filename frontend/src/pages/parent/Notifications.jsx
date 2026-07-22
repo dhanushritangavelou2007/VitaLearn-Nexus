@@ -1,13 +1,5 @@
 /**
  * ParentNotifications.jsx
- *
- * Notification center for the parent — mirrors the Student notification
- * experience with bell, unread count, history, mark-as-read, timestamps,
- * and full doctor review details (Diagnosis, Observation, Recommendation,
- * Prescription, Doctor Name, Role, Date/Time).
- *
- * Updated as part of the communication flow fix:
- *   Teacher submits → Doctor reviews → Parent notified + dashboard updated
  */
 
 import { useState } from "react";
@@ -16,21 +8,62 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import GlassCard from "../../components/ui/GlassCard";
 import {
   Bell, CheckCircle2, Clock, Stethoscope, ChevronLeft,
-  InboxIcon, MessageSquare, AlertCircle, Pill, ClipboardList,
+  InboxIcon, MessageSquare, AlertCircle, Pill, ClipboardList, Syringe,
 } from "lucide-react";
 import { useMedicalReports } from "../../context/MedicalReportsContext";
 import { useAuth } from "../../hooks/useAuth";
+import { useStudents } from "../../hooks/useStudents";
+import { REQUIRED_VACCINATIONS } from "../../utils/healthStatus";
 
 function ParentNotifications() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { getNotificationsForUser, allReports, markNotificationRead } = useMedicalReports();
+  const { students } = useStudents();
 
   const userId = user?.id || user?._id || "parent-default";
-  // Notifications explicitly addressed to this parent (role=parent)
-  const notifications = getNotificationsForUser(userId, "parent");
+
+  // Find linked child (Aarav Sharma for demo parent Rajesh Sharma)
+  const child = students.find((s) => s.name === "Aarav Sharma") || students[0];
+
+  // All notifications for this parent
+  const allParentNotifications = getNotificationsForUser(userId, "parent");
+
+  // Split: doctor-response vs vaccination
+  const notifications = allParentNotifications.filter(
+    (n) => n.type !== "vaccination-pending" && n.metadata?.type !== "vaccination-pending"
+  );
+  const vaccinationNotifications = allParentNotifications.filter(
+    (n) => n.type === "vaccination-pending" || n.metadata?.type === "vaccination-pending"
+  );
+
+  // Build vaccination notifications from child's pending vaccinations (client-side)
+  const pendingVaccines = child
+    ? REQUIRED_VACCINATIONS.filter((vaccineName) => {
+        const vaccObj = (child.vaccinations || []).find(
+          (v) => (typeof v === "string" ? v : v?.name) === vaccineName
+        );
+        if (!vaccObj) return true;
+        if (typeof vaccObj === "string") return false;
+        return vaccObj.status !== "completed";
+      }).map((vaccineName) => {
+        const vaccObj = (child.vaccinations || []).find(
+          (v) => (typeof v === "string" ? v : v?.name) === vaccineName
+        );
+        const dueDate = vaccObj && typeof vaccObj === "object" ? vaccObj.date || "Not scheduled" : "Not scheduled";
+        const status = vaccObj && typeof vaccObj === "object" ? vaccObj.status || "Pending" : "Pending";
+        return {
+          id: `parent-vacc-${vaccineName}`,
+          vaccineName,
+          studentName: child.name,
+          dueDate,
+          status: status.charAt(0).toUpperCase() + status.slice(1),
+          read: false,
+        };
+      })
+    : [];
+
   // Reviewed reports scoped to this parent's child only
-  // (server already scopes via listReportsForUser, but guard client-side too)
   const reviewedReports = allReports.filter(
     (r) => r.status === "reviewed" && (
       r.senderId === userId ||
@@ -39,7 +72,7 @@ function ParentNotifications() {
   );
 
   const [selectedReport, setSelectedReport] = useState(null);
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = allParentNotifications.filter((n) => !n.read).length + pendingVaccines.length;
 
   const handleNotificationClick = (notif) => {
     if (!notif.read) markNotificationRead(notif.id);
@@ -69,6 +102,95 @@ function ParentNotifications() {
             </span>
           )}
         </div>
+
+        {/* Vaccination Notifications for Parent */}
+        {(vaccinationNotifications.length > 0 || pendingVaccines.length > 0) && (
+          <GlassCard className="p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="rounded-2xl bg-amber-50 p-2.5 text-amber-600">
+                <Syringe size={20} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">Vaccination Alerts</h2>
+                <p className="text-sm text-slate-500">Pending or upcoming vaccinations for {child?.name}</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {pendingVaccines.map((vacc) => (
+                <div
+                  key={vacc.id}
+                  className="rounded-2xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-4"
+                >
+                  <div className="mt-0.5 h-9 w-9 rounded-xl flex items-center justify-center shrink-0 bg-amber-100 text-amber-600">
+                    <Syringe size={16} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm text-amber-800">
+                      Vaccination pending for {vacc.studentName}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-1.5">
+                      <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
+                        Student: {vacc.studentName}
+                      </span>
+                      <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+                        Vaccine: {vacc.vaccineName}
+                      </span>
+                      {vacc.dueDate && vacc.dueDate !== "Not scheduled" && (
+                        <span className="text-xs bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                          <AlertCircle size={9} /> Due: {vacc.dueDate}
+                        </span>
+                      )}
+                      <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+                        Status: {vacc.status}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="shrink-0 h-2.5 w-2.5 rounded-full bg-amber-500 mt-2" />
+                </div>
+              ))}
+              {vaccinationNotifications.map((notif) => (
+                <div
+                  key={notif.id}
+                  className={`rounded-2xl border p-4 flex items-start gap-4 ${
+                    notif.read ? "border-slate-100 bg-white" : "border-amber-200 bg-amber-50"
+                  }`}
+                >
+                  <div className={`mt-0.5 h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    notif.read ? "bg-slate-100 text-slate-500" : "bg-amber-100 text-amber-600"
+                  }`}>
+                    <Syringe size={16} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-sm ${notif.read ? "text-slate-700" : "text-amber-800"}`}>
+                      {notif.message}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-1.5">
+                      {notif.metadata?.studentName && (
+                        <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
+                          Student: {notif.metadata.studentName}
+                        </span>
+                      )}
+                      {notif.metadata?.vaccinationName && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+                          Vaccine: {notif.metadata.vaccinationName}
+                        </span>
+                      )}
+                      {notif.metadata?.dueDate && notif.metadata.dueDate !== "Not scheduled" && (
+                        <span className="text-xs bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                          <AlertCircle size={9} /> Due: {notif.metadata.dueDate}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                      <Clock size={10} /> {notif.date}
+                    </p>
+                  </div>
+                  {!notif.read && <span className="shrink-0 h-2.5 w-2.5 rounded-full bg-amber-500 mt-2" />}
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        )}
 
         {/* Notification List */}
         <GlassCard className="p-6">

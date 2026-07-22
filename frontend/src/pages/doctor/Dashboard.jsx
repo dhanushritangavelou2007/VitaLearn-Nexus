@@ -297,7 +297,9 @@ function ReportDetailPanel({ report, onBack, onSend }) {
 /* ─── Reports Panel (list view) ─────────────────────────────── */
 function ReportsPanel({ onSelectReport }) {
   const { getReportsForDoctor } = useMedicalReports();
-  const reports = getReportsForDoctor();
+  const allReports = getReportsForDoctor();
+  // Only show pending reports in the queue — reviewed ones are removed after doctor submits
+  const reports = allReports.filter((r) => r.status === "pending");
 
   if (reports.length === 0) {
     return (
@@ -510,8 +512,8 @@ function DoctorDashboard() {
                   onBack={() => setSelectedReport(null)}
                   onSend={(id, text) => {
                     sendObservation(id, text);
-                    // Update local ref so UI reflects reviewed state immediately
-                    setSelectedReport((prev) => prev ? { ...prev, status: "reviewed", observation: text } : null);
+                    // After review submitted, remove from queue and return to list
+                    setSelectedReport(null);
                   }}
                 />
               ) : (
@@ -566,7 +568,7 @@ function DoctorDashboard() {
                 onBack={() => setSelectedReport(null)}
                 onSend={(id, text) => {
                   sendObservation(id, text);
-                  setSelectedReport((prev) => prev ? { ...prev, status: "reviewed", observation: text } : null);
+                  setSelectedReport(null);
                 }}
               />
             ) : (

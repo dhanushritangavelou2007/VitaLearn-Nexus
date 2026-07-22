@@ -38,11 +38,11 @@ function normalizeNotification(notification) {
     recipientId: notification.recipient,
     recipientRole: notification.metadata?.recipientRole || notification.metadata?.senderRole,
     reportId: notification.metadata?.reportId,
-    date: notification.message,
+    // title = human-readable message; message = date label from backend
     message: notification.title,
+    date: notification.message,
     read: Boolean(notification.read),
     createdAt: notification.createdAt,
-    // Expose top-level type AND mirror it into metadata so consumers can check either
     type: notification.type || "info",
     metadata: {
       ...(notification.metadata || {}),
