@@ -8,12 +8,13 @@ import VaccinationProgressRing from "../../components/charts/VaccinationProgress
 import GlassCard from "../../components/ui/GlassCard";
 import {
   Bell, HeartPulse, ShieldCheck, Syringe, Stethoscope,
-  CheckCircle2, Clock, User, Phone, Mail, BookOpen, AlertCircle,
+  CheckCircle2, Clock, User, Phone, Mail, BookOpen, AlertCircle, Download, FileText,
 } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
 import { REQUIRED_VACCINATIONS } from "../../utils/healthStatus";
 import { useMedicalReports } from "../../context/MedicalReportsContext";
 import { useAuth } from "../../hooks/useAuth";
+import { downloadProfessionalPassport, downloadMedicalReport } from "../../utils/exportHelpers";
 
 function ParentDashboard() {
   const location = useLocation();
@@ -38,8 +39,13 @@ function ParentDashboard() {
 
   // Reports scoped to the parent: either sent by them OR reviewed reports
   // linked to their child (populated server-side via listReportsForUser).
+  // The server already scopes these correctly — we just filter client-side
+  // as an extra guard to ensure only this parent's child's reports show.
   const myReports = allReports.filter(
-    (r) => r.senderId === parentId || r.status === "reviewed"
+    (r) => r.senderId === parentId || (
+      r.status === "reviewed" &&
+      (r.studentId === String(child?.id) || r.studentId === String(child?._id))
+    )
   );
   const reviewedReports = myReports.filter((r) => r.status === "reviewed");
   const myNotifications = getNotificationsForUser(parentId, "parent");
@@ -247,6 +253,20 @@ function ParentDashboard() {
                   <InfoCard label="Medical History" value={child.medicalConditions?.join(", ") || "None"} accent="blue"  />
                   <InfoCard label="Allergies"        value={child.allergies?.join(", ")          || "None"} accent="amber" />
                 </div>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <button
+                    onClick={() => downloadProfessionalPassport(child, currentSummary)}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/25 hover:bg-blue-700 transition-colors"
+                  >
+                    <Download size={14} /> Download Passport
+                  </button>
+                  <button
+                    onClick={() => downloadMedicalReport(child, currentSummary)}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-500/25 hover:bg-emerald-700 transition-colors"
+                  >
+                    <FileText size={14} /> Download Medical Report
+                  </button>
+                </div>
               </GlassCard>
 
               {/* Vaccination Progress Ring */}
@@ -415,7 +435,13 @@ function ParentDashboard() {
               <h2 className="text-lg font-bold text-slate-800 mb-5">Vaccination Records</h2>
               <div className="space-y-3">
                 {REQUIRED_VACCINATIONS.map((vaccine) => {
-                  const done = (child.vaccinations || []).includes(vaccine);
+                  const vaccObj = (child.vaccinations || []).find(
+                    (v) => (typeof v === "string" ? v : v?.name) === vaccine
+                  );
+                  const done = vaccObj
+                    ? (typeof vaccObj === "string" || vaccObj.status === "completed")
+                    : false;
+                  const vaccDate = vaccObj && typeof vaccObj === "object" ? vaccObj.date : null;
                   return (
                     <div
                       key={vaccine}
@@ -426,7 +452,10 @@ function ParentDashboard() {
                       <div className={`rounded-full p-2 ${done ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-500"}`}>
                         <ShieldCheck size={16} />
                       </div>
-                      <span className={`font-semibold ${done ? "text-emerald-800" : "text-rose-700"}`}>{vaccine}</span>
+                      <div>
+                        <span className={`font-semibold block ${done ? "text-emerald-800" : "text-rose-700"}`}>{vaccine}</span>
+                        {vaccDate && <span className="text-xs text-slate-400">{vaccDate}</span>}
+                      </div>
                       <span className={`ml-auto text-xs font-bold px-3 py-1 rounded-full ${done ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-600"}`}>
                         {done ? "✓ Complete" : "Pending"}
                       </span>

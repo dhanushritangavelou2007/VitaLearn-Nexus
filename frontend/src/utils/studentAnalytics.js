@@ -99,7 +99,8 @@ export function deriveRisk(student) {
     (s) => s.toLowerCase().includes("breathing") || s.toLowerCase().includes("wheezing")
   );
   const vaccinations = student?.vaccinations || [];
-  const missingVaccinations = REQUIRED_VACCINATIONS.filter((v) => !vaccinations.includes(v));
+  const vaccNames = vaccinations.map((v) => (typeof v === "string" ? v : (v?.status === "completed" ? v?.name : null))).filter(Boolean);
+  const missingVaccinations = REQUIRED_VACCINATIONS.filter((v) => !vaccNames.includes(v));
 
   if (temperature >= 102 || hasBreathingConcern || score <= 45) return "critical";
   if (score <= 60 || activeSymptoms.length >= 2 || missingVaccinations.length >= 2) return "review";
@@ -137,7 +138,12 @@ export function calculateDashboardStats(studentList = []) {
     0
   );
   const pendingVaccinations = studentList.reduce(
-    (n, s) => n + REQUIRED_VACCINATIONS.filter((v) => !(s.vaccinations || []).includes(v)).length,
+    (n, s) => {
+      const names = (s.vaccinations || []).map((v) =>
+        typeof v === "string" ? v : (v?.status === "completed" ? v?.name : null)
+      ).filter(Boolean);
+      return n + REQUIRED_VACCINATIONS.filter((v) => !names.includes(v)).length;
+    },
     0
   );
 
@@ -192,7 +198,8 @@ export function generateHealthSummary(student) {
   const temperature = student.vitals?.temperature || "not recorded";
   const symptoms    = (student.symptoms          || []).filter((s) => s && s !== "None");
   const vaccinations = student.vaccinations      || [];
-  const missingVaccinations = REQUIRED_VACCINATIONS.filter((v) => !vaccinations.includes(v));
+  const vaccNames2 = vaccinations.map((v) => (typeof v === "string" ? v : (v?.status === "completed" ? v?.name : null))).filter(Boolean);
+  const missingVaccinations = REQUIRED_VACCINATIONS.filter((v) => !vaccNames2.includes(v));
   const conditions  = (student.medicalConditions || []).filter((c) => c && c !== "None");
   const score       = student.healthScore || calculateHealthScore(student);
   const risk        = student.risk        || deriveRisk(student);

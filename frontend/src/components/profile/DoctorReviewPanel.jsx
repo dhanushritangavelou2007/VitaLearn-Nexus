@@ -1,7 +1,14 @@
 import { useMemo, useState } from "react";
 import GlassCard from "../ui/GlassCard";
-import { CheckCircle2, Send, Stethoscope, AlertTriangle, Sparkles } from "lucide-react";
+import { CheckCircle2, Send, Stethoscope, AlertTriangle, Sparkles, Syringe } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
+
+// Normalize vaccination entry for consistent handling
+function normalizeVacc(v) {
+  if (!v) return null;
+  if (typeof v === "string") return { name: v, date: "", status: "completed" };
+  return { name: v.name || "", date: v.date || "", status: v.status || "completed" };
+}
 
 function DoctorReviewPanel({ student, aiSummary }) {
   const { updateStudent } = useStudents();
@@ -12,8 +19,25 @@ function DoctorReviewPanel({ student, aiSummary }) {
   const [verifiedSymptoms, setVerifiedSymptoms] = useState((student.verifiedSymptoms || student.symptoms || []).filter(Boolean));
   const [appointmentDate, setAppointmentDate] = useState("");
   const [appointmentNotes, setAppointmentNotes] = useState("");
+  const [vaccinations, setVaccinations] = useState(
+    (student.vaccinations || []).map(normalizeVacc).filter(Boolean)
+  );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const updateVaccDate = (index, date) => {
+    setVaccinations((prev) =>
+      prev.map((v, i) =>
+        i === index ? { ...v, date, status: date ? "completed" : "pending" } : v
+      )
+    );
+  };
+
+  const updateVaccStatus = (index, status) => {
+    setVaccinations((prev) =>
+      prev.map((v, i) => (i === index ? { ...v, status } : v))
+    );
+  };
 
   const criticalInsight = useMemo(() => {
     if (student.risk === "critical") {
@@ -52,6 +76,7 @@ function DoctorReviewPanel({ student, aiSummary }) {
       perfectSummary: summary,
       verifiedSymptoms,
       risk,
+      vaccinations,
       lastUpdate: "Today",
       ...appointmentPayload,
     });
@@ -162,6 +187,34 @@ function DoctorReviewPanel({ student, aiSummary }) {
                 className="w-full rounded-xl border border-slate-200 p-3 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Vaccination Date Management */}
+        <div>
+          <label className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-1.5">
+            <Syringe size={15} /> Vaccination Records
+          </label>
+          <div className="space-y-2">
+            {vaccinations.map((v, i) => (
+              <div key={i} className="grid grid-cols-3 gap-2 items-center rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <span className="text-sm font-medium text-slate-700 truncate">{v.name}</span>
+                <input
+                  type="date"
+                  value={v.date || ""}
+                  onChange={(e) => updateVaccDate(i, e.target.value)}
+                  className="rounded-lg border border-slate-200 p-2 text-xs outline-none focus:border-blue-400 bg-white"
+                />
+                <select
+                  value={v.status}
+                  onChange={(e) => updateVaccStatus(i, e.target.value)}
+                  className="rounded-lg border border-slate-200 p-2 text-xs outline-none focus:border-blue-400 bg-white"
+                >
+                  <option value="completed">Completed</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+            ))}
           </div>
         </div>
 

@@ -16,6 +16,13 @@ import { ShieldCheck, ShieldAlert } from "lucide-react";
 function VaccinationProgressRing({ vaccinations = [], size = 160, showList = false }) {
   const { completed, total, percent } = getVaccinationProgress(vaccinations);
 
+  // Normalize for checklist rendering
+  const vaccNames = (vaccinations || []).map((v) => {
+    if (!v) return null;
+    if (typeof v === "string") return v;
+    return v.status === "completed" ? v.name : null;
+  }).filter(Boolean);
+
   /* SVG geometry */
   const strokeWidth = size * 0.075;
   const radius      = (size - strokeWidth * 2) / 2;
@@ -106,7 +113,7 @@ function VaccinationProgressRing({ vaccinations = [], size = 160, showList = fal
       {showList && (
         <div className="w-full space-y-2">
           {REQUIRED_VACCINATIONS.map((vaccine) => {
-            const done = (vaccinations || []).includes(vaccine);
+            const done = vaccNames.includes(vaccine);
             return (
               <div
                 key={vaccine}

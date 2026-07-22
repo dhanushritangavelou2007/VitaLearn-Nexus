@@ -7,6 +7,7 @@
  */
 import { getRepository } from "../repositories/index.js";
 import { generateAIHealthReport } from "../utils/aiEngine.js";
+import { createNotification } from "./notificationService.js";
 
 // ─── List Students ───────────────────────────────────────────
 
@@ -66,11 +67,8 @@ export async function getStudentById(id) {
 
 /**
  * Updates a student record and persists the canonical health score.
- *
- * Score derivation (in order):
- *  1. payload.healthStatus  → canonical map
- *  2. payload.healthCondition (legacy) → bridged
- *  3. aiReport.risk (vitals-derived)  → canonical map
+ * Also triggers vaccination notifications for teachers when pending
+ * vaccinations are detected.
  */
 export async function updateStudent(id, payload) {
   const repo = getRepository("Student");
@@ -92,7 +90,54 @@ export async function updateStudent(id, payload) {
     }
 
     updated = await repo.findByIdAndUpdate(id, patch);
+
+    // Trigger vaccination notifications if vaccinations were updated
+    if (payload.vaccinations) {
+      await generateVaccinationNotifications(updated);
+    }
   }
 
   return updated;
+}
+
+/**
+ * Generates notifications for teachers about pending/upcoming vaccinations.
+ * Finds all teacher users and notifies them about each pending vaccination.
+ */
+async function generateVaccinationNotifications(student) {
+  try {
+    const vaccinations = student.vaccinations || [];
+    const pendingVaccinations = vaccinations.filter(
+      (v) => v && typeof v === "object" && v.status === "pending"
+    );
+
+    if (pendingVaccinations.length === 0) return;
+
+    const userRepo = getRepository("User");
+    const allUsers = await userRepo.find({});
+    const teachers = allUsers.filter((u) => u.role === "teacher");
+
+    for (const teacher of teachers) {
+      const teacherId = String(teacher._id || teacher.id);
+      for (const vacc of pendingVaccinations) {
+        const vaccName = vacc.name || "Unknown Vaccine";
+        const dueDate = vacc.date || "Not scheduled";
+        await createNotification({
+          recipient: teacherId,
+          title: `Vaccination Pending: ${student.name}`,
+          message: `${student.name} has a pending ${vaccName} vaccination. Due date: ${dueDate}.`,
+          type: "vaccination-pending",
+          metadata: {
+            studentId: String(student._id || student.id),
+            studentName: student.name,
+            vaccinationName: vaccName,
+            dueDate,
+            recipientRole: "teacher",
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Failed to generate vaccination notifications:", err);
+  }
 }

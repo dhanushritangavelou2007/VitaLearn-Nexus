@@ -28,7 +28,13 @@ const studentSchema = new mongoose.Schema(
     symptoms: [{ type: String }],
     allergies: [{ type: String }],
     medicalConditions: [{ type: String }],
-    vaccinations: [{ type: String }],
+    vaccinations: [
+      {
+        name: { type: String },
+        date: { type: String },
+        status: { type: String, default: "completed" },
+      },
+    ],
     vitals: {
       height: String,
       weight: String,

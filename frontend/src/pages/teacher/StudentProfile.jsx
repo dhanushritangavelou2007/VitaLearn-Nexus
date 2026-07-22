@@ -13,14 +13,14 @@ import GlassCard from "../../components/ui/GlassCard";
 import { useStudents } from "../../hooks/useStudents";
 import { calculateAge, getRiskLabel, getStudentAvatar } from "../../data/students";
 import { Download, FileText, HeartPulse, Activity, ShieldCheck, Syringe } from "lucide-react";
-import { printElement, downloadProfessionalPassport } from "../../utils/exportHelpers";
+import { printElement, downloadProfessionalPassport, downloadMedicalReport } from "../../utils/exportHelpers";
 import { useAuth } from "../../hooks/useAuth";
 import DoctorReviewPanel from "../../components/profile/DoctorReviewPanel";
 
 function StudentProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   const { getStudentById, fetchStudentById, generateHealthSummary, setSelectedStudent, updateStudent, loading, error, refreshStudents } = useStudents();
   const student = getStudentById(id);
   const aiSummary = generateHealthSummary(student);
@@ -189,18 +189,27 @@ function StudentProfile() {
   }
 
   // Restrict access for parent/student to only their own passport
-  if ((role === "parent" || role === "student") && student.name !== "Aarav Sharma") {
-    return (
-      <DashboardLayout>
-        <div className="mx-auto max-w-3xl rounded-3xl bg-white/70 backdrop-blur-xl border border-rose-200 p-8 shadow-sm">
-          <h1 className="text-2xl font-bold text-rose-700">Unauthorized Access</h1>
-          <p className="mt-2 text-rose-500">You do not have permission to view this student's passport.</p>
-          <button onClick={() => navigate(`/${role}/dashboard`)} className="mt-6 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-rose-500/30 hover:bg-rose-700 transition-all">
-            Back to Dashboard
-          </button>
-        </div>
-      </DashboardLayout>
-    );
+  // Use user ID matching against student.user (student) or student.parentUser (parent)
+  if (role === "parent" || role === "student") {
+    const userId = user?.id || user?._id;
+    const isOwn =
+      (role === "student" && String(student.user) === String(userId)) ||
+      (role === "parent" && String(student.parentUser) === String(userId)) ||
+      // Demo fallback: Aarav Sharma is linked to both demo parent and student
+      student.name === "Aarav Sharma";
+    if (!isOwn) {
+      return (
+        <DashboardLayout>
+          <div className="mx-auto max-w-3xl rounded-3xl bg-white/70 backdrop-blur-xl border border-rose-200 p-8 shadow-sm">
+            <h1 className="text-2xl font-bold text-rose-700">Unauthorized Access</h1>
+            <p className="mt-2 text-rose-500">You do not have permission to view this student's passport.</p>
+            <button onClick={() => navigate(`/${role}/dashboard`)} className="mt-6 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-rose-500/30 hover:bg-rose-700 transition-all">
+              Back to Dashboard
+            </button>
+          </div>
+        </DashboardLayout>
+      );
+    }
   }
 
   const passportId = `VLN-${String(student.id).padStart(4, "0")}`;
@@ -488,10 +497,17 @@ function StudentProfile() {
         <div className="flex flex-wrap gap-3">
           <button
             onClick={() => downloadProfessionalPassport(student, aiSummary)}
-            className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-md shadow-blue-500/25"
+            className="inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-md shadow-blue-500/25 hover:bg-blue-700 transition-colors"
           >
             <Download size={16} />
             Download Passport
+          </button>
+          <button
+            onClick={() => downloadMedicalReport(student, aiSummary)}
+            className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 font-semibold text-white shadow-md shadow-emerald-500/25 hover:bg-emerald-700 transition-colors"
+          >
+            <FileText size={16} />
+            Download Medical Report
           </button>
           <button onClick={() => navigate(`/report-symptoms/${student.id}`)} className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-5 py-3 font-semibold text-white">
             <FileText size={16} />

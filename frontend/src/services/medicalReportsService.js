@@ -36,15 +36,18 @@ function normalizeNotification(notification) {
   return {
     id: notification._id || notification.id,
     recipientId: notification.recipient,
-    // Use the explicit recipientRole stored in metadata (the fix for the routing bug).
-    // Fall back to senderRole only if recipientRole is absent (legacy notifications).
     recipientRole: notification.metadata?.recipientRole || notification.metadata?.senderRole,
     reportId: notification.metadata?.reportId,
     date: notification.message,
     message: notification.title,
     read: Boolean(notification.read),
     createdAt: notification.createdAt,
-    metadata: notification.metadata || {},
+    // Expose top-level type AND mirror it into metadata so consumers can check either
+    type: notification.type || "info",
+    metadata: {
+      ...(notification.metadata || {}),
+      type: notification.type || notification.metadata?.type || "info",
+    },
   };
 }
 

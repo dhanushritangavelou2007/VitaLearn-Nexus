@@ -8,12 +8,13 @@ import RiskBarChart from "../../components/charts/RiskBarChart";
 import CircularProgress from "../../components/charts/CircularProgress";
 import VaccinationProgressRing from "../../components/charts/VaccinationProgressRing";
 import GlassCard from "../../components/ui/GlassCard";
-import { Activity, HeartPulse, ShieldCheck, Award, Syringe, Bell, Stethoscope, CheckCircle2, Clock } from "lucide-react";
+import { Activity, HeartPulse, ShieldCheck, Award, Syringe, Bell, Stethoscope, CheckCircle2, Clock, Download, FileText } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
 import { calculateHealthScore } from "../../utils/studentAnalytics";
 import { REQUIRED_VACCINATIONS } from "../../utils/healthStatus";
 import { useMedicalReports } from "../../context/MedicalReportsContext";
 import { useAuth } from "../../hooks/useAuth";
+import { downloadProfessionalPassport, downloadMedicalReport } from "../../utils/exportHelpers";
 
 
 function StudentDashboard() {
@@ -30,9 +31,18 @@ function StudentDashboard() {
   }, []);
 
   const userId = user?.id || user?._id || "student-default";
-  // Include both student's own submitted reports AND teacher-initiated reviewed reports
+  // Include only reviewed reports linked to this student's own record
   // (server-side listReportsForUser scopes them correctly via studentId link)
-  const reviewedReports = allReports.filter((r) => r.status === "reviewed");
+  const linkedStudentId = students.find(
+    (s) => s.name === "Aarav Sharma" || String(s.user) === userId
+  );
+  const myStudentId = linkedStudentId ? String(linkedStudentId.id || linkedStudentId._id) : null;
+  const reviewedReports = allReports.filter(
+    (r) => r.status === "reviewed" && (
+      r.senderId === userId ||
+      (myStudentId && (r.studentId === myStudentId || r.studentId === myStudentId))
+    )
+  );
   const myNotifications = getNotificationsForUser(userId, "student");
   const unreadCount     = myNotifications.filter((n) => !n.read).length;
 
@@ -66,9 +76,13 @@ function StudentDashboard() {
   const summaryText = currentStudent.perfectSummary || generateHealthSummary(currentStudent);
 
   // ── Vaccination Data ─────────────────────────────────────────
-  const completedVaccinations = (currentStudent.vaccinations || []).filter((v) =>
-    REQUIRED_VACCINATIONS.includes(v)
-  );
+  // Normalize to name strings for checklist comparisons
+  const vaccNames = (currentStudent.vaccinations || []).map((v) => {
+    if (!v) return null;
+    if (typeof v === "string") return v;
+    return v.status === "completed" ? v.name : null;
+  }).filter(Boolean);
+  const completedVaccinations = vaccNames.filter((v) => REQUIRED_VACCINATIONS.includes(v));
   const missingVaccinations = REQUIRED_VACCINATIONS.filter(
     (v) => !completedVaccinations.includes(v)
   );
@@ -190,6 +204,20 @@ function StudentDashboard() {
                 <div className="mt-4 rounded-xl bg-white/20 p-3 backdrop-blur-md">
                   <p className="text-sm font-medium">Keep up the good work! Stay hydrated.</p>
                 </div>
+                <div className="mt-4 flex flex-col gap-2">
+                  <button
+                    onClick={() => downloadProfessionalPassport(currentStudent, summaryText)}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/20 hover:bg-white/30 px-4 py-2.5 text-sm font-semibold text-white transition-colors"
+                  >
+                    <Download size={14} /> Download Passport
+                  </button>
+                  <button
+                    onClick={() => downloadMedicalReport(currentStudent, summaryText)}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/20 hover:bg-white/30 px-4 py-2.5 text-sm font-semibold text-white transition-colors"
+                  >
+                    <FileText size={14} /> Download Medical Report
+                  </button>
+                </div>
               </div>
             </GlassCard>
           </div>
@@ -234,6 +262,10 @@ function StudentDashboard() {
               <div className="space-y-3">
                 {REQUIRED_VACCINATIONS.map((vaccine) => {
                   const done = completedVaccinations.includes(vaccine);
+                  const vaccObj = (currentStudent.vaccinations || []).find(
+                    (v) => (typeof v === "string" ? v : v?.name) === vaccine
+                  );
+                  const vaccDate = vaccObj && typeof vaccObj === "object" ? vaccObj.date : null;
                   return (
                     <div
                       key={vaccine}
@@ -251,9 +283,12 @@ function StudentDashboard() {
                         >
                           <ShieldCheck size={14} />
                         </div>
-                        <span className={`font-semibold text-sm ${done ? "text-emerald-800" : "text-rose-700"}`}>
-                          {vaccine}
-                        </span>
+                        <div>
+                          <span className={`font-semibold text-sm block ${done ? "text-emerald-800" : "text-rose-700"}`}>
+                            {vaccine}
+                          </span>
+                          {vaccDate && <span className="text-xs text-slate-400">{vaccDate}</span>}
+                        </div>
                       </div>
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-bold ${
@@ -464,7 +499,11 @@ function StudentDashboard() {
               <h2 className="text-lg font-bold text-slate-800 mb-5">Vaccination Records</h2>
               <div className="space-y-3">
                 {REQUIRED_VACCINATIONS.map((vaccine) => {
-                  const done = (currentStudent.vaccinations || []).includes(vaccine);
+                  const done = vaccNames.includes(vaccine);
+                  const vaccObj = (currentStudent.vaccinations || []).find(
+                    (v) => (typeof v === "string" ? v : v?.name) === vaccine
+                  );
+                  const vaccDate = vaccObj && typeof vaccObj === "object" ? vaccObj.date : null;
                   return (
                     <div
                       key={vaccine}
@@ -477,7 +516,10 @@ function StudentDashboard() {
                       <div className={`rounded-full p-2 ${done ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-500"}`}>
                         <ShieldCheck size={16} />
                       </div>
-                      <span className={`font-semibold ${done ? "text-emerald-800" : "text-rose-700"}`}>{vaccine}</span>
+                      <div>
+                        <span className={`font-semibold block ${done ? "text-emerald-800" : "text-rose-700"}`}>{vaccine}</span>
+                        {vaccDate && <span className="text-xs text-slate-400">{vaccDate}</span>}
+                      </div>
                       <span className={`ml-auto text-xs font-bold px-2 py-1 rounded-full ${done ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"}`}>
                         {done ? "Done" : "Pending"}
                       </span>

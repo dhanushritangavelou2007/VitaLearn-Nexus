@@ -64,14 +64,19 @@ export function riskToStatus(risk) {
 
 /**
  * Calculates vaccination progress percentage.
+ * Supports both legacy string arrays and new object arrays.
  *
- * @param {string[]} completedVaccinations - Array of completed vaccine names.
+ * @param {Array} completedVaccinations - Array of vaccine name strings or objects.
  * @returns {{ completed: number, total: number, percent: number }}
  */
 export function getVaccinationProgress(completedVaccinations = []) {
-  const validCompleted = (completedVaccinations || []).filter(
-    (v) => v && REQUIRED_VACCINATIONS.includes(v)
-  );
+  const names = (completedVaccinations || []).map((v) => {
+    if (!v) return null;
+    if (typeof v === "string") return v;
+    return v.status === "completed" ? v.name : null;
+  }).filter(Boolean);
+
+  const validCompleted = names.filter((v) => REQUIRED_VACCINATIONS.includes(v));
   const completed = Math.min(validCompleted.length, TOTAL_VACCINATIONS);
   const percent = Math.round((completed / TOTAL_VACCINATIONS) * 100);
   return { completed, total: TOTAL_VACCINATIONS, percent };

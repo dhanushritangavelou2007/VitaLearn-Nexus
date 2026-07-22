@@ -29,8 +29,14 @@ function ParentNotifications() {
   const userId = user?.id || user?._id || "parent-default";
   // Notifications explicitly addressed to this parent (role=parent)
   const notifications = getNotificationsForUser(userId, "parent");
-  // Reviewed reports from the server-scoped list (includes teacher-initiated reviews)
-  const reviewedReports = allReports.filter((r) => r.status === "reviewed");
+  // Reviewed reports scoped to this parent's child only
+  // (server already scopes via listReportsForUser, but guard client-side too)
+  const reviewedReports = allReports.filter(
+    (r) => r.status === "reviewed" && (
+      r.senderId === userId ||
+      notifications.some((n) => n.reportId === r.id)
+    )
+  );
 
   const [selectedReport, setSelectedReport] = useState(null);
   const unreadCount = notifications.filter((n) => !n.read).length;

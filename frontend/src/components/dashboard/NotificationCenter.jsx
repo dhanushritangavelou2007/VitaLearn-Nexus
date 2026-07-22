@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Check, Stethoscope, Clock } from "lucide-react";
+import { Bell, Check, Stethoscope, Clock, Syringe } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
 import { getRecentActivity } from "../../utils/studentAnalytics";
 import { useMedicalReports } from "../../context/MedicalReportsContext";
@@ -35,14 +35,17 @@ function NotificationCenter() {
     }));
   }, [students, role]);
 
+  // Vaccination notifications for teachers (from doctorNotifications filtered by type)
+  // These are already included in doctorNotifications — no separate variable needed.
+  // The type detection below in allNotifications handles the icon differentiation.
+
   const allNotifications = useMemo(() => {
-    // Doctor notifications: rich card style
     const doctorItems = doctorNotifications.map((n) => ({
       id: n.id,
       title: n.message,
       message: n.date,
       unread: !n.read,
-      type: "doctor",
+      type: n.metadata?.type === "vaccination-pending" ? "vaccination" : "doctor",
       raw: n,
     }));
     return [...doctorItems, ...activityNotifications];
@@ -112,11 +115,13 @@ function NotificationCenter() {
                 }`}
               >
                 <div className={`mt-0.5 h-8 w-8 rounded-xl flex items-center justify-center shrink-0 ${
-                  item.type === "doctor"
+                  item.type === "vaccination"
+                    ? item.unread ? "bg-amber-100 text-amber-600" : "bg-slate-100 text-slate-500"
+                    : item.type === "doctor"
                     ? item.unread ? "bg-emerald-100 text-emerald-600" : "bg-slate-100 text-slate-500"
                     : "bg-blue-100 text-blue-600"
                 }`}>
-                  {item.type === "doctor" ? <Stethoscope size={14} /> : <Check size={14} />}
+                  {item.type === "vaccination" ? <Syringe size={14} /> : item.type === "doctor" ? <Stethoscope size={14} /> : <Check size={14} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className={`text-sm font-semibold truncate ${item.unread ? "text-slate-800" : "text-slate-600"}`}>

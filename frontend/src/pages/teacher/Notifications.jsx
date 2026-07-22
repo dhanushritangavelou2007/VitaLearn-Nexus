@@ -14,7 +14,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import GlassCard from "../../components/ui/GlassCard";
-import { Bell, CheckCircle2, Clock, Stethoscope, ChevronLeft, InboxIcon, MessageSquare } from "lucide-react";
+import { Bell, CheckCircle2, Clock, Stethoscope, ChevronLeft, InboxIcon, MessageSquare, Syringe, AlertCircle } from "lucide-react";
 import { useMedicalReports } from "../../context/MedicalReportsContext";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -24,7 +24,14 @@ function TeacherNotifications() {
   const { getNotificationsForUser, getReportsForSender, markNotificationRead } = useMedicalReports();
 
   const userId = user?.id || user?._id || "teacher-default";
-  const notifications = getNotificationsForUser(userId, "teacher");
+  const allNotifications = getNotificationsForUser(userId, "teacher");
+  // Split into doctor-response and vaccination notifications
+  const notifications = allNotifications.filter(
+    (n) => n.type !== "vaccination-pending" && n.metadata?.type !== "vaccination-pending"
+  );
+  const vaccinationNotifications = allNotifications.filter(
+    (n) => n.type === "vaccination-pending" || n.metadata?.type === "vaccination-pending"
+  );
   const myReports = getReportsForSender(userId, "teacher");
   const reviewedReports = myReports.filter((r) => r.status === "reviewed");
 
@@ -36,7 +43,7 @@ function TeacherNotifications() {
     if (report) setSelectedReport(report);
   };
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = allNotifications.filter((n) => !n.read).length;
 
   return (
     <DashboardLayout>
@@ -60,6 +67,63 @@ function TeacherNotifications() {
             </span>
           )}
         </div>
+
+        {/* Vaccination Notifications */}
+        {vaccinationNotifications.length > 0 && (
+          <GlassCard className="p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="rounded-2xl bg-amber-50 p-2.5 text-amber-600">
+                <Syringe size={20} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">Vaccination Alerts</h2>
+                <p className="text-sm text-slate-500">Students with pending or upcoming vaccinations</p>
+              </div>
+            </div>
+            <div className="space-y-3">
+              {vaccinationNotifications.map((notif) => (
+                <div
+                  key={notif.id}
+                  className={`rounded-2xl border p-4 flex items-start gap-4 ${
+                    notif.read ? "border-slate-100 bg-white" : "border-amber-200 bg-amber-50"
+                  }`}
+                >
+                  <div className={`mt-0.5 h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
+                    notif.read ? "bg-slate-100 text-slate-500" : "bg-amber-100 text-amber-600"
+                  }`}>
+                    <Syringe size={16} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-sm ${notif.read ? "text-slate-700" : "text-amber-800"}`}>
+                      {notif.message}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-1.5">
+                      {notif.metadata?.studentName && (
+                        <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
+                          Student: {notif.metadata.studentName}
+                        </span>
+                      )}
+                      {notif.metadata?.vaccinationName && (
+                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+                          Vaccine: {notif.metadata.vaccinationName}
+                        </span>
+                      )}
+                      {notif.metadata?.dueDate && notif.metadata.dueDate !== "Not scheduled" && (
+                        <span className="text-xs bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                          <AlertCircle size={9} /> Due: {notif.metadata.dueDate}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+                      <Clock size={10} /> {notif.date}
+                    </p>
+                  </div>
+                  {!notif.read && <span className="shrink-0 h-2.5 w-2.5 rounded-full bg-amber-500 mt-2" />}
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        )}
 
         {/* Notifications list */}
         <GlassCard className="p-6">
