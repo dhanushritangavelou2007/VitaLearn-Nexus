@@ -82,6 +82,14 @@ app.use("/dashboard", dashboardRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/notifications", notificationRoutes);
 
+// Serve static assets if in production or if running a unified build
+const __dirname_resolved = path.resolve();
+app.use(express.static(path.join(__dirname_resolved, "frontend", "dist")));
+
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname_resolved, "frontend", "dist", "index.html"));
+});
+
 app.use(notFound);
 app.use(errorHandler);
 
