@@ -103,16 +103,22 @@ if (fs.existsSync(frontendDistPath)) {
 app.use(notFound);
 app.use(errorHandler);
 
-async function start() {
-  try {
-    await connectDB(process.env.MONGODB_URI);
-    app.listen(PORT, () => {
-      console.log(`VitaLearn Nexus backend running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error("Backend startup failed:", error.message);
-    process.exit(1);
+if (process.env.VERCEL) {
+  // On Vercel, connect DB and export the app (do not call app.listen)
+  connectDB(process.env.MONGODB_URI).catch(console.error);
+} else {
+  async function start() {
+    try {
+      await connectDB(process.env.MONGODB_URI);
+      app.listen(PORT, () => {
+        console.log(`VitaLearn Nexus backend running on port ${PORT}`);
+      });
+    } catch (error) {
+      console.error("Backend startup failed:", error.message);
+      process.exit(1);
+    }
   }
+  start();
 }
 
-start();
+export default app;
