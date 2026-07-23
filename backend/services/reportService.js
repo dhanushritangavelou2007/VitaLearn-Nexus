@@ -149,16 +149,27 @@ export async function createReport(payload, user) {
     status: "pending",
     observation: null,
     observationSentAt: null,
-    aiInsight: {
-      suggestions: payload.severity >= 7 ? "Immediate medical attention required." : "Monitor for 24 hours.",
-      possibleCauses: Array.isArray(payload.symptoms) && payload.symptoms.length > 0 
-        ? payload.symptoms.map(s => `Potential issue related to ${s}`) 
-        : ["General observation"],
-      riskLevel: payload.severity >= 7 ? "critical" : (payload.severity >= 4 ? "review" : "observation"),
-      recommendedAction: payload.severity >= 7 ? "Urgent Doctor Review" : "Rest and hydration",
-      status: "pending"
-    }
   });
+  
+  // Dynamic AI Insight Generation
+  const symptomList = Array.isArray(payload.symptoms) ? payload.symptoms.join(", ") : "";
+  const baseNotes = payload.notes || "No additional notes provided.";
+  
+  const suggestions = payload.severity >= 7 
+    ? `Based on high severity (${payload.severity}/10) and symptoms (${symptomList}), immediate medical review is recommended. ${baseNotes}`
+    : `Symptoms include ${symptomList || "general observations"}. ${baseNotes} Monitor the situation closely.`;
+
+  report.aiInsight = {
+    suggestions: suggestions,
+    possibleCauses: Array.isArray(payload.symptoms) && payload.symptoms.length > 0 
+      ? payload.symptoms.map(s => `Condition related to ${s}`) 
+      : ["General observation", "Routine check"],
+    riskLevel: payload.severity >= 7 ? "critical" : (payload.severity >= 4 ? "review" : "observation"),
+    recommendedAction: payload.severity >= 7 ? "Urgent clinical diagnosis required" : "Rest, hydration, and observation",
+    status: "pending"
+  };
+  
+  await report.save();
 
   // Notifications logic
   const UserRepo = getRepository("User");

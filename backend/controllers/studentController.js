@@ -32,17 +32,51 @@ export const updateStudentAppointments = asyncHandler(async (req, res, next) => 
   const student = await repo.findById(req.params.id);
   if (!student) return next(new AppError("Student not found", 404));
 
-  const { appointmentId, status, consent } = req.body;
-  const appointments = (student.appointments || []).map((item) =>
-    item.id === appointmentId
-      ? {
-          ...item,
-          status: status || item.status,
-          consent: consent || item.consent,
-          confirmedAt: status === "confirmed" || consent === "accepted" ? new Date().toISOString() : item.confirmedAt,
+  const { appointmentId, status, consent, newAppointment } = req.body;
+  let appointments = student.appointments || [];
+
+  if (newAppointment) {
+    const newId = `apt-${Date.now()}`;
+    appointments.push({
+      id: newId,
+      scheduledAt: newAppointment.scheduledAt,
+      status: "pending",
+      consent: "pending",
+      notes: newAppointment.notes || "",
+      createdBy: "doctor",
+      createdAt: new Date().toISOString()
+    });
+
+    const UserRepo = getRepository("User");
+    const parentUser = (await UserRepo.find({ role: "parent" })).find(
+      (u) => u.email === student.parent?.email || u.email === "parent@vitalearn.ai"
+    );
+
+    if (parentUser) {
+      await createNotification({
+        recipient: parentUser._id || parentUser.id,
+        title: `New Appointment Scheduled`,
+        message: `Dr. has scheduled a follow-up appointment for ${student.name}.`,
+        type: "appointment-created",
+        metadata: { 
+          studentId: String(student._id || student.id),
+          appointmentId: newId,
+          recipientRole: "parent"
         }
-      : item
-  );
+      });
+    }
+  } else if (appointmentId) {
+    appointments = appointments.map((item) =>
+      item.id === appointmentId
+        ? {
+            ...item,
+            status: status || item.status,
+            consent: consent || item.consent,
+            confirmedAt: status === "confirmed" || consent === "accepted" ? new Date().toISOString() : item.confirmedAt,
+          }
+        : item
+    );
+  }
 
   const updated = await repo.findByIdAndUpdate(req.params.id, { appointments });
 

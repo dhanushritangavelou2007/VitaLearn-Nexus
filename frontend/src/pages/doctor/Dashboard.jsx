@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import api from "../../services/api";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
@@ -20,6 +21,7 @@ import {
   ChevronLeft,
   Clock,
   CheckCircle2,
+  Calendar,
   User,
   MessageSquare,
   InboxIcon,
@@ -61,6 +63,10 @@ function ReportDetailPanel({ report, onBack, onSend }) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(report.status === "reviewed");
   const [aiStatus, setAiStatus] = useState(report.aiInsight?.status || "pending");
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [scheduleForm, setScheduleForm] = useState({ date: "", time: "", notes: "" });
+  const [scheduling, setScheduling] = useState(false);
+  const [scheduleSuccess, setScheduleSuccess] = useState(false);
 
   const handleAcceptAi = () => {
     if (!report.aiInsight) return;
@@ -101,6 +107,23 @@ function ReportDetailPanel({ report, onBack, onSend }) {
       setSent(true);
       setSending(false);
     }, 900);
+  };
+
+  const handleScheduleAppointment = async () => {
+    if (!scheduleForm.date || !scheduleForm.time) return;
+    setScheduling(true);
+    try {
+      const scheduledAt = new Date(`${scheduleForm.date}T${scheduleForm.time}`).toISOString();
+      await api.patch(`/students/${report.studentId}/appointments`, {
+        newAppointment: { scheduledAt, notes: scheduleForm.notes }
+      });
+      setScheduleSuccess(true);
+      setShowScheduleForm(false);
+    } catch (err) {
+      console.error("Failed to schedule appointment:", err);
+    } finally {
+      setScheduling(false);
+    }
   };
 
   const roleBadge = ROLE_BADGE[report.senderRole] || "bg-slate-100 text-slate-700 border-slate-200";
@@ -371,15 +394,59 @@ function ReportDetailPanel({ report, onBack, onSend }) {
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 mt-2">
-              <button
-                onClick={handleSend}
-                disabled={!form.observation.trim() || sending}
-                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-50"
-              >
-                <Send size={15} />
-                {sending ? "Dispatching…" : "Approve and Send Review"}
-              </button>
+            <div className="flex flex-col gap-4 mt-6">
+              {/* Appointment Scheduling Block */}
+              {showScheduleForm ? (
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                  <h4 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                    <Calendar size={16} className="text-blue-600" /> Schedule Follow-up Appointment
+                  </h4>
+                  <div className="grid gap-3 sm:grid-cols-2 mb-3">
+                    <div>
+                      <label className="text-xs font-semibold text-slate-600 mb-1 block">Date</label>
+                      <input type="date" value={scheduleForm.date} onChange={(e) => setScheduleForm({...scheduleForm, date: e.target.value})} className="w-full rounded-lg border border-slate-200 p-2 text-sm outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-slate-600 mb-1 block">Time</label>
+                      <input type="time" value={scheduleForm.time} onChange={(e) => setScheduleForm({...scheduleForm, time: e.target.value})} className="w-full rounded-lg border border-slate-200 p-2 text-sm outline-none" />
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <label className="text-xs font-semibold text-slate-600 mb-1 block">Notes for Parent</label>
+                    <input type="text" value={scheduleForm.notes} onChange={(e) => setScheduleForm({...scheduleForm, notes: e.target.value})} placeholder="e.g. Please bring the latest blood test reports" className="w-full rounded-lg border border-slate-200 p-2 text-sm outline-none" />
+                  </div>
+                  <div className="flex gap-2 justify-end mt-2">
+                    <button onClick={() => setShowScheduleForm(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200 rounded-lg transition-colors">Cancel</button>
+                    <button onClick={handleScheduleAppointment} disabled={!scheduleForm.date || !scheduleForm.time || scheduling} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2">
+                      {scheduling ? "Scheduling..." : "Confirm Appointment"}
+                    </button>
+                  </div>
+                </div>
+              ) : scheduleSuccess ? (
+                <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-700 flex items-center gap-2">
+                  <CheckCircle2 size={16} /> Appointment scheduled and parent notified.
+                </div>
+              ) : null}
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 mt-2">
+                {!showScheduleForm && !scheduleSuccess && (
+                  <button
+                    onClick={() => setShowScheduleForm(true)}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    <Calendar size={15} /> Schedule Appointment
+                  </button>
+                )}
+                <button
+                  onClick={handleSend}
+                  disabled={!form.observation.trim() || sending}
+                  className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-50"
+                >
+                  <Send size={15} />
+                  {sending ? "Dispatching…" : "Approve and Send Review"}
+                </button>
+              </div>
             </div>
           </div>
         )}
