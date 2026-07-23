@@ -43,7 +43,10 @@ if (!process.env.JWT_SECRET) {
 configureCloudinary(process.env);
 
 app.use(helmet());
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+app.use(cors({ 
+  origin: true, 
+  credentials: true 
+}));
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
