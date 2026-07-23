@@ -1,4 +1,5 @@
 import path from "node:path";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 
@@ -85,11 +86,19 @@ app.use("/notifications", notificationRoutes);
 
 // Serve static assets if in production or if running a unified build
 const __dirname_resolved = path.resolve();
-app.use(express.static(path.join(__dirname_resolved, "frontend", "dist")));
+const frontendDistPath = path.join(__dirname_resolved, "frontend", "dist");
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname_resolved, "frontend", "dist", "index.html"));
-});
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  app.use((req, res) => {
+    res.sendFile(path.join(frontendDistPath, "index.html"));
+  });
+} else {
+  // If running as a standalone API (e.g. on Vercel)
+  app.get("/", (req, res) => {
+    res.json({ message: "VitaLearn Nexus API is running." });
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);
