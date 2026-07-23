@@ -34,8 +34,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 
-if (!process.env.JWT_SECRET || !String(process.env.JWT_SECRET).trim()) {
-  throw new Error("JWT_SECRET is missing in the .env file.");
+// Removed strict JWT_SECRET check to allow seamless hackathon deployment without env setup
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = "VitalearnSuperSecretKey2026";
 }
 
 configureCloudinary(process.env);
