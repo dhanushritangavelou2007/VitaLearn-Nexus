@@ -39,6 +39,7 @@ function StudentReportSymptoms() {
   const [temperature, setTemperature] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [notes, setNotes] = useState("");
+  const [shareWithParents, setShareWithParents] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -84,6 +85,7 @@ function StudentReportSymptoms() {
         temperature,
         date,
         notes,
+        shareWithParents,
       });
 
       setSubmitted(true);
@@ -306,13 +308,27 @@ function StudentReportSymptoms() {
             </div>
           </div>
 
-          {/* Privacy notice */}
-          <div className="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 flex items-start gap-3">
-            <HeartPulse size={16} className="text-blue-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-blue-700 leading-relaxed">
-              <span className="font-semibold">Privacy protected.</span> This report is sent exclusively to the school doctor. 
-              Teachers and other staff cannot access its contents. The doctor will review and send you a personal observation.
-            </p>
+          {/* Privacy notice and controls */}
+          <div className="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 space-y-3">
+            <div className="flex items-start gap-3">
+              <HeartPulse size={16} className="text-blue-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-blue-700 leading-relaxed">
+                <span className="font-semibold">Privacy protected.</span> This report is sent exclusively to the school doctor. 
+                Teachers and other staff cannot access its contents. The doctor will review and send you a personal observation.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 pt-2 border-t border-blue-200/50 mt-2">
+              <input
+                type="checkbox"
+                id="shareWithParents"
+                checked={shareWithParents}
+                onChange={(e) => setShareWithParents(e.target.checked)}
+                className="w-4 h-4 rounded text-blue-600 border-blue-300 focus:ring-blue-500 cursor-pointer"
+              />
+              <label htmlFor="shareWithParents" className="text-sm font-semibold text-blue-900 cursor-pointer">
+                Share this report and the doctor's diagnosis with my parents
+              </label>
+            </div>
           </div>
 
           {/* Actions */}

@@ -57,11 +57,11 @@ function normalizeVacc(v) {
 }
 
 /**
- * Downloads a comprehensive, professional Student Health Passport PDF.
+ * Downloads or prints a comprehensive, professional Student Health Passport PDF.
  * Includes: student photo (if available), all personal details, parent/emergency
  * contact, vaccination history with dates, and a detailed medical condition section.
  */
-export function downloadProfessionalPassport(student, aiSummary, reportType = "passport") {
+export function downloadProfessionalPassport(student, aiSummary, reportType = "passport", action = "download") {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageW = 210;
   const margin = 14;
@@ -229,7 +229,8 @@ export function downloadProfessionalPassport(student, aiSummary, reportType = "p
   divider();
 
   // ── Section 6: Medical Condition (Detailed) ──────────────────
-  sectionHeader("6. Medical Condition — Detailed Clinical Record", [220, 38, 38]);
+  if (reportType !== "passport") {
+    sectionHeader("6. Medical Condition — Detailed Clinical Record", [220, 38, 38]);
 
   const conditions = (student.medicalConditions || []).filter((c) => c && c !== "None");
   field("Current Diagnosed Condition(s)", conditions.length > 0 ? conditions.join(", ") : "No active conditions");
@@ -247,31 +248,32 @@ export function downloadProfessionalPassport(student, aiSummary, reportType = "p
   field("Risk Classification", student.risk ? student.risk.charAt(0).toUpperCase() + student.risk.slice(1) : "N/A");
   field("Health Score", student.healthScore ? `${student.healthScore}/100` : "N/A");
   field("Last Updated", student.lastUpdate || "N/A");
-  field("Last Updated By", student.reviewedByName || student.updatedByName || "School Health System");
-  divider();
+    field("Last Updated By", student.reviewedByName || student.updatedByName || "School Health System");
+    divider();
 
-  // ── Section 7: AI Health Summary ─────────────────────────────
-  sectionHeader("7. AI Health Summary", [99, 102, 241]);
-  checkPage(10);
-  doc.setFontSize(9);
-  doc.setTextColor(71, 85, 105);
-  const summaryText = student.perfectSummary || aiSummary || "No AI summary available.";
-  const summaryLines = doc.splitTextToSize(summaryText, contentW - 6);
-  summaryLines.forEach((line) => {
-    checkPage(7);
-    doc.text(line, margin + 3, y);
-    y += 6;
-  });
-  divider();
-
-  // ── Section 8: Recent Reports ────────────────────────────────
-  if (student.reports && student.reports.length > 0) {
-    sectionHeader("8. Recent Medical Reports", [71, 85, 105]);
-    student.reports.forEach((r) => {
-      checkPage(8);
-      field(`${r.date || "N/A"} — ${r.type || "Report"}`, r.status || "N/A");
+    // ── Section 7: AI Health Summary ─────────────────────────────
+    sectionHeader("7. AI Health Summary", [99, 102, 241]);
+    checkPage(10);
+    doc.setFontSize(9);
+    doc.setTextColor(71, 85, 105);
+    const summaryText = student.perfectSummary || aiSummary || "No AI summary available.";
+    const summaryLines = doc.splitTextToSize(summaryText, contentW - 6);
+    summaryLines.forEach((line) => {
+      checkPage(7);
+      doc.text(line, margin + 3, y);
+      y += 6;
     });
     divider();
+
+    // ── Section 8: Recent Reports ────────────────────────────────
+    if (student.reports && student.reports.length > 0) {
+      sectionHeader("8. Recent Medical Reports", [71, 85, 105]);
+      student.reports.forEach((r) => {
+        checkPage(8);
+        field(`${r.date || "N/A"} — ${r.type || "Report"}`, r.status || "N/A");
+      });
+      divider();
+    }
   }
 
   // ── Footer ───────────────────────────────────────────────────
@@ -288,11 +290,16 @@ export function downloadProfessionalPassport(student, aiSummary, reportType = "p
     doc.text(`Page ${p} of ${totalPages}`, pageW - margin, 290, { align: "right" });
   }
 
-  const filename = reportType === "medical"
-    ? `VitaLearn-MedicalReport-${student.rollNo || student.id}.pdf`
-    : `VitaLearn-Passport-${student.rollNo || student.id}.pdf`;
-
-  doc.save(filename);
+  if (action === "print") {
+    doc.autoPrint();
+    const blob = doc.output("bloburl");
+    window.open(blob, "_blank");
+  } else {
+    const filename = reportType === "medical"
+      ? `VitaLearn-MedicalReport-${student.rollNo || student.id}.pdf`
+      : `VitaLearn-Passport-${student.rollNo || student.id}.pdf`;
+    doc.save(filename);
+  }
 }
 
 /**

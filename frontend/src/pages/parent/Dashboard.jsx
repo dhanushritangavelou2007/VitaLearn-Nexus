@@ -5,6 +5,7 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
 import HealthAreaChart from "../../components/charts/HealthAreaChart";
 import VaccinationProgressRing from "../../components/charts/VaccinationProgressRing";
+import VaccinationCard from "../../components/profile/VaccinationCard";
 import GlassCard from "../../components/ui/GlassCard";
 import {
   Bell, HeartPulse, ShieldCheck, Syringe, Stethoscope,
@@ -431,39 +432,7 @@ function ParentDashboard() {
             </GlassCard>
 
             {/* Completed Vaccine Records */}
-            <GlassCard className="p-6">
-              <h2 className="text-lg font-bold text-slate-800 mb-5">Vaccination Records</h2>
-              <div className="space-y-3">
-                {REQUIRED_VACCINATIONS.map((vaccine) => {
-                  const vaccObj = (child.vaccinations || []).find(
-                    (v) => (typeof v === "string" ? v : v?.name) === vaccine
-                  );
-                  const done = vaccObj
-                    ? (typeof vaccObj === "string" || vaccObj.status === "completed")
-                    : false;
-                  const vaccDate = vaccObj && typeof vaccObj === "object" ? vaccObj.date : null;
-                  return (
-                    <div
-                      key={vaccine}
-                      className={`flex items-center gap-3 rounded-2xl border p-4 ${
-                        done ? "border-emerald-100 bg-emerald-50/50" : "border-rose-100 bg-rose-50/50"
-                      }`}
-                    >
-                      <div className={`rounded-full p-2 ${done ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-500"}`}>
-                        <ShieldCheck size={16} />
-                      </div>
-                      <div>
-                        <span className={`font-semibold block ${done ? "text-emerald-800" : "text-rose-700"}`}>{vaccine}</span>
-                        {vaccDate && <span className="text-xs text-slate-400">{vaccDate}</span>}
-                      </div>
-                      <span className={`ml-auto text-xs font-bold px-3 py-1 rounded-full ${done ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-600"}`}>
-                        {done ? "✓ Complete" : "Pending"}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </GlassCard>
+            <VaccinationCard student={child} />
           </div>
         )}
 

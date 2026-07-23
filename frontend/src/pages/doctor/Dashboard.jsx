@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
@@ -60,6 +60,30 @@ function ReportDetailPanel({ report, onBack, onSend }) {
   });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(report.status === "reviewed");
+  const [aiStatus, setAiStatus] = useState(report.aiInsight?.status || "pending");
+
+  const handleAcceptAi = () => {
+    if (!report.aiInsight) return;
+    setAiStatus("accepted");
+    setForm({
+      observation: report.aiInsight.suggestions || "",
+      diagnosis: report.aiInsight.possibleCauses?.join(", ") || "",
+      doctorReview: "AI Insight accepted. Risk level: " + (report.aiInsight.riskLevel || "unknown"),
+      recommendation: report.aiInsight.recommendedAction || "",
+      prescription: "",
+    });
+  };
+
+  const handleRejectAi = () => {
+    setAiStatus("rejected");
+    setForm({
+      observation: "",
+      diagnosis: "",
+      doctorReview: "",
+      recommendation: "",
+      prescription: "",
+    });
+  };
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
@@ -95,22 +119,41 @@ function ReportDetailPanel({ report, onBack, onSend }) {
         <ChevronLeft size={16} /> Back to All Reports
       </button>
 
-      {/* Header card */}
+      {/* Sender Card */}
       <GlassCard className="p-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 shrink-0">
+            <div className={`flex h-12 w-12 items-center justify-center rounded-2xl shrink-0 ${report.senderRole === "student" ? "bg-emerald-100 text-emerald-600" : report.senderRole === "parent" ? "bg-blue-100 text-blue-600" : "bg-purple-100 text-purple-600"}`}>
               <User size={22} />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-slate-800">{report.senderName}</h2>
-              <div className="mt-1 flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 mb-1">
+                <h2 className="text-xl font-bold text-slate-800">
+                  {report.senderRole === "student" ? "Submitted by Student: " : "Submitted by: "}
+                  {report.senderName}
+                </h2>
                 <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${roleBadge}`}>
                   {roleLabel}
                 </span>
-                <span className="text-xs text-slate-400">Report ID: {report.id}</span>
               </div>
-              <p className="mt-1.5 text-xs text-slate-400">Submitted {submitted}</p>
+              <div className="space-y-1 mt-2">
+                {report.senderRole !== "student" && (
+                  <p className="text-sm text-slate-600">
+                    <span className="font-semibold">Patient (Student):</span> {report.notes?.match(/\[Re:\s([^\]]+)\]/)?.[1] || "Student ID " + report.studentId}
+                  </p>
+                )}
+                {report.senderRole === "parent" && (
+                  <p className="text-sm text-slate-600">
+                    <span className="font-semibold">Relationship:</span> Parent/Guardian
+                  </p>
+                )}
+                <p className="text-xs text-slate-400">
+                  <span className="font-semibold">Report ID:</span> {report.id}
+                </p>
+                <p className="text-xs text-slate-400">
+                  <span className="font-semibold">Time:</span> {submitted}
+                </p>
+              </div>
             </div>
           </div>
           <StatusBadge status={report.status} />
@@ -164,6 +207,57 @@ function ReportDetailPanel({ report, onBack, onSend }) {
           </div>
         )}
       </GlassCard>
+
+      {/* AI Medical Insight */}
+      {!sent && report.aiInsight && (
+        <GlassCard className={`p-6 border-2 transition-colors ${aiStatus === "accepted" ? "border-emerald-200" : aiStatus === "rejected" ? "border-slate-200" : "border-purple-200"}`}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className={`rounded-xl p-2 ${aiStatus === "accepted" ? "bg-emerald-50 text-emerald-600" : aiStatus === "rejected" ? "bg-slate-50 text-slate-400" : "bg-purple-50 text-purple-600"}`}>
+                <Activity size={16} />
+              </div>
+              <h3 className="font-bold text-slate-800">AI Medical Insight</h3>
+            </div>
+            {aiStatus !== "pending" && (
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${aiStatus === "accepted" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+                {aiStatus === "accepted" ? "Insight Accepted" : "Insight Rejected"}
+              </span>
+            )}
+          </div>
+          
+          {aiStatus !== "rejected" ? (
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-xl bg-purple-50/50 p-4 border border-purple-100/50">
+                  <p className="text-xs font-semibold text-purple-500 uppercase tracking-wider mb-1.5">Possible Causes</p>
+                  <p className="text-sm font-medium text-slate-700">{report.aiInsight.possibleCauses?.join(", ") || "None identified"}</p>
+                </div>
+                <div className="rounded-xl bg-purple-50/50 p-4 border border-purple-100/50">
+                  <p className="text-xs font-semibold text-purple-500 uppercase tracking-wider mb-1.5">Recommended Action</p>
+                  <p className="text-sm font-medium text-slate-700">{report.aiInsight.recommendedAction || "Consult doctor"}</p>
+                </div>
+              </div>
+              <div className="rounded-xl bg-purple-50/50 p-4 border border-purple-100/50">
+                <p className="text-xs font-semibold text-purple-500 uppercase tracking-wider mb-1.5">Clinical Suggestions</p>
+                <p className="text-sm text-slate-700 leading-relaxed">{report.aiInsight.suggestions || "No suggestions available"}</p>
+              </div>
+              
+              {aiStatus === "pending" && (
+                <div className="flex items-center gap-3 pt-2">
+                  <button onClick={handleAcceptAi} className="flex-1 rounded-xl bg-purple-600 hover:bg-purple-700 text-white py-2.5 text-sm font-semibold transition-colors">
+                    Accept & Auto-fill
+                  </button>
+                  <button onClick={handleRejectAi} className="flex-1 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-2.5 text-sm font-semibold transition-colors">
+                    Reject Insight
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500 italic">AI Insight was rejected. Please proceed with a manual clinical review.</p>
+          )}
+        </GlassCard>
+      )}
 
       {/* Doctor's Clinical Review Form */}
       <GlassCard className="p-6">
@@ -364,10 +458,29 @@ function ReportsPanel({ onSelectReport }) {
 /* ─── Main Doctor Dashboard ─────────────────────────────────── */
 function DoctorDashboard() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { students, calculateDashboardStats, loading, error, refreshStudents } = useStudents();
   const { sendObservation, allReports } = useMedicalReports();
 
   const [selectedReport, setSelectedReport] = useState(null);
+
+  // If navigating from Appointments to Diagnosis with a specific student
+  useEffect(() => {
+    if (location.pathname.includes("diagnosis") && location.state?.directDiagnoseStudent) {
+      const s = location.state.directDiagnoseStudent;
+      setSelectedReport({
+        id: `mock-${s.id}`, // Mock ID
+        studentId: s.id,
+        senderName: "Direct Appointment",
+        senderRole: "admin",
+        status: "pending",
+        symptoms: s.symptoms || [],
+        notes: "Direct diagnosis from appointments tab.",
+      });
+      // Clear state so it doesn't re-trigger on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.pathname, location.state]);
 
   const reviewStudents = students.filter((s) => s.risk === "high" || s.risk === "critical");
   const stats = calculateDashboardStats();
@@ -626,10 +739,19 @@ function DoctorDashboard() {
                       <td className="px-6 py-4 text-sm text-slate-600">
                         {student.medicalConditions?.join(", ") || "None"}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 flex items-center gap-3">
                         <a href={`/passport/${student.id}`} className="text-blue-600 hover:underline text-sm font-medium">
-                          Review Passport
+                          Passport
                         </a>
+
+                        <button
+                          onClick={() => {
+                            navigate("/doctor/diagnosis", { state: { directDiagnoseStudent: student } });
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-xs transition-colors"
+                        >
+                          Diagnose
+                        </button>
                       </td>
                     </tr>
                   ))}

@@ -7,6 +7,7 @@ import HealthAreaChart from "../../components/charts/HealthAreaChart";
 import RiskBarChart from "../../components/charts/RiskBarChart";
 import CircularProgress from "../../components/charts/CircularProgress";
 import VaccinationProgressRing from "../../components/charts/VaccinationProgressRing";
+import VaccinationCard from "../../components/profile/VaccinationCard";
 import GlassCard from "../../components/ui/GlassCard";
 import { Activity, HeartPulse, ShieldCheck, Award, Syringe, Bell, Stethoscope, CheckCircle2, Clock, Download, FileText } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
@@ -131,34 +132,55 @@ function StudentDashboard() {
             bg="bg-slate-700"
           />
           <DashboardCard
-            title="Blood Pressure"
-            value={currentStudent.vitals?.bloodPressure || "N/A"}
-            subtitle="mmHg"
-            icon={HeartPulse}
-            color="text-rose-600"
-            bg="bg-rose-500"
-          />
-          <DashboardCard
-            title="Temperature"
-            value={
-              currentStudent.vitals?.temperature
-                ? `${currentStudent.vitals.temperature}°F`
-                : "N/A"
-            }
-            subtitle="Current"
+            title="Attendance"
+            value={currentStudent.attendance || "N/A"}
+            subtitle="Overall"
             icon={ShieldCheck}
             color="text-blue-600"
             bg="bg-blue-500"
           />
+          <DashboardCard
+            title="Risk Level"
+            value={currentStudent.risk ? currentStudent.risk.charAt(0).toUpperCase() + currentStudent.risk.slice(1) : "Healthy"}
+            subtitle="Current status"
+            icon={Activity}
+            color="text-amber-600"
+            bg="bg-amber-500"
+          />
         </div>
 
-        {/* ── Secondary Metrics Row ──────────────────────── */}
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          <DashboardCard title="Activity Level"    value="High"                          subtitle="Active 60m today"  icon={Activity}    color="text-orange-500" bg="bg-orange-500" />
-          <DashboardCard title="Attendance"        value={currentStudent.attendance || "N/A"} subtitle="Overall"      icon={ShieldCheck} color="text-amber-500"  bg="bg-amber-500"  />
-          <DashboardCard title="Sleep Duration"    value="8h 15m"                        subtitle="Last night"        icon={ShieldCheck} color="text-indigo-500" bg="bg-indigo-500" />
-          <DashboardCard title="My Goals"          value="3/5"                           subtitle="Goals completed"   icon={Award}       color="text-purple-500" bg="bg-purple-500" />
-        </div>
+        {/* ── Doctor's Suggestions & Care Plan ──────────────── */}
+        {isMainDashboard && (currentStudent.doctorNotes || currentStudent.medicalConditions?.length > 0) && (
+          <GlassCard className="p-6 border-l-4 border-l-indigo-500">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="rounded-2xl bg-indigo-50 p-2.5 text-indigo-600">
+                <Stethoscope size={20} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-slate-800">Doctor's Suggestions & Care Plan</h2>
+                <p className="text-sm text-slate-500">Clinical notes and ongoing instructions from your doctor</p>
+              </div>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="rounded-2xl bg-slate-50 p-5 border border-slate-100">
+                <h3 className="text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Active Conditions</h3>
+                {currentStudent.medicalConditions?.length > 0 ? (
+                  <ul className="list-disc list-inside text-sm text-slate-600 space-y-1">
+                    {currentStudent.medicalConditions.map(c => <li key={c}>{c}</li>)}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-slate-500">No active conditions</p>
+                )}
+              </div>
+              <div className="rounded-2xl bg-indigo-50/50 p-5 border border-indigo-100">
+                <h3 className="text-sm font-bold text-indigo-900 mb-2 uppercase tracking-wider">Clinical Notes & Recommendations</h3>
+                <p className="text-sm text-indigo-800 leading-relaxed whitespace-pre-wrap">
+                  {currentStudent.doctorNotes || "No specific instructions at this time. Maintain healthy habits!"}
+                </p>
+              </div>
+            </div>
+          </GlassCard>
+        )}
 
         {/* ── Main Passport Panel ─────────────────────────── */}
         {isMainDashboard && (
@@ -495,39 +517,7 @@ function StudentDashboard() {
             </GlassCard>
 
             {/* Completed Records */}
-            <GlassCard className="p-6">
-              <h2 className="text-lg font-bold text-slate-800 mb-5">Vaccination Records</h2>
-              <div className="space-y-3">
-                {REQUIRED_VACCINATIONS.map((vaccine) => {
-                  const done = vaccNames.includes(vaccine);
-                  const vaccObj = (currentStudent.vaccinations || []).find(
-                    (v) => (typeof v === "string" ? v : v?.name) === vaccine
-                  );
-                  const vaccDate = vaccObj && typeof vaccObj === "object" ? vaccObj.date : null;
-                  return (
-                    <div
-                      key={vaccine}
-                      className={`flex items-center gap-3 rounded-2xl border p-4 ${
-                        done
-                          ? "border-emerald-100 bg-emerald-50/50"
-                          : "border-rose-100 bg-rose-50/50"
-                      }`}
-                    >
-                      <div className={`rounded-full p-2 ${done ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-500"}`}>
-                        <ShieldCheck size={16} />
-                      </div>
-                      <div>
-                        <span className={`font-semibold block ${done ? "text-emerald-800" : "text-rose-700"}`}>{vaccine}</span>
-                        {vaccDate && <span className="text-xs text-slate-400">{vaccDate}</span>}
-                      </div>
-                      <span className={`ml-auto text-xs font-bold px-2 py-1 rounded-full ${done ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"}`}>
-                        {done ? "Done" : "Pending"}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </GlassCard>
+            <VaccinationCard student={currentStudent} />
           </div>
         )}
 

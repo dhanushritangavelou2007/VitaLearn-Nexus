@@ -6,6 +6,7 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(() => getStoredSession());
   const [authLoading, setAuthLoading] = useState(Boolean(session?.token));
   const restoredTokenRef = useRef(null);
+  const isRestoringRef = useRef(false);
   const loginInFlightRef = useRef(null);
   const sessionToken = session?.token;
   const sessionUser = session?.user;
@@ -14,11 +15,12 @@ export function AuthProvider({ children }) {
     let active = true;
 
     async function restore() {
-      if (!sessionToken || restoredTokenRef.current === sessionToken) {
+      if (!sessionToken || restoredTokenRef.current === sessionToken || isRestoringRef.current) {
         setAuthLoading(false);
         return;
       }
 
+      isRestoringRef.current = true;
       try {
         const user = await fetchCurrentUser();
         if (!active) return;
@@ -31,6 +33,7 @@ export function AuthProvider({ children }) {
         setSession(null);
         clearSession();
       } finally {
+        isRestoringRef.current = false;
         if (active) setAuthLoading(false);
       }
     }
@@ -40,7 +43,7 @@ export function AuthProvider({ children }) {
     return () => {
       active = false;
     };
-  }, [sessionToken, sessionUser]);
+  }, [sessionToken]);
 
   useEffect(() => {
     if (!session) {

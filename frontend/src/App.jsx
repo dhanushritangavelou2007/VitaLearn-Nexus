@@ -77,7 +77,7 @@ function App() {
         <Route path="/students" element={<RoleGuard role={["teacher", "doctor", "admin"]}><Students /></RoleGuard>} />
         <Route path="/create-passport" element={<RoleGuard role="teacher"><CreatePassport /></RoleGuard>} />
         <Route path="/passport/:id" element={<RoleGuard role={["teacher", "doctor", "parent", "student", "admin"]}><StudentProfile /></RoleGuard>} />
-        <Route path="/teacher/report-symptoms" element={<RoleGuard role="teacher"><Students selectionMode="report" /></RoleGuard>} />
+        <Route path="/teacher/report-symptoms" element={<RoleGuard role="teacher"><ReportSymptoms /></RoleGuard>} />
         <Route path="/teacher/report-symptoms/:id" element={<RoleGuard role="teacher"><ReportSymptoms /></RoleGuard>} />
         <Route path="/report-symptoms/:id" element={<RoleGuard role={["teacher", "doctor", "parent"]}><ReportSymptoms /></RoleGuard>} />
         <Route path="/reports" element={<RoleGuard role={["teacher", "doctor", "parent", "student", "admin"]}><Reports /></RoleGuard>} />
@@ -88,11 +88,9 @@ function App() {
         <Route path="/teacher/students" element={<Navigate to="/students" replace />} />
         <Route path="/teacher/create-passport" element={<Navigate to="/create-passport" replace />} />
         <Route path="/teacher/student-profile/:id" element={<LegacyStudentProfileRedirect />} />
-        <Route path="/teacher/report-symptoms/:id" element={<LegacyStudentSymptomRedirect />} />
         <Route path="/teacher/reports" element={<Navigate to="/reports" replace />} />
         <Route path="/students/create-passport" element={<Navigate to="/create-passport" replace />} />
         <Route path="/students/:id" element={<LegacyStudentProfileRedirect />} />
-        <Route path="/students/:id/report-symptoms" element={<LegacyStudentSymptomRedirect />} />
       </Route>
     </Routes>
   );

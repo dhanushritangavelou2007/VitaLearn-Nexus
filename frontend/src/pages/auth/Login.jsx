@@ -17,7 +17,7 @@ function Login() {
   const location = useLocation();
   const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState("teacher@vitalearn.ai");
-  const [password, setPassword] = useState("Teacher@123");
+  const [password, setPassword] = useState("VitaLearn2026!X");
   const [selectedRole, setSelectedRole] = useState("teacher");
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);

@@ -4,7 +4,6 @@ import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import StudentHeader from "../../components/profile/StudentHeader";
 import EmergencyContact from "../../components/profile/EmergencyContact";
 import VaccinationCard from "../../components/profile/VaccinationCard";
-import RecentReports from "../../components/profile/RecentReports";
 import AISummary from "../../components/profile/AISummary";
 import HealthTimeline from "../../components/profile/HealthTimeline";
 import HealthTrendChart from "../../components/charts/HealthTrendChart";
@@ -464,9 +463,8 @@ function StudentProfile() {
               </div>
             </GlassCard>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="mb-6">
               <VaccinationCard student={student} />
-              <RecentReports student={student} />
             </div>
 
             <AISummary summary={aiSummary} />
@@ -508,7 +506,7 @@ function StudentProfile() {
               Add Report
             </button>
           )}
-          <button onClick={() => printElement("passport-page")} className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700">
+          <button onClick={() => downloadProfessionalPassport(student, aiSummary, "passport", "print")} className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700">
             Print Passport
           </button>
         </div>

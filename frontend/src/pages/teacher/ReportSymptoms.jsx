@@ -27,8 +27,10 @@ function ReportSymptoms() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { submitReport } = useMedicalReports();
-  const { getStudentById, fetchStudentById, updateSymptoms, setSelectedStudent, loading } = useStudents();
-  const student = getStudentById(id);
+  const { students, getStudentById, fetchStudentById, updateSymptoms, setSelectedStudent, loading } = useStudents();
+  
+  const [selectedStudentId, setSelectedStudentId] = useState(id || "");
+  const student = getStudentById(selectedStudentId);
 
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [severity, setSeverity] = useState(3);
@@ -41,17 +43,21 @@ function ReportSymptoms() {
 
   useEffect(() => {
     let active = true;
-    if (student) {
-      setSelectedStudent(student);
-      return;
+    if (selectedStudentId) {
+      if (student) {
+        setSelectedStudent(student);
+      } else {
+        fetchStudentById(selectedStudentId).then((record) => {
+          if (active && record) setSelectedStudent(record);
+        });
+      }
+    } else {
+      setSelectedStudent(null);
     }
-    fetchStudentById(id).then((record) => {
-      if (active && record) setSelectedStudent(record);
-    });
     return () => {
       active = false;
     };
-  }, [student, setSelectedStudent, fetchStudentById, id]);
+  }, [student, setSelectedStudent, fetchStudentById, selectedStudentId]);
 
   if (loading && !student) {
     return (
@@ -64,7 +70,7 @@ function ReportSymptoms() {
     );
   }
 
-  if (!student) {
+  if (!student && id) {
     return (
       <DashboardLayout>
         <div className="max-w-3xl mx-auto rounded-3xl bg-white/70 backdrop-blur-xl border border-white p-8 shadow-sm">
@@ -223,152 +229,178 @@ function ReportSymptoms() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-full overflow-hidden border border-slate-200 shadow-inner">
-                <img src={getStudentAvatar(student)} alt={student.name} className="h-full w-full object-cover" />
+            {!id && (
+              <div className="w-full mb-2">
+                <label className="text-sm font-semibold text-slate-700 block mb-1">Select Student</label>
+                <select
+                  value={selectedStudentId}
+                  onChange={(e) => setSelectedStudentId(e.target.value)}
+                  className="w-full rounded-xl bg-slate-50 border border-slate-200 py-2.5 px-4 text-sm outline-none focus:border-blue-500 transition-colors appearance-none"
+                >
+                  <option value="" disabled>-- Choose a student --</option>
+                  {students.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} (Roll: {s.rollNo})
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-800">{student.name}</h2>
-                <p className="text-slate-500 text-sm">
-                  Class {student.class} - Roll {student.rollNo}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col items-start sm:items-end gap-2">
-              <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 border border-blue-100">
-                <HeartPulse size={12} /> {student.bloodGroup}
-              </span>
-              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold border ${getRiskStyle(student.risk).pill}`}>
-                <Activity size={12} /> {getRiskLabel(student.risk)}
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-6 sm:p-8 shadow-sm space-y-8">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-slate-800">
-                  Select Symptoms <span className="text-red-500">*</span>
-                </h3>
-                <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">Multi-select</span>
-              </div>
-              <div className="flex flex-wrap gap-2.5">
-                {symptomOptions.map((symptom) => {
-                  const isSelected = selectedSymptoms.includes(symptom);
-                  return (
-                    <button
-                      key={symptom}
-                      type="button"
-                      onClick={() => toggleSymptom(symptom)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
-                        isSelected
-                          ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/30 -translate-y-0.5"
-                          : "bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-blue-50"
-                      }`}
-                    >
-                      {symptom}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <hr className="border-slate-100" />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
-                    <AlertTriangle size={16} className={severity > 7 ? "text-red-500" : severity > 4 ? "text-amber-500" : "text-emerald-500"} />
-                    Severity Level
-                  </label>
-                  <span className={`text-sm font-bold ${severity > 7 ? "text-red-500" : severity > 4 ? "text-amber-500" : "text-emerald-500"}`}>
-                    {severity} / 10
+            )}
+            
+            {student && (
+              <>
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-full overflow-hidden border border-slate-200 shadow-inner">
+                    <img src={getStudentAvatar(student)} alt={student.name} className="h-full w-full object-cover" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-800">{student.name}</h2>
+                    <p className="text-slate-500 text-sm">
+                      Class {student.class} - Roll {student.rollNo}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-start sm:items-end gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700 border border-blue-100">
+                    <HeartPulse size={12} /> {student.bloodGroup}
+                  </span>
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold border ${getRiskStyle(student.risk).pill}`}>
+                    <Activity size={12} /> {getRiskLabel(student.risk)}
                   </span>
                 </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={severity}
-                  onChange={(event) => setSeverity(parseInt(event.target.value))}
-                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                />
-                <div className="flex justify-between text-xs text-slate-400 font-medium px-1">
-                  <span>Mild</span>
-                  <span>Moderate</span>
-                  <span>Severe</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-semibold text-slate-700">Temperature (F)</label>
-                  <div className="relative">
-                    <Thermometer size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={temperature}
-                      onChange={(event) => setTemperature(event.target.value)}
-                      placeholder="Optional"
-                      className="w-full rounded-xl bg-slate-50 border border-slate-200 py-2.5 pl-9 pr-4 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm text-sm font-medium"
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-semibold text-slate-700">Observation Date</label>
-                  <div className="relative">
-                    <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="date"
-                      value={date}
-                      onChange={(event) => setDate(event.target.value)}
-                      className="w-full rounded-xl bg-slate-50 border border-slate-200 py-2.5 pl-9 pr-4 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm text-sm font-medium"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-2 flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-slate-700">Additional Notes</label>
-                <textarea
-                  rows="4"
-                  value={notes}
-                  onChange={(event) => setNotes(event.target.value)}
-                  placeholder="Describe the symptoms, actions taken, or any other relevant information..."
-                  className="w-full rounded-xl bg-slate-50 border border-slate-200 p-4 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm text-sm resize-none"
-                ></textarea>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-slate-700">Photo Attachment</label>
-                <div className="flex-1 w-full border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex flex-col items-center justify-center gap-2 text-slate-400 hover:bg-slate-100 hover:border-blue-300 transition-colors cursor-pointer p-4 text-center">
-                  <UploadCloud size={24} className="text-slate-400" />
-                  <span className="text-xs font-medium text-slate-500">Click to upload photo<br />(Optional)</span>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
 
-          <div className="flex items-center justify-end gap-4 pt-2">
-            <button
-              type="button"
-              onClick={() => navigate(`/teacher/student-profile/${student.id}`)}
-              className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-8 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 transition-colors disabled:opacity-70 flex items-center gap-2"
-            >
-              {isSubmitting ? "Submitting..." : "Submit Observation"}
-            </button>
-          </div>
+          {student && (
+            <>
+              <div className="bg-white/70 backdrop-blur-xl border border-white rounded-3xl p-6 sm:p-8 shadow-sm space-y-8">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-slate-800">
+                      Select Symptoms <span className="text-red-500">*</span>
+                    </h3>
+                    <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">Multi-select</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2.5">
+                    {symptomOptions.map((symptom) => {
+                      const isSelected = selectedSymptoms.includes(symptom);
+                      return (
+                        <button
+                          key={symptom}
+                          type="button"
+                          onClick={() => toggleSymptom(symptom)}
+                          className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${
+                            isSelected
+                              ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/30 -translate-y-0.5"
+                              : "bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-blue-50"
+                          }`}
+                        >
+                          {symptom}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <hr className="border-slate-100" />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">
+                        <AlertTriangle size={16} className={severity > 7 ? "text-red-500" : severity > 4 ? "text-amber-500" : "text-emerald-500"} />
+                        Severity Level
+                      </label>
+                      <span className={`text-sm font-bold ${severity > 7 ? "text-red-500" : severity > 4 ? "text-amber-500" : "text-emerald-500"}`}>
+                        {severity} / 10
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="10"
+                      value={severity}
+                      onChange={(event) => setSeverity(parseInt(event.target.value))}
+                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    />
+                    <div className="flex justify-between text-xs text-slate-400 font-medium px-1">
+                      <span>Mild</span>
+                      <span>Moderate</span>
+                      <span>Severe</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-slate-700">Temperature (F)</label>
+                      <div className="relative">
+                        <Thermometer size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={temperature}
+                          onChange={(event) => setTemperature(event.target.value)}
+                          placeholder="Optional"
+                          className="w-full rounded-xl bg-slate-50 border border-slate-200 py-2.5 pl-9 pr-4 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm text-sm font-medium"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-semibold text-slate-700">Observation Date</label>
+                      <div className="relative">
+                        <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="date"
+                          value={date}
+                          onChange={(event) => setDate(event.target.value)}
+                          className="w-full rounded-xl bg-slate-50 border border-slate-200 py-2.5 pl-9 pr-4 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm text-sm font-medium"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="md:col-span-2 flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-slate-700">Additional Notes</label>
+                    <textarea
+                      rows="4"
+                      value={notes}
+                      onChange={(event) => setNotes(event.target.value)}
+                      placeholder="Describe the symptoms, actions taken, or any other relevant information..."
+                      className="w-full rounded-xl bg-slate-50 border border-slate-200 p-4 text-slate-800 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm text-sm resize-none"
+                    ></textarea>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-slate-700">Photo Attachment</label>
+                    <div className="flex-1 w-full border-2 border-dashed border-slate-300 rounded-xl bg-slate-50 flex flex-col items-center justify-center gap-2 text-slate-400 hover:bg-slate-100 hover:border-blue-300 transition-colors cursor-pointer p-4 text-center">
+                      <UploadCloud size={24} className="text-slate-400" />
+                      <span className="text-xs font-medium text-slate-500">Click to upload photo<br />(Optional)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/teacher/student-profile/${student.id}`)}
+                  className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-8 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 transition-colors disabled:opacity-70 flex items-center gap-2"
+                >
+                  {isSubmitting ? "Submitting..." : "Submit Observation"}
+                </button>
+              </div>
+            </>
+          )}
         </form>
       </div>
     </DashboardLayout>

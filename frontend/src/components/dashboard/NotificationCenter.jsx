@@ -15,10 +15,7 @@ function NotificationCenter() {
 
   const userId = user?.id || user?._id || `${role}-default`;
 
-  // Doctor observations for this user (students/parents/teachers).
-  // Doctors don't receive these (they create them); admin uses the activity feed.
-  const doctorNotifications = useMemo(() => {
-    if (role === "doctor" || role === "admin") return [];
+  const userNotifications = useMemo(() => {
     return getNotificationsForUser(userId, role);
   }, [getNotificationsForUser, userId, role]);
 
@@ -30,8 +27,9 @@ function NotificationCenter() {
       id: `${item.id}-${index}`,
       title: item.title,
       message: `${item.studentName}: ${item.description}`,
-      unread: index < 3,
+      unread: false,
       type: "activity",
+      raw: item,
     }));
   }, [students, role]);
 
@@ -40,27 +38,27 @@ function NotificationCenter() {
   // The type detection below in allNotifications handles the icon differentiation.
 
   const allNotifications = useMemo(() => {
-    const doctorItems = doctorNotifications.map((n) => ({
-      id: n.id,
-      title: n.message,
-      message: n.date,
+    const userItems = userNotifications.map((n) => ({
+      id: n.id || n._id,
+      title: n.title || n.message,
+      message: n.message || n.date,
       unread: !n.read,
-      type: n.metadata?.type === "vaccination-pending" ? "vaccination" : "doctor",
+      type: n.type === "vaccination-pending" || n.metadata?.type === "vaccination-pending" ? "vaccination" : "doctor",
       raw: n,
     }));
-    return [...doctorItems, ...activityNotifications];
-  }, [doctorNotifications, activityNotifications]);
+    return [...userItems, ...activityNotifications];
+  }, [userNotifications, activityNotifications]);
 
   const unreadCount = allNotifications.filter((n) => n.unread).length;
 
   const handleItemClick = (item) => {
-    if (item.type === "doctor") {
+    if (item.type === "doctor" || item.type === "vaccination") {
       markNotificationRead(item.id);
-      setOpen(false);
-      if (role === "student") navigate("/student/notifications");
-      if (role === "parent") navigate("/parent/notifications");
-      if (role === "teacher") navigate("/teacher/notifications");
     }
+    setOpen(false);
+    if (role === "student") navigate("/student/notifications");
+    if (role === "parent") navigate("/parent/notifications");
+    if (role === "teacher") navigate("/teacher/notifications");
   };
 
   const notifPath = role === "student"

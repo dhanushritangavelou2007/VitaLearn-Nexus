@@ -145,9 +145,6 @@ function Reports() {
                 <Download size={16} />
                 Export Excel
               </button>
-              <button onClick={() => printElement("reports-page")} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-700">
-                Print
-              </button>
             </div>
           </div>
         </GlassCard>

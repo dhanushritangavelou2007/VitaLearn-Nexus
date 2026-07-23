@@ -6,7 +6,7 @@ export const demoAccounts = [
   {
     role: "teacher",
     email: "teacher@vitalearn.ai",
-    password: "Teacher@123",
+    password: "VitaLearn2026!X",
     name: "Ms. Priya Sharma",
     label: "Teacher",
     dashboardPath: "/teacher/dashboard",
@@ -14,7 +14,7 @@ export const demoAccounts = [
   {
     role: "doctor",
     email: "doctor@vitalearn.ai",
-    password: "Doctor@123",
+    password: "VitaLearn2026!X",
     name: "Dr. Ananya Rao",
     label: "Doctor",
     dashboardPath: "/doctor/dashboard",
@@ -22,7 +22,7 @@ export const demoAccounts = [
   {
     role: "parent",
     email: "parent@vitalearn.ai",
-    password: "Parent@123",
+    password: "VitaLearn2026!X",
     name: "Mr. Rajesh Sharma",
     label: "Parent",
     dashboardPath: "/parent/dashboard",
@@ -30,7 +30,7 @@ export const demoAccounts = [
   {
     role: "student",
     email: "student@vitalearn.ai",
-    password: "Student@123",
+    password: "VitaLearn2026!X",
     name: "Aarav Sharma",
     label: "Student",
     dashboardPath: "/student/dashboard",
@@ -38,7 +38,7 @@ export const demoAccounts = [
   {
     role: "admin",
     email: "admin@vitalearn.ai",
-    password: "Admin@123",
+    password: "VitaLearn2026!X",
     name: "School Admin",
     label: "Admin",
     dashboardPath: "/admin/dashboard",

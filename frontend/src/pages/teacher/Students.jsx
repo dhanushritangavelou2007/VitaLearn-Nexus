@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
-import { Search, Filter, CheckCircle2, Clock, AlertCircle, MoreVertical, Eye, FilePlus, Activity, Trash2 } from "lucide-react";
+import { Search, Filter, CheckCircle2, Clock, AlertCircle, Eye, FilePlus, Activity, Trash2 } from "lucide-react";
 import { getRiskLabel, getRiskStyle, getStudentAvatar } from "../../data/students";
 import { useStudents } from "../../hooks/useStudents";
 import { useAuth } from "../../hooks/useAuth";
@@ -28,7 +28,6 @@ function Students({ selectionMode = "manage" }) {
     }
   }, [searchParams]);
 
-  const isReportSelection = selectionMode === "report";
   const canDeleteStudents = role === "teacher";
 
   const filteredStudents = useMemo(() => {
@@ -97,21 +96,19 @@ function Students({ selectionMode = "manage" }) {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
-              {isReportSelection ? "Select Student for Symptom Report" : "Student Management"}
+              Student Management
             </h1>
             <p className="text-slate-500 font-medium">
-              {isReportSelection ? "Choose a student to continue the teacher symptom workflow." : "View and manage student health profiles"}
+              View and manage student health profiles
             </p>
           </div>
-          {!isReportSelection && (
-            <button 
+          <button 
               onClick={() => navigate("/teacher/create-passport")}
               className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/30 hover:bg-blue-700 transition-all"
             >
               <FilePlus size={18} />
               Create Passport
             </button>
-          )}
         </div>
 
         {/* Filters & Search */}
@@ -200,17 +197,11 @@ function Students({ selectionMode = "manage" }) {
                         <button onClick={() => navigate(`/passport/${student.id}`)} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="View Profile">
                           <Eye size={18} />
                         </button>
-                        <button onClick={() => navigate(`/teacher/report-symptoms/${student.id}`)} className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title={isReportSelection ? "Select student" : "Report Symptoms"}>
-                          <Activity size={18} />
-                        </button>
-                        {canDeleteStudents && !isReportSelection && (
+                        {canDeleteStudents && (
                           <button onClick={() => void handleDelete(student.id)} className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Delete Student">
                             <Trash2 size={18} />
                           </button>
                         )}
-                        <button className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                          <MoreVertical size={18} />
-                        </button>
                       </div>
                     </td>
                   </tr>

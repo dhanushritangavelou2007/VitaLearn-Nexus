@@ -17,6 +17,8 @@ import GlassCard from "../../components/ui/GlassCard";
 import { Bell, CheckCircle2, Clock, Stethoscope, ChevronLeft, InboxIcon, MessageSquare, Syringe, AlertCircle } from "lucide-react";
 import { useMedicalReports } from "../../context/MedicalReportsContext";
 import { useAuth } from "../../hooks/useAuth";
+import { useStudents } from "../../hooks/useStudents";
+import { getRecentActivity } from "../../utils/studentAnalytics";
 
 function TeacherNotifications() {
   const navigate = useNavigate();
@@ -24,13 +26,30 @@ function TeacherNotifications() {
   const { getNotificationsForUser, getReportsForSender, markNotificationRead } = useMedicalReports();
 
   const userId = user?.id || user?._id || "teacher-default";
-  const allNotifications = getNotificationsForUser(userId, "teacher");
+  const { students } = useStudents();
+  const allUserNotifications = getNotificationsForUser(userId, "teacher");
+  
+  // Get activity notifications identical to the Bell icon
+  const activityNotifications = getRecentActivity(students, 5).map((item, index) => ({
+    id: `${item.id}-${index}`,
+    message: item.title,
+    date: `${item.studentName}: ${item.description}`,
+    read: true,
+    type: "activity",
+    raw: item
+  }));
+
+  const allNotifications = [
+    ...allUserNotifications.map(n => ({ ...n, id: n.id || n._id, message: n.title || n.message, date: n.message || n.date })),
+    ...activityNotifications
+  ];
+
   // Split into doctor-response and vaccination notifications
   const notifications = allNotifications.filter(
-    (n) => n.type !== "vaccination-pending" && n.metadata?.type !== "vaccination-pending"
+    (n) => n.type !== "vaccination-pending" && n.metadata?.type !== "vaccination-pending" && n.type !== "vaccination"
   );
   const vaccinationNotifications = allNotifications.filter(
-    (n) => n.type === "vaccination-pending" || n.metadata?.type === "vaccination-pending"
+    (n) => n.type === "vaccination-pending" || n.metadata?.type === "vaccination-pending" || n.type === "vaccination"
   );
   const myReports = getReportsForSender(userId, "teacher");
   const reviewedReports = myReports.filter((r) => r.status === "reviewed");
@@ -38,9 +57,30 @@ function TeacherNotifications() {
   const [selectedReport, setSelectedReport] = useState(null);
 
   const handleNotificationClick = (notif) => {
-    if (!notif.read) markNotificationRead(notif.id);
-    const report = myReports.find((r) => r.id === notif.reportId);
-    if (report) setSelectedReport(report);
+    if (!notif.read && notif.type !== "activity") markNotificationRead(notif.id || notif._id);
+    
+    if (notif.type === "activity") {
+      setSelectedReport({
+        symptoms: ["Activity Alert"],
+        observation: notif.raw.description,
+        diagnosis: notif.raw.title,
+        doctorReview: `Student: ${notif.raw.studentName}\nRisk level: ${notif.raw.risk}`,
+        recommendation: "Please review the student's passport for a full timeline of events.",
+        observationSentAt: notif.raw.date,
+      });
+      setTimeout(() => {
+        document.getElementById("review-history")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+      return;
+    }
+
+    const report = myReports.find((r) => String(r.id) === String(notif.metadata?.reportId || notif.reportId));
+    if (report) {
+      setSelectedReport(report);
+      setTimeout(() => {
+        document.getElementById("review-history")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
   };
 
   const unreadCount = allNotifications.filter((n) => !n.read).length;
@@ -132,8 +172,8 @@ function TeacherNotifications() {
               <Bell size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800">Doctor's Responses</h2>
-              <p className="text-sm text-slate-500">Notifications sent to you once the doctor reviews an observation you submitted</p>
+              <h2 className="text-lg font-bold text-slate-800">Recent Alerts &amp; Doctor Responses</h2>
+              <p className="text-sm text-slate-500">Student activity alerts and doctor responses to your observations</p>
             </div>
           </div>
 
@@ -173,7 +213,7 @@ function TeacherNotifications() {
                       <Clock size={10} /> {notif.date}
                     </p>
                     <p className="text-xs font-medium text-blue-600 mt-2 group-hover:text-blue-700 transition-colors">
-                      Click to view the doctor's full response →
+                      {notif.type === "activity" ? "Click to view alert details →" : "Click to view the doctor's full response →"}
                     </p>
                   </div>
                 </button>
@@ -183,7 +223,7 @@ function TeacherNotifications() {
         </GlassCard>
 
         {/* Doctor's Responses to observations */}
-        <GlassCard className="p-6">
+        <GlassCard id="review-history" className="p-6 scroll-mt-24">
           <div className="flex items-center gap-3 mb-5">
             <div className="rounded-2xl bg-emerald-50 p-2.5 text-emerald-600">
               <Stethoscope size={20} />
@@ -208,14 +248,40 @@ function TeacherNotifications() {
                 )}
               </div>
 
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle2 size={18} className="text-emerald-600" />
-                  <span className="font-bold text-emerald-800">Doctor's Response</span>
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle2 size={18} className="text-emerald-600" />
+                    <span className="font-bold text-emerald-800">Doctor's Observation</span>
+                  </div>
+                  <p className="text-sm text-emerald-900 leading-relaxed">{selectedReport.observation}</p>
                 </div>
-                <p className="text-sm text-emerald-900 leading-relaxed">{selectedReport.observation}</p>
+                {selectedReport.diagnosis && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Diagnosis</p>
+                    <p className="text-sm font-semibold text-slate-800">{selectedReport.diagnosis}</p>
+                  </div>
+                )}
+                {selectedReport.doctorReview && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Clinical Notes</p>
+                    <p className="text-sm text-slate-700 leading-relaxed">{selectedReport.doctorReview}</p>
+                  </div>
+                )}
+                {selectedReport.recommendation && (
+                  <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+                    <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-1">Recommendation</p>
+                    <p className="text-sm text-blue-900 leading-relaxed">{selectedReport.recommendation}</p>
+                  </div>
+                )}
+                {selectedReport.prescription && (
+                  <div className="rounded-2xl border border-purple-200 bg-purple-50 p-5">
+                    <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-1">Prescription</p>
+                    <p className="text-sm text-purple-900 leading-relaxed">{selectedReport.prescription}</p>
+                  </div>
+                )}
                 {selectedReport.observationSentAt && (
-                  <p className="text-xs text-emerald-600 mt-3 flex items-center gap-1">
+                  <p className="text-xs text-slate-500 mt-2 flex items-center gap-1 pl-2">
                     <Clock size={10} />
                     Sent on {new Date(selectedReport.observationSentAt).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                   </p>
