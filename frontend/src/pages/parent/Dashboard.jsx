@@ -8,7 +8,7 @@ import VaccinationProgressRing from "../../components/charts/VaccinationProgress
 import VaccinationCard from "../../components/profile/VaccinationCard";
 import GlassCard from "../../components/ui/GlassCard";
 import {
-  Bell, HeartPulse, ShieldCheck, Syringe, Stethoscope,
+  Bell, HeartPulse, ShieldCheck, Syringe, Stethoscope, Activity,
   CheckCircle2, Clock, User, Phone, Mail, BookOpen, AlertCircle, Download, FileText,
 } from "lucide-react";
 import { useStudents } from "../../hooks/useStudents";
@@ -213,18 +213,18 @@ function ParentDashboard() {
             bg="bg-blue-500"
           />
           <DashboardCard
-            title="Heart Rate"
-            value={child.vitals?.heartRate || "N/A"}
-            subtitle="bpm"
-            icon={HeartPulse}
+            title="Height"
+            value={child.vitals?.height || "N/A"}
+            subtitle="Current height"
+            icon={User}
             color="text-amber-600"
             bg="bg-amber-500"
           />
           <DashboardCard
-            title="Temperature"
-            value={child.vitals?.temperature ? `${child.vitals.temperature}°F` : "N/A"}
-            subtitle="Current temp"
-            icon={Bell}
+            title="Weight"
+            value={child.vitals?.weight || "N/A"}
+            subtitle="Current weight"
+            icon={Activity}
             color="text-slate-700"
             bg="bg-slate-700"
           />
