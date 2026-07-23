@@ -38,10 +38,16 @@ The application dynamically routes users to custom-built dashboards based on the
 - **🩺 Doctor Portal**: Review a prioritized queue of pending student health reports, issue direct clinical notes, and manage prescriptions.
 - **⚙️ Admin Portal**: Monitor system-wide health analytics, oversee platform adoption, and manage user roles.
 
+<<<<<<< HEAD
 ### 🏥 Direct Clinical Workflow
 - Students and Teachers can submit detailed health observations.
 - Doctors receive these observations in a streamlined "Appointments" queue.
 - With a single click, Doctors can **diagnose**, write clinical notes, and issue prescriptions directly back to the student.
+=======
+- **Frontend**: React 18, Vite, Tailwind CSS, Lucide Icons, Recharts
+- **Backend**: Node.js, Express.js
+- **Deployment**: Configured for unified single-link deployment (Frontend static files served via Express)
+>>>>>>> 526b10bc09fb79af2747488302d8c70902fbd9b8
 
 ### 🛡️ Granular Privacy Controls
 - Privacy is paramount. Students have explicit control over their medical data.
