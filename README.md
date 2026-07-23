@@ -8,8 +8,8 @@
 
 Transforming school healthcare management through AI, automation, real-time analytics, and connected digital health records.
 
-![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=nodedotjs&logoColor=white)
 
 
@@ -76,7 +76,7 @@ Teachers can:
 
 - Add and manage students
 - Maintain student health profiles
-- Upload health observations
+- Upload health observations and report symptoms
 - Generate digital health passports
 - Track class wellness statistics
 - View AI-generated insights
@@ -94,8 +94,8 @@ Doctors can:
 - Prioritize critical cases
 - Add clinical notes
 - Provide medical recommendations
-- Edit AI-generated summaries
 - Monitor consultation records
+- Add vaccinations and maintain medical reports
 
 
 ---
@@ -119,10 +119,11 @@ Parents can:
 Students can:
 
 - Access personal health records
-- Track daily wellness activities
-- Monitor hydration and sleep habits
 - View health recommendations
 - Control privacy settings for sensitive information
+- View their passport
+- Report symptoms to the doctor
+- Access restricted medical records
 
 
 ---
@@ -193,7 +194,7 @@ The platform provides automated notifications for:
  │ Doctor   │
  └────┬─────┘
 
-        ↓
+      ↓
 
  React + Vite Frontend
 
@@ -203,11 +204,7 @@ The platform provides automated notifications for:
 
         ↓
 
- MongoDB Database
-
-        ↓
-
- AI Services
+   AI Reports
 
 ```
 
@@ -307,11 +304,7 @@ Create `.env` inside backend:
 ```env
 PORT=5000
 
-MONGODB_URI=your_mongodb_connection
-
 JWT_SECRET=your_secret_key
-
-GEMINI_API_KEY=your_ai_key
 
 CLOUDINARY_URL=your_cloudinary_url
 
