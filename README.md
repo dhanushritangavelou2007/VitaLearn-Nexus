@@ -1,138 +1,207 @@
 <div align="center">
-  <img src="./frontend/public/favicon.svg" alt="VitaLearn Nexus Logo" width="120" height="120" />
+  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/activity.svg" alt="VitaLearn Nexus Logo" width="120" height="120" />
   
-  # 🌟 VitaLearn Nexus 🌟
-  
-  **A Next-Generation, Multi-Role School Healthcare Management System**
+  # 🏥 VitaLearn Nexus
+
+  <h3 align="center">
+    AI-Powered Digital Healthcare Ecosystem for Schools
+  </h3>
+
+  <p align="center">
+    Transforming school healthcare management through automation, real-time analytics, and connected digital health records.
+  </p>
 
   [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://reactjs.org/)
   [![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
   [![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
   [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-  [![TailwindCSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 </div>
 
 ---
 
-<div align="center">
-  <i>Bridging the gap between education and healthcare by connecting students, parents, teachers, and medical professionals on a single, privacy-first platform.</i>
-</div>
+# 🌟 Overview
+
+**VitaLearn Nexus** is an intelligent school healthcare management platform designed to bridge the gap between students, parents, teachers, and doctors through a centralized digital ecosystem.
+
+The platform enables schools to maintain secure digital health passports, monitor student wellness, provide AI-assisted health insights, and improve communication between healthcare stakeholders.
+
+Instead of fragmented paper records and delayed communication, VitaLearn Nexus creates a **real-time, data-driven healthcare environment for educational institutions.**
 
 ---
 
-## 🚀 Overview
+# 🎯 Problem Statement
 
-**VitaLearn Nexus** is built for the modern educational ecosystem. It eliminates the friction of school health management by providing specialized, real-time dashboards for every stakeholder. From tracking a student's daily vitals and vaccinations to allowing doctors to directly issue prescriptions—everything happens in one secure, unified portal.
+Millions of students still rely on:
+- ❌ Paper-based medical records
+- ❌ Delayed parent-doctor communication
+- ❌ Lack of preventive health monitoring
+- ❌ Poor tracking of vaccinations and medical history
+- ❌ No centralized student wellness analytics
 
-Built with a premium **glassmorphism** aesthetic, micro-animations, and responsive design, VitaLearn Nexus proves that healthcare software can be beautiful, intuitive, and incredibly powerful.
-
----
-
-## ✨ Core Presentation Features
-
-These are the primary features we are showcasing for this hackathon:
-
-### 1. 🏥 Direct Doctor Diagnosis Workflow
-- The **Doctor Portal** features a smart "Appointments" queue that automatically prioritizes critical students.
-- Doctors can bypass queues and click **"Diagnose"** directly from their dashboard to instantly write clinical notes, issue prescriptions, and provide medical recommendations back to the student.
-
-### 2. 🛡️ Granular Student Privacy & Consent
-- Privacy is paramount. When students report symptoms, they use a **Privacy Toggle** to explicitly decide if their report (and the resulting doctor's diagnosis) should be shared with their parents or kept strictly confidential between them and the doctor.
-- The backend enforces this privacy check before dispatching any parent notifications.
-
-### 3. 📄 Dynamic Medical Passports
-- A centralized, comprehensive health summary for every student.
-- Passports contain recent vitals, active symptoms, chronic conditions, and full vaccination histories.
-- They can be instantly exported to highly polished **PDFs** for school records.
-
-### 4. 🔔 Targeted Real-Time Notifications
-- **Teachers**: Receive instant alerts when a student's health status changes, plus direct responses from doctors when they review classroom observations.
-- **Students**: Receive direct medical advice and prescriptions from doctors.
-- **Parents**: Stay informed about their child's health timeline (respecting student privacy choices).
-
-### 5. 🔐 5 Distinct Role-Based Portals
-The application dynamically routes users to custom-built dashboards based on their role:
-- **🎓 Student Portal**: Log daily symptoms, manage privacy, and view doctor reviews.
-- **👨‍👩‍👧 Parent Portal**: Monitor child's health timeline and school vaccinations.
-- **👩‍🏫 Teacher Portal**: Oversee classroom health and generate student passports.
-- **🩺 Doctor Portal**: Diagnose critical cases and manage clinical notes.
-- **⚙️ Admin Portal**: Monitor system-wide health analytics and platform adoption.
+Schools need a scalable healthcare solution that can:
+- Store student medical information digitally
+- Enable quick access during emergencies
+- Predict health risks early
+- Improve collaboration between parents, teachers, and doctors
 
 ---
 
-## 🛠️ Tech Stack Architecture
+# 💡 Our Solution
 
-**Frontend:**
-- **React 18 & Vite**: Lightning-fast rendering and instantaneous hot-module replacement.
-- **Tailwind CSS**: Utility-first styling utilized to create a stunning, responsive, glass-morphism UI.
-- **React Router v6**: Complex nested routing and protected role-based guards.
-- **Recharts**: For dynamic, interactive health trend visualizations.
-- **html2canvas & jsPDF**: For generating pixel-perfect Medical Passport PDFs on the fly.
-- **Lucide React**: Clean, modern iconography throughout the application.
-
-**Backend:**
-- **Node.js & Express.js**: Robust, RESTful API architecture.
-- **MongoDB & Mongoose**: Flexible NoSQL database for handling complex, nested health records.
-- **JSON Web Tokens (JWT)**: Secure, stateless authentication.
-- **Cloudinary**: Cloud-based storage for profile pictures and medical document uploads.
-- **Helmet & Rate-Limiting**: Industry-standard security middleware to protect API endpoints.
+VitaLearn Nexus provides:
+✅ Digital Health Passport  
+✅ Doctor-parent communication system  
+✅ Direct clinical intervention & diagnosis  
+✅ Student wellness & privacy tracking  
+✅ Automated medical report generation  
+✅ Health analytics dashboard  
+✅ Smart, targeted notification system  
+✅ 5 Distinct Role-based healthcare portals  
 
 ---
 
-## 🌍 One-Click Unified Deployment
+# 🚀 Key Features
 
-VitaLearn Nexus is configured for an incredibly simple deployment process. The Express backend is pre-configured to statically serve the compiled React frontend, meaning you can deploy the entire platform as a **Single Web Service**.
+## 👨‍🏫 Teacher Dashboard
+- Add and manage students
+- Maintain student health profiles and generate passports
+- Upload health observations directly to the doctor
+- Track class wellness statistics
 
-### Deploying to Render.com (Recommended)
-1. Fork or clone this repository and push it to your GitHub account.
-2. Go to [Render.com](https://render.com) and create a new **Web Service**.
-3. Connect your repository.
-4. Set the **Build Command**:
-   ```bash
-   npm run build
-   ```
-5. Set the **Start Command**:
-   ```bash
-   npm start
-   ```
-6. **(Optional)** Add your MongoDB URI and JWT Secret in the Environment Variables tab. *Note: If omitted, the app will safely fall back to a local Demo Mode suitable for hackathon presentations!*
-7. Click **Deploy**. Your frontend and backend will be live on a single URL!
+## 👨‍⚕️ Doctor Dashboard
+- Review prioritized queue of critical student health reports
+- Analyze health data and issue clinical notes
+- Prescribe medications and write recommendations instantly
+- Monitor chronic health cases
+
+## 👨‍👩‍👧 Parent Dashboard
+- View child's digital health passport
+- Track pending school vaccinations
+- Receive approved doctor updates and diagnoses
+- Monitor wellness activities
+
+## 👨‍🎓 Student Dashboard
+- Access personal health records
+- Log daily wellness activities and symptoms
+- **Privacy Controls**: Decide whether to share sensitive symptom reports with parents
+- View clinical recommendations
 
 ---
 
-## 💻 Local Development Setup
+# 🔔 Smart Notification System
 
-Want to run the project locally? It's easy!
+The platform provides automated notifications for:
+- Upcoming vaccinations
+- Doctor responses to symptom reports
+- Health alerts for teachers
+- Privacy-respected parent updates
 
-### Prerequisites
-- Node.js (v18+)
+---
 
-### Installation
+# 🛠️ Technology Stack
 
-1. **Clone the repository**
+**Frontend**
+- React.js 18
+- Vite
+- Tailwind CSS
+- React Router v6
+- Recharts
+- html2canvas & jsPDF
+
+**Backend**
+- Node.js
+- Express.js
+- MongoDB & Mongoose
+- JWT Authentication
+- Cloudinary (Document/Image Storage)
+
+---
+
+# ⚙️ Installation & Deployment
+
+VitaLearn Nexus is configured for a **Unified Single-Link Deployment**. The Express backend automatically serves the compiled static React frontend, meaning you only need to run one server in production.
+
+## Local Development Setup
+
+1. **Clone Repository**
    ```bash
    git clone https://github.com/yourusername/VitaLearn-Nexus.git
    cd VitaLearn-Nexus
    ```
 
-2. **Install all dependencies** (Frontend & Backend)
+2. **Install Dependencies** (Root, Frontend, and Backend)
    ```bash
    npm install --prefix backend
    npm install --prefix frontend
    npm install
    ```
 
-3. **Run the Application**
+3. **Environment Variables**
+   Create a `.env` file inside `backend/`:
+   ```env
+   PORT=5000
+   MONGODB_URI=your_mongodb_connection
+   JWT_SECRET=your_secret_key
+   CLOUDINARY_URL=your_cloudinary_url
+   ```
+
+4. **Run Concurrently (Dev Mode)**
    ```bash
    npm run dev
    ```
-   *This command runs both the Node API and the Vite Frontend concurrently.*
+   *Frontend runs on `http://localhost:5173`, Backend runs on `http://localhost:5000`*
 
-   **Frontend**: `http://localhost:5173`  
-   **Backend**: `http://localhost:5000`
+## 🌍 One-Click Cloud Deployment (Render.com)
+
+To host your project live on the web as a single application:
+1. Connect this repository to Render.com as a **Web Service**.
+2. Set the **Build Command**: `npm run build`
+3. Set the **Start Command**: `npm start`
+4. *Render will automatically install both frontend/backend dependencies, compile the React app, and serve it via Express.*
+
+---
+
+# 🔑 Demo Accounts
+
+You can test the 5 role-based portals using these mock credentials:
+
+- **Teacher**: `teacher@test.com` / `password123`
+- **Doctor**: `doctor@test.com` / `password123`
+- **Parent**: `parent@test.com` / `password123`
+- **Student**: `student@test.com` / `password123`
+- **Admin**: `admin@test.com` / `password123`
+
+---
+
+# 📊 Future Scope
+
+- **Healthcare Expansion**: Wearable device integration and real-time emergency health alerts.
+- **AI Advancement**: Predictive health analytics and personalized wellness plans based on historic passport data.
+- **Platform Growth**: Native mobile application and government healthcare integrations.
+
+---
+
+# 🌍 Impact
+
+VitaLearn Nexus aims to create:
+- **Safer Schools**: Quick access to student medical passports during emergencies.
+- **Healthier Students**: Early detection and direct clinical intervention.
+- **Better Communication**: A unified ecosystem for parents, doctors, teachers, and students.
+- **Digital Transformation**: Eradicating lost paper-based healthcare records.
+
+---
+
+# 🏆 Hackathon Highlights
+
+✔ Comprehensive multi-role dashboard architecture  
+✔ Real-world clinical workflow (Direct doctor diagnoses)  
+✔ Granular student privacy consent system  
+✔ Modern, responsive UI with unified deployment  
+✔ Real social impact  
 
 ---
 
 <div align="center">
-  <p><i>Developed with ❤️ for the Hackathon</i></p>
+  <p><b>Team Name:</b> VitaLearn Nexus</p>
+  <p><i>Developed with ❤️ for transforming student healthcare.</i></p>
 </div>
