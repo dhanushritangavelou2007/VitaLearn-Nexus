@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://vitalearn-nexus-backend-50tt1oybz-dhanushri.vercel.app",
+  baseURL: import.meta.env.VITE_API_URL || "https://vitalearn-nexus-backend.vercel.app",
   withCredentials: false,
 });
 
