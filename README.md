@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/activity.svg" alt="VitaLearn Nexus Logo" width="120" height="120" />
+  <img src="./frontend/public/favicon.svg" alt="VitaLearn Nexus Logo" width="120" height="120" />
   
   # 🌟 VitaLearn Nexus 🌟
   
@@ -28,39 +28,35 @@ Built with a premium **glassmorphism** aesthetic, micro-animations, and responsi
 
 ---
 
-## ✨ Key Features
+## ✨ Core Presentation Features
 
-### 🔐 5 Distinct Role-Based Portals
+These are the primary features we are showcasing for this hackathon:
+
+### 1. 🏥 Direct Doctor Diagnosis Workflow
+- The **Doctor Portal** features a smart "Appointments" queue that automatically prioritizes critical students.
+- Doctors can bypass queues and click **"Diagnose"** directly from their dashboard to instantly write clinical notes, issue prescriptions, and provide medical recommendations back to the student.
+
+### 2. 🛡️ Granular Student Privacy & Consent
+- Privacy is paramount. When students report symptoms, they use a **Privacy Toggle** to explicitly decide if their report (and the resulting doctor's diagnosis) should be shared with their parents or kept strictly confidential between them and the doctor.
+- The backend enforces this privacy check before dispatching any parent notifications.
+
+### 3. 📄 Dynamic Medical Passports
+- A centralized, comprehensive health summary for every student.
+- Passports contain recent vitals, active symptoms, chronic conditions, and full vaccination histories.
+- They can be instantly exported to highly polished **PDFs** for school records.
+
+### 4. 🔔 Targeted Real-Time Notifications
+- **Teachers**: Receive instant alerts when a student's health status changes, plus direct responses from doctors when they review classroom observations.
+- **Students**: Receive direct medical advice and prescriptions from doctors.
+- **Parents**: Stay informed about their child's health timeline (respecting student privacy choices).
+
+### 5. 🔐 5 Distinct Role-Based Portals
 The application dynamically routes users to custom-built dashboards based on their role:
-- **🎓 Student Portal**: Log daily symptoms, track personal health scores, manage privacy, and view clinical recommendations.
-- **👨‍👩‍👧 Parent Portal**: Monitor your child's health timeline, view shared doctor diagnoses, and track pending school vaccinations.
-- **👩‍🏫 Teacher Portal**: Oversee classroom health trends, generate student medical passports, and receive instant alerts for critical student conditions.
-- **🩺 Doctor Portal**: Review a prioritized queue of pending student health reports, issue direct clinical notes, and manage prescriptions.
-- **⚙️ Admin Portal**: Monitor system-wide health analytics, oversee platform adoption, and manage user roles.
-
-<<<<<<< HEAD
-### 🏥 Direct Clinical Workflow
-- Students and Teachers can submit detailed health observations.
-- Doctors receive these observations in a streamlined "Appointments" queue.
-- With a single click, Doctors can **diagnose**, write clinical notes, and issue prescriptions directly back to the student.
-=======
-- **Frontend**: React 18, Vite, Tailwind CSS, Lucide Icons, Recharts
-- **Backend**: Node.js, Express.js
-- **Deployment**: Configured for unified single-link deployment (Frontend static files served via Express)
->>>>>>> 526b10bc09fb79af2747488302d8c70902fbd9b8
-
-### 🛡️ Granular Privacy Controls
-- Privacy is paramount. Students have explicit control over their medical data.
-- When reporting symptoms, students can use a **Privacy Toggle** to decide if the report and the resulting doctor's diagnosis should be shared with their parents or kept strictly confidential.
-
-### 📄 Dynamic Medical Passports
-- Teachers and Doctors can auto-generate comprehensive **Medical Passports** for any student.
-- Passports contain full vaccination histories, recent vitals, and chronic conditions.
-- Passports can be exported to highly polished **PDFs** instantly.
-
-### 📈 Automated Health Analytics
-- The system automatically aggregates reported symptoms and vitals to calculate real-time **Health Scores**.
-- Interactive charts (powered by Recharts) visualize health trends over time.
+- **🎓 Student Portal**: Log daily symptoms, manage privacy, and view doctor reviews.
+- **👨‍👩‍👧 Parent Portal**: Monitor child's health timeline and school vaccinations.
+- **👩‍🏫 Teacher Portal**: Oversee classroom health and generate student passports.
+- **🩺 Doctor Portal**: Diagnose critical cases and manage clinical notes.
+- **⚙️ Admin Portal**: Monitor system-wide health analytics and platform adoption.
 
 ---
 
