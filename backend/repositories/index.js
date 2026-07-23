@@ -93,32 +93,7 @@ function initDemoRepositories() {
   }));
   
   demoRepositories["Student"] = new ExtendedDemoRepository(mappedStudents);
-  demoRepositories["Report"] = new ExtendedDemoRepository([
-    {
-      _id: "demo-report-1",
-      student: "1",
-      studentId: "1",
-      type: "General Checkup",
-      status: "pending",
-      date: "2024-01-15",
-      risk: "observation",
-      senderId: "demo-user-0",
-      senderRole: "teacher",
-      senderName: "Ms. Priya Sharma",
-      symptoms: ["Fatigue"],
-      severity: 3,
-      notes: "[Re: Aarav Sharma] Seemed tired during morning assembly.",
-      observation: null,
-      observationSentAt: null,
-      diagnosis: null,
-      doctorReview: null,
-      recommendation: null,
-      prescription: null,
-      reviewedByName: null,
-      reviewedByRole: "doctor",
-      createdAt: "2024-01-15T09:00:00.000Z",
-    }
-  ]);
+  demoRepositories["Report"] = new ExtendedDemoRepository([]);
   demoRepositories["Notification"] = new ExtendedDemoRepository([]);
   demoRepositories["Appointment"] = new ExtendedDemoRepository([]);
 

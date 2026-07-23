@@ -50,7 +50,49 @@ export const createSymptomReport = asyncHandler(async (req, res) => {
     severity,
     risk: severity >= 7 ? "critical" : "review",
     date,
+    aiInsight: {
+      suggestions: severity >= 7 ? "Immediate medical attention required." : "Monitor for 24 hours.",
+      possibleCauses: symptoms.length > 0 ? symptoms.map(s => `Potential issue related to ${s}`) : ["General observation"],
+      riskLevel: severity >= 7 ? "critical" : (severity >= 4 ? "review" : "observation"),
+      recommendedAction: severity >= 7 ? "Urgent Doctor Review" : "Rest and hydration",
+      status: "pending"
+    }
   });
+
+  const { createNotification } = await import("../services/notificationService.js");
+  const UserRepo = getRepository("User");
+  
+  // Notify doctors
+  const doctors = await UserRepo.find({ role: "doctor" });
+  for (const doc of doctors) {
+    await createNotification({
+      recipient: doc._id || doc.id,
+      title: `New Symptom Report: ${student.name}`,
+      message: `Report submitted by ${req.user.name || "A user"} (${req.user.role}). Severity: ${severity}`,
+      type: "new-report",
+      metadata: { reportId: String(report._id || report.id), studentId: String(student._id || student.id) }
+    });
+  }
+
+  // Notify parent and student
+  if (student.parentUser && String(student.parentUser) !== String(req.user._id || req.user.id)) {
+    await createNotification({
+      recipient: student.parentUser,
+      title: `Symptom Report created for ${student.name}`,
+      message: `Report submitted by ${req.user.name || "A user"} (${req.user.role}).`,
+      type: "symptom-report",
+      metadata: { reportId: String(report._id || report.id), studentId: String(student._id || student.id) }
+    });
+  }
+  if (student.user && String(student.user) !== String(req.user._id || req.user.id)) {
+    await createNotification({
+      recipient: student.user,
+      title: `A symptom report has been submitted for you`,
+      message: `Report submitted by ${req.user.name || "A user"} (${req.user.role}).`,
+      type: "symptom-report",
+      metadata: { reportId: String(report._id || report.id), studentId: String(student._id || student.id) }
+    });
+  }
 
   const updatedTimeline = [
     ...(student.timeline || []),

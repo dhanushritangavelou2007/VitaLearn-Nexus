@@ -40,6 +40,15 @@ const reportSchema = new mongoose.Schema(
 
     // The student this report is about (string ID — demo-safe)
     studentId: { type: String, default: null },
+
+    // AI Medical Insight fields
+    aiInsight: {
+      suggestions: { type: String },
+      possibleCauses: [{ type: String }],
+      riskLevel: { type: String, enum: ["healthy", "observation", "review", "critical"] },
+      recommendedAction: { type: String },
+      status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" }
+    }
   },
   { timestamps: true }
 );

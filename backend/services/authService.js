@@ -47,11 +47,7 @@ export async function loginUser(email, password) {
 
   // Demo repository uses plain-text passwords
   if (
-    user.password === "Teacher@123" ||
-    user.password === "Doctor@123" ||
-    user.password === "Parent@123" ||
-    user.password === "Student@123" ||
-    user.password === "Admin@123"
+    user.password === "VitaLearn2026!X"
   ) {
     valid = user.password === password;
   } else {

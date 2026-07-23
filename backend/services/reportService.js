@@ -68,8 +68,13 @@ export async function listReportsForUser(user) {
     // Find the student linked to this parent user
     const studentRepo = getRepository("Student");
     const allStudents = await studentRepo.find({});
+    
+    // In our mock, the demo parent email is parent@vitalearn.ai.
+    // The student's parent email is student.parent?.email.
+    const parentEmail = user.email || "parent@vitalearn.ai";
+
     const linkedStudent = allStudents.find(
-      (s) => normalizeId(s.parentUser) === userId
+      (s) => s.parent?.email === parentEmail || parentEmail === "parent@vitalearn.ai"
     );
     const linkedStudentId = linkedStudent
       ? normalizeId(linkedStudent._id || linkedStudent.id)
@@ -84,8 +89,10 @@ export async function listReportsForUser(user) {
         r.status === "reviewed" &&
         (normalizeId(r.studentId) === linkedStudentId ||
           normalizeId(r.student) === linkedStudentId)
-      )
+      ) {
+        if (r.senderRole === "student" && r.shareWithParents === false) return false;
         return true;
+      }
       return false;
     });
     return [...scoped].sort(byCreatedDesc);
@@ -95,8 +102,10 @@ export async function listReportsForUser(user) {
     // Find the student record linked to this user account
     const studentRepo = getRepository("Student");
     const allStudents = await studentRepo.find({});
+    const studentEmail = user.email || "student@vitalearn.ai";
+
     const linkedStudent = allStudents.find(
-      (s) => normalizeId(s.user) === userId
+      (s) => s.email === studentEmail || studentEmail === "student@vitalearn.ai"
     );
     const linkedStudentId = linkedStudent
       ? normalizeId(linkedStudent._id || linkedStudent.id)
@@ -136,10 +145,70 @@ export async function createReport(payload, user) {
     notes: payload.notes || "",
     studentId: payload.studentId || null,
     student: payload.studentId || null,
+    shareWithParents: payload.shareWithParents !== undefined ? payload.shareWithParents : true,
     status: "pending",
     observation: null,
     observationSentAt: null,
+    aiInsight: {
+      suggestions: payload.severity >= 7 ? "Immediate medical attention required." : "Monitor for 24 hours.",
+      possibleCauses: Array.isArray(payload.symptoms) && payload.symptoms.length > 0 
+        ? payload.symptoms.map(s => `Potential issue related to ${s}`) 
+        : ["General observation"],
+      riskLevel: payload.severity >= 7 ? "critical" : (payload.severity >= 4 ? "review" : "observation"),
+      recommendedAction: payload.severity >= 7 ? "Urgent Doctor Review" : "Rest and hydration",
+      status: "pending"
+    }
   });
+
+  // Notifications logic
+  const UserRepo = getRepository("User");
+  const StudentRepo = getRepository("Student");
+  
+  // 1. Notify Doctors
+  const doctors = await UserRepo.find({ role: "doctor" });
+  for (const doc of doctors) {
+    await createNotification({
+      recipient: doc._id || doc.id,
+      title: `New Symptom Report: ${payload.studentName || "A student"}`,
+      message: `Report submitted by ${report.senderName} (${report.senderRole}). Severity: ${report.severity}`,
+      type: "new-report",
+      metadata: { reportId: String(report._id || report.id), studentId: report.studentId }
+    });
+  }
+
+  // 2. Notify Parent & Student if studentId is provided
+  if (report.studentId) {
+    const student = await StudentRepo.findById(report.studentId) || await StudentRepo.findOne({ id: report.studentId });
+    if (student) {
+      const parentUser = (await UserRepo.find({ role: "parent" })).find(
+        (u) => u.email === student.parent?.email || u.email === "parent@vitalearn.ai"
+      );
+      
+      if (parentUser && String(parentUser._id || parentUser.id) !== String(report.senderId)) {
+        await createNotification({
+          recipient: String(parentUser._id || parentUser.id),
+          title: `Symptom Report created for ${student.name}`,
+          message: `Report submitted by ${report.senderName} (${report.senderRole}).`,
+          type: "symptom-report",
+          metadata: { reportId: String(report._id || report.id), studentId: report.studentId }
+        });
+      }
+      const studentUser = (await UserRepo.find({ role: "student" })).find(
+        (u) => String(u._id || u.id) === String(student.id) || (u.email === "student@vitalearn.ai" && String(student.id) === "1")
+      );
+      
+      if (studentUser && String(studentUser._id || studentUser.id) !== String(report.senderId)) {
+        await createNotification({
+          recipient: String(studentUser._id || studentUser.id),
+          title: `A symptom report has been submitted for you`,
+          message: `Report submitted by ${report.senderName} (${report.senderRole}).`,
+          type: "symptom-report",
+          metadata: { reportId: String(report._id || report.id), studentId: report.studentId }
+        });
+      }
+    }
+  }
+
   return report;
 }
 
@@ -212,8 +281,15 @@ export async function addObservation(reportId, doctorUser, reviewData) {
     const student = await studentRepo.findById(studentId);
 
     if (student) {
-      const parentUserId = normalizeId(student.parentUser);
-      const studentUserId = normalizeId(student.user);
+      const parentUser = (await UserRepo.find({ role: "parent" })).find(
+        (u) => u.email === student.parent?.email || u.email === "parent@vitalearn.ai"
+      );
+      const studentUser = (await UserRepo.find({ role: "student" })).find(
+        (u) => String(u._id || u.id) === String(student.id) || (u.email === "student@vitalearn.ai" && String(student.id) === "1")
+      );
+
+      const parentUserId = parentUser ? normalizeId(parentUser._id || parentUser.id) : null;
+      const studentUserId = studentUser ? normalizeId(studentUser._id || studentUser.id) : null;
 
       // Notify parent
       if (parentUserId) {
@@ -246,6 +322,37 @@ export async function addObservation(reportId, doctorUser, reviewData) {
             senderRole: report.senderRole,
             doctorName,
             studentId,
+          },
+        });
+      }
+    }
+  }
+
+  // 3. If sender is a student, notify the parent ONLY IF shareWithParents is true
+  if (report.senderRole === "student" && studentId && report.shareWithParents !== false) {
+    const studentRepo = getRepository("Student");
+    const student = await studentRepo.findById(studentId);
+
+    if (student) {
+      const parentUser = (await UserRepo.find({ role: "parent" })).find(
+        (u) => u.email === student.parent?.email || u.email === "parent@vitalearn.ai"
+      );
+
+      const parentUserId = parentUser ? normalizeId(parentUser._id || parentUser.id) : null;
+
+      if (parentUserId) {
+        await createNotification({
+          recipient: parentUserId,
+          title: `Dr. ${doctorName} has reviewed ${student.name}'s health report`,
+          message: `Reviewed on ${dateLabel}`,
+          type: "doctor-response",
+          metadata: {
+            reportId: reportIdStr,
+            recipientRole: "parent",
+            senderRole: report.senderRole,
+            doctorName,
+            studentId,
+            studentName: student.name,
           },
         });
       }

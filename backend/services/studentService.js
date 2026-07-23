@@ -73,6 +73,8 @@ export async function getStudentById(id) {
 export async function updateStudent(id, payload) {
   const repo = getRepository("Student");
 
+  const oldStudent = await repo.findById(id);
+
   // Apply the raw payload first
   let updated = await repo.findByIdAndUpdate(id, payload);
 
@@ -94,6 +96,15 @@ export async function updateStudent(id, payload) {
     // Trigger vaccination notifications if vaccinations were updated
     if (payload.vaccinations) {
       await generateVaccinationNotifications(updated);
+    }
+
+    if (payload.appointments && oldStudent) {
+      const newAppointments = payload.appointments.filter(
+        (app) => !oldStudent.appointments?.some((old) => old.id === app.id)
+      );
+      if (newAppointments.length > 0) {
+        await generateAppointmentNotifications(updated, newAppointments);
+      }
     }
   }
 
@@ -139,5 +150,45 @@ async function generateVaccinationNotifications(student) {
     }
   } catch (err) {
     console.error("Failed to generate vaccination notifications:", err);
+  }
+}
+
+/**
+ * Generates notifications for Parent, Student, and Teacher when a Doctor submits an appointment.
+ */
+async function generateAppointmentNotifications(student, newAppointments) {
+  try {
+    const userRepo = getRepository("User");
+    const allUsers = await userRepo.find({});
+    
+    // Find relevant recipients
+    const studentUser = allUsers.find((u) => String(u._id || u.id) === String(student.id) || (u.email === "student@vitalearn.ai" && String(student.id) === "1"));
+    const parentUser = allUsers.find((u) => u.role === "parent" && (u.email === student.parent?.email || u.email === "parent@vitalearn.ai"));
+    const teachers = allUsers.filter((u) => u.role === "teacher");
+
+    const recipients = [];
+    if (studentUser) recipients.push({ id: String(studentUser._id || studentUser.id), role: "student" });
+    if (parentUser) recipients.push({ id: String(parentUser._id || parentUser.id), role: "parent" });
+    teachers.forEach(t => recipients.push({ id: String(t._id || t.id), role: "teacher" }));
+
+    for (const app of newAppointments) {
+      for (const recipient of recipients) {
+        await createNotification({
+          recipient: recipient.id,
+          title: `New Appointment Scheduled: ${student.name}`,
+          message: `Dr. Sarah scheduled an appointment for ${student.name} on ${app.scheduledAt}.`,
+          type: "appointment-created",
+          metadata: {
+            studentId: String(student._id || student.id),
+            studentName: student.name,
+            appointmentId: app.id,
+            scheduledAt: app.scheduledAt,
+            recipientRole: recipient.role,
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Failed to generate appointment notifications:", err);
   }
 }
