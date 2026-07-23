@@ -55,7 +55,10 @@ export const updateStudentAppointments = asyncHandler(async (req, res, next) => 
         title: `Appointment Accepted: ${student.name}`,
         message: `Parent has consented to the upcoming appointment.`,
         type: "appointment-accepted",
-        metadata: { studentId: String(student._id || student.id) }
+        metadata: { 
+          studentId: String(student._id || student.id),
+          recipientRole: "doctor"
+        }
       });
     }
   }

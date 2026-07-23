@@ -172,7 +172,11 @@ export async function createReport(payload, user) {
       title: `New Symptom Report: ${payload.studentName || "A student"}`,
       message: `Report submitted by ${report.senderName} (${report.senderRole}). Severity: ${report.severity}`,
       type: "new-report",
-      metadata: { reportId: String(report._id || report.id), studentId: report.studentId }
+      metadata: { 
+        reportId: String(report._id || report.id), 
+        studentId: report.studentId,
+        recipientRole: "doctor"
+      }
     });
   }
 
@@ -190,7 +194,11 @@ export async function createReport(payload, user) {
           title: `Symptom Report created for ${student.name}`,
           message: `Report submitted by ${report.senderName} (${report.senderRole}).`,
           type: "symptom-report",
-          metadata: { reportId: String(report._id || report.id), studentId: report.studentId }
+          metadata: { 
+            reportId: String(report._id || report.id), 
+            studentId: report.studentId,
+            recipientRole: "parent"
+          }
         });
       }
       const studentUser = (await UserRepo.find({ role: "student" })).find(
@@ -203,7 +211,11 @@ export async function createReport(payload, user) {
           title: `A symptom report has been submitted for you`,
           message: `Report submitted by ${report.senderName} (${report.senderRole}).`,
           type: "symptom-report",
-          metadata: { reportId: String(report._id || report.id), studentId: report.studentId }
+          metadata: { 
+            reportId: String(report._id || report.id), 
+            studentId: report.studentId,
+            recipientRole: "student"
+          }
         });
       }
     }
