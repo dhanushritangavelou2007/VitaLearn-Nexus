@@ -53,6 +53,14 @@ export function StudentProvider({ children }) {
     if (user) void Promise.resolve().then(loadData);
   }, [user, loadData]);
 
+  useEffect(() => {
+    if (!user) return;
+    const timer = setInterval(() => {
+      loadData().catch(() => {});
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [user, loadData]);
+
   // ── Mutations ────────────────────────────────────────────────
 
   const addStudent = useCallback(async (student) => {

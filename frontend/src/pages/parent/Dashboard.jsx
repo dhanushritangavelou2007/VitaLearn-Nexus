@@ -118,9 +118,9 @@ function ParentDashboard() {
     }
     try {
       await updateStudentAppointments(child.id, {
-        appointments: (child.appointments || []).map((a) =>
-          a.id === pendingAppointment.id ? { ...a, status: "confirmed", consent: "accepted" } : a
-        ),
+        appointmentId: pendingAppointment.id,
+        status: "confirmed",
+        consent: "accepted",
       });
       setConfirmationStatus("Appointment confirmed. Notification sent to teacher and doctor.");
     } catch (err) {

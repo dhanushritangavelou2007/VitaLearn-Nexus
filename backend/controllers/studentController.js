@@ -2,6 +2,7 @@ import { getRepository } from "../repositories/index.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { AppError } from "../utils/AppError.js";
 import { listStudents, getStudentById as getStudentServiceById, updateStudent as updateStudentService } from "../services/studentService.js";
+import { createNotification } from "../services/notificationService.js";
 
 export const getStudents = asyncHandler(async (req, res) => {
   const { items, pagination } = await listStudents(req.query, req.user);
@@ -44,6 +45,21 @@ export const updateStudentAppointments = asyncHandler(async (req, res, next) => 
   );
 
   const updated = await repo.findByIdAndUpdate(req.params.id, { appointments });
+
+  if (consent === "accepted") {
+    const UserRepo = getRepository("User");
+    const doctors = await UserRepo.find({ role: "doctor" });
+    for (const doc of doctors) {
+      await createNotification({
+        recipient: doc._id || doc.id,
+        title: `Appointment Accepted: ${student.name}`,
+        message: `Parent has consented to the upcoming appointment.`,
+        type: "appointment-accepted",
+        metadata: { studentId: String(student._id || student.id) }
+      });
+    }
+  }
+
   res.json({ success: true, data: updated });
 });
 
