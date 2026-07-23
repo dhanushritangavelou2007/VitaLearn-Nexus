@@ -41,7 +41,6 @@ Built for a Hackathon, VitaLearn Nexus prioritizes a premium user experience, im
 
 - **Frontend**: React 18, Vite, Tailwind CSS, Lucide Icons, Recharts
 - **Backend**: Node.js, Express.js
-- **Database**: MongoDB (Mongoose)
 - **Deployment**: Configured for unified single-link deployment (Frontend static files served via Express)
 
 ## 🚀 Quick Start (Local Development)
