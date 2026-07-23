@@ -450,10 +450,13 @@ Replacing traditional paper-based healthcare systems.
 
 ## 👥 Team VitaLearn Nexus
 
-DHANUSHRI TANGAVELOU
-JAYASREE.N.S
-ARADHANA SENTHIL
-SARUNITHA.S
+-DHANUSHRI TANGAVELOU
+
+-JAYASREE.N.S
+
+-ARADHANA SENTHIL
+
+-SARUNITHA.S
 
 </div>
 
