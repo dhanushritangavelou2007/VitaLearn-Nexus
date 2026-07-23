@@ -127,8 +127,8 @@ The platform provides automated notifications for:
 
 # 🏗️ System Architecture
 
-```text
-                Users
+
+     Users:
 
  ┌──────────┐
  │ Student  │
@@ -146,21 +146,17 @@ The platform provides automated notifications for:
  │ Doctor   │
  └────┬─────┘
 
-          ↓
+      ↓
 
-     React Frontend
+  React Frontend
 
-          ↓
+      ↓
 
-     Node.js + Express API
+ Node.js + Express API
 
-          ↓
+      ↓
 
-       MongoDB Database
-
-          ↓
-
-       AI Services
+ AI Suggestions
 ```
 
 ---
@@ -179,14 +175,9 @@ The platform provides automated notifications for:
 ## Backend
 - Node.js
 - Express.js
-- MongoDB & Mongoose
 - JWT Authentication
 - bcrypt
 
-## AI & Cloud
-- Gemini AI API
-- OCR Processing
-- Cloudinary (Cloud Storage Integration)
 
 ---
 
@@ -313,6 +304,10 @@ VitaLearn Nexus aims to create:
 
 <div align="center">
   <p><b>Team Name:</b> VitaLearn Nexus</p>
-  <p><i>Developed with ❤️ for transforming student healthcare.</i></p>
-  <p>This project is developed for educational and innovation purposes.</p>
-</div>
+  Team members:
+  - DHANUSHRI TANGAVELOU
+  - JAYASREE.N.S
+  - SARUNITHA.S
+  - AARADHANA.S
+
+  
